@@ -30,9 +30,9 @@ WaveSabre has been used in several intros and demos by [logicoma](http://www.pou
 
 ## Talks/seminars
 
-- [Massive Sound, Tiny Data - WaveSabre 64k Synth](https://youtu.be/JjFyHI1b_Tw?t=7246) ferris/h0ffman, [demobit](https://www.demobit.party/) 2019
-- [Ferris Makes Demos Ep.001 - WaveSabre](https://www.youtube.com/watch?v=V8JXraZPkh8) ferris, 2017 stream
-- [WaveSabre - A Case Study in 64k Synthesis](https://www.youtube.com/watch?v=wLX156OVFTA) ferris, [the gathering 2013](https://archive.gathering.org/tg13)
+- [Massive Sound, Tiny Data - WaveSabre 64k Synth](https://youtu.be/JjFyHI1b_Tw?t=7246) by ferris/h0ffman, [demobit](https://www.demobit.party/) 2019
+- [Ferris Makes Demos Ep.001 - WaveSabre](https://www.youtube.com/watch?v=V8JXraZPkh8) by ferris, 2017 stream
+- [WaveSabre - A Case Study in 64k Synthesis](https://www.youtube.com/watch?v=wLX156OVFTA) by ferris, [the gathering 2013](https://archive.gathering.org/tg13)
 
 ## License
 
