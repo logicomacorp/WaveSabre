@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\WaveSabreCore.h" />
+    <ClInclude Include=".\include\WaveSabreCore\Scissor.h" />
+    <ClInclude Include=".\include\WaveSabreCore\Falcon.h" />
+    <ClInclude Include="include\WaveSabreCore\Adultery.h" />
+    <ClInclude Include="include\WaveSabreCore\AllPass.h" />
+    <ClInclude Include="include\WaveSabreCore\AllPassDelay.h" />
+    <ClInclude Include="include\WaveSabreCore\Cathedral.h" />
+    <ClInclude Include="include\WaveSabreCore\Chamber.h" />
+    <ClInclude Include="include\WaveSabreCore\Comb.h" />
+    <ClInclude Include="include\WaveSabreCore\Crusher.h" />
+    <ClInclude Include="include\WaveSabreCore\DelayBuffer.h" />
+    <ClInclude Include="include\WaveSabreCore\Device.h" />
+    <ClInclude Include="include\WaveSabreCore\Devices.h" />
+    <ClInclude Include="include\WaveSabreCore\Echo.h" />
+    <ClInclude Include="include\WaveSabreCore\Envelope.h" />
+    <ClInclude Include=".\include\WaveSabreCore\BiquadFilter.h" />
+    <ClInclude Include="include\WaveSabreCore\GmDls.h" />
+    <ClInclude Include="include\WaveSabreCore\Helpers.h" />
+    <ClInclude Include="include\WaveSabreCore\Leveller.h" />
+    <ClInclude Include="include\WaveSabreCore\MxcsrFlagGuard.h" />
+    <ClInclude Include="include\WaveSabreCore\ResampleBuffer.h" />
+    <ClInclude Include="include\WaveSabreCore\SamplePlayer.h" />
+    <ClInclude Include="include\WaveSabreCore\Slaughter.h" />
+    <ClInclude Include="include\WaveSabreCore\Smasher.h" />
+    <ClInclude Include="include\WaveSabreCore\Specimen.h" />
+    <ClInclude Include="include\WaveSabreCore\StateVariableFilter.h" />
+    <ClInclude Include="include\WaveSabreCore\SynthDevice.h" />
+    <ClInclude Include="include\WaveSabreCore\Thunder.h" />
+    <ClInclude Include="include\WaveSabreCore\Twister.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include=".\src\Scissor.cpp" />
+    <ClCompile Include=".\src\Falcon.cpp" />
+    <ClCompile Include="src\Adultery.cpp" />
+    <ClCompile Include="src\AllPass.cpp" />
+    <ClCompile Include="src\AllPassDelay.cpp" />
+    <ClCompile Include="src\Cathedral.cpp" />
+    <ClCompile Include="src\Chamber.cpp" />
+    <ClCompile Include="src\Comb.cpp" />
+    <ClCompile Include="src\Crusher.cpp" />
+    <ClCompile Include="src\DelayBuffer.cpp" />
+    <ClCompile Include="src\Device.cpp" />
+    <ClCompile Include="src\Echo.cpp" />
+    <ClCompile Include="src\Envelope.cpp" />
+    <ClCompile Include=".\src\BiquadFilter.cpp" />
+    <ClCompile Include="src\GmDls.cpp" />
+    <ClCompile Include="src\Helpers.cpp" />
+    <ClCompile Include="src\Leveller.cpp" />
+    <ClCompile Include="src\MxcsrFlagGuard.cpp" />
+    <ClCompile Include="src\ResampleBuffer.cpp" />
+    <ClCompile Include="src\SamplePlayer.cpp" />
+    <ClCompile Include="src\Slaughter.cpp" />
+    <ClCompile Include="src\Smasher.cpp" />
+    <ClCompile Include="src\Specimen.cpp" />
+    <ClCompile Include="src\StateVariableFilter.cpp" />
+    <ClCompile Include="src\SynthDevice.cpp" />
+    <ClCompile Include="src\Thunder.cpp" />
+    <ClCompile Include="src\Twister.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{10660F3B-661C-4EDB-A27C-E7EC49577A6B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WaveSabreCore</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)lib\</OutDir>
+    <TargetName>$(ProjectName)D</TargetName>
+    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)lib\</OutDir>
+    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Msacm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MinSpace</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>Msacm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

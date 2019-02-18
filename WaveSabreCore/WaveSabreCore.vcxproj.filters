@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="include\WaveSabreCore.h" />
+    <ClInclude Include="include\WaveSabreCore\Device.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Envelope.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Helpers.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\SynthDevice.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Devices.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include=".\include\WaveSabreCore\Scissor.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include=".\include\WaveSabreCore\Falcon.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Slaughter.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Leveller.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Crusher.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include=".\include\WaveSabreCore\BiquadFilter.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\StateVariableFilter.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Thunder.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Echo.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Smasher.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\DelayBuffer.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Chamber.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Twister.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\AllPassDelay.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\ResampleBuffer.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Cathedral.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Comb.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\AllPass.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Adultery.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\GmDls.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\SamplePlayer.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\Specimen.h">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaveSabreCore\MxcsrFlagGuard.h">
+      <Filter>WaveSabreCore</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="WaveSabreCore">
+      <UniqueIdentifier>{cca19120-cfeb-47b1-ad6e-5bf5ef44ed47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WaveSabreCore\Devices">
+      <UniqueIdentifier>{8c5dda28-c46b-4436-a866-5d28344e0cab}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Device.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Envelope.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helpers.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SynthDevice.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include=".\src\Scissor.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include=".\src\Falcon.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Slaughter.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Leveller.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Crusher.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include=".\src\BiquadFilter.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StateVariableFilter.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Thunder.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Echo.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Smasher.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DelayBuffer.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Chamber.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Twister.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AllPassDelay.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ResampleBuffer.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Cathedral.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Comb.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AllPass.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Adultery.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GmDls.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SamplePlayer.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Specimen.cpp">
+      <Filter>WaveSabreCore\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MxcsrFlagGuard.cpp">
+      <Filter>WaveSabreCore</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
