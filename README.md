@@ -8,6 +8,10 @@ WaveSabre is a software synthesizer and toolchain for music for [64K intros](htt
 
 See [our docs](https://github.com/logicomacorp/WaveSabre/tree/master/Docs) for more info.
 
+## Getting started
+
+Please see [our docs](https://github.com/logicomacorp/WaveSabre/blob/master/Docs/Home.md#building) for prerequisites, building, etc (and let us know what we're missing!).
+
 ## Status/contributing
 
 As WaveSabre is hot and fresh right out of the oven, we've got some kinks to work out; particularly with documentation, support for latest Visual Studio versions, and supporting various VST SDK versions. We'd appreciate any help we can get on any of these fronts, so please talk to us on Slack so we can guide you in the right direction and help you help us!
