@@ -18,13 +18,13 @@ Contributions are very welcome, however as the public release is still in its in
 
 WaveSabre has been used in several intros and demos by [logicoma](http://www.pouet.net/groups.php?which=12638), including:
 
-- [backscatter](http://www.pouet.net/prod.php?which=65966), 2015
-- [elysian](http://www.pouet.net/prod.php?which=68375), 2016
-- [engage](http://www.pouet.net/prod.php?which=69658), 2017
-- [soundproof motion](http://www.pouet.net/prod.php?which=70460) (with [fairlight](http://www.pouet.net/groups.php?which=44)), 2017
-- [iota](http://www.pouet.net/prod.php?which=75718), 2018
-- [bros before foes](http://www.pouet.net/prod.php?which=77682) (with [poo-brain](http://www.pouet.net/groups.php?which=12000)), 2018
 - [trashpanda](http://www.pouet.net/prod.php?which=78634), 2018
+- [bros before foes](http://www.pouet.net/prod.php?which=77682) (with [poo-brain](http://www.pouet.net/groups.php?which=12000)), 2018
+- [iota](http://www.pouet.net/prod.php?which=75718), 2018
+- [soundproof motion](http://www.pouet.net/prod.php?which=70460) (with [fairlight](http://www.pouet.net/groups.php?which=44)), 2017
+- [engage](http://www.pouet.net/prod.php?which=69658), 2017
+- [elysian](http://www.pouet.net/prod.php?which=68375), 2016
+- [backscatter](http://www.pouet.net/prod.php?which=65966), 2015
 
 ..as well as several other executable music entries and smaller productions.
 
