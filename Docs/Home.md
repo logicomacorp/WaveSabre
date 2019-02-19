@@ -2,7 +2,7 @@
 
 ## Building
 
-- WaveSabre builds have only been tested with Visual Studio 2013
+- WaveSabre builds have only been tested with Visual Studio 2013 and version 3.6.6 of the VST3 SDK.
 - Due to licensing requirements, WaveSabre requires you to download and copy the VST3 SDK into the build yourself. Download, extract, and copy into the *"Vst3.x"* folder. See [this readme](https://github.com/logicomacorp/WaveSabre/blob/master/Vst3.x/README).
 - WaveSabre uses Premake 5.0 to generate project files.
   - Download a Premake 5.0 binary from here: http://premake.github.io/download.html
