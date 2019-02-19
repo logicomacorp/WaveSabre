@@ -28,6 +28,16 @@ WaveSabre has been used in several intros and demos by [logicoma](http://www.pou
 
 ..as well as several other executable music entries and smaller productions.
 
+## Team
+
+WaveSabre is made by [ferris](https://github.com/yupferris) and [h0ffman](https://github.com/djh0ffman) of [logicoma](https://github.com/logicomacorp), with additional contributions by:
+
+- [revival](https://github.com/revivalizer) (knob graphics, premake integration, helping with open-source prep, ...)
+- [cptd](https://github.com/cpdt) ([FL Studio project parser](https://github.com/logicomacorp/WaveSabre/tree/master/WaveSabreConvert/FLParser))
+- WS (logo)
+
+And several others! _(Please let us know if we forgot someone!)_
+
 ## Talks/seminars
 
 - [Massive Sound, Tiny Data - WaveSabre 64k Synth](https://youtu.be/JjFyHI1b_Tw?t=7246) by ferris/h0ffman, [demobit](https://www.demobit.party/) 2019
