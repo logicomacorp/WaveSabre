@@ -1,6 +1,6 @@
 # WaveSabre [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logicomacorp/WaveSabre#license)
 
-Official WaveSabre repository
+![WaveSabre](media/logo-black.png)
 
 ## Description
 
