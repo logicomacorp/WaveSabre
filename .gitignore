@@ -32,5 +32,6 @@ Vsts/build/
 Tests/PlayerTest/build/
 build/
 Vst3.x/*
+!Vst3.x/README
 Data/data.aps
 Vsts/*/*.def
