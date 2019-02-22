@@ -18,9 +18,8 @@ namespace WaveSabrePlayerLib
 
 	DirectSoundRenderThread::~DirectSoundRenderThread()
 	{
-		EnterCriticalSection(&criticalSection);
+		// We don't need to enter/leave a critical section here since we're the only writer at this point.
 		shutdown = true;
-		LeaveCriticalSection(&criticalSection);
 
 		WaitForSingleObject(thread, INFINITE);
 		DeleteCriticalSection(&criticalSection);
@@ -65,40 +64,33 @@ namespace WaveSabrePlayerLib
 
 		int oldPlayCursorPos = 0;
 		buffer->Play(0, 0, DSBPLAY_LOOPING);
-		bool isRunning = true;
-		while (isRunning)
+
+		// We don't need to enter/leave a critical section here since there's only one writer for this value.
+		while (!renderThread->shutdown)
 		{
 			EnterCriticalSection(&renderThread->criticalSection);
 
-			if (renderThread->shutdown)
+			int playCursorPos;
+			buffer->GetCurrentPosition((LPDWORD)&playCursorPos, 0);
+			int bytesToRender = playCursorPos - oldPlayCursorPos;
+			if (bytesToRender)
 			{
-				isRunning = false;
-			}
-			else
-			{
-				int playCursorPos;
-				buffer->GetCurrentPosition((LPDWORD)&playCursorPos, 0);
-				int bytesToRender = playCursorPos - oldPlayCursorPos;
-				if (bytesToRender)
+				if (bytesToRender < 0) bytesToRender += bufferSizeBytes;
+				if (bytesToRender >= 1000)
 				{
-					if (bytesToRender < 0) bytesToRender += bufferSizeBytes;
-					if (bytesToRender >= 1000)
-					{
-						SongRenderer::Sample *p1, *p2;
-						int b1, b2;
-						buffer->Lock(oldPlayCursorPos, bytesToRender, (LPVOID *)&p1, (LPDWORD)&b1, (LPVOID *)&p2, (LPDWORD)&b2, 0);
-						renderThread->callback(p1, b1 / sizeof(SongRenderer::Sample), renderThread->callbackData);
-						if (b2) renderThread->callback(p2, b2 / sizeof(SongRenderer::Sample), renderThread->callbackData);
-						buffer->Unlock(p1, b1, p2, b2);
-						oldPlayCursorPos = playCursorPos;
-					}
+					SongRenderer::Sample *p1, *p2;
+					int b1, b2;
+					buffer->Lock(oldPlayCursorPos, bytesToRender, (LPVOID *)&p1, (LPDWORD)&b1, (LPVOID *)&p2, (LPDWORD)&b2, 0);
+					renderThread->callback(p1, b1 / sizeof(SongRenderer::Sample), renderThread->callbackData);
+					if (b2) renderThread->callback(p2, b2 / sizeof(SongRenderer::Sample), renderThread->callbackData);
+					buffer->Unlock(p1, b1, p2, b2);
+					oldPlayCursorPos = playCursorPos;
 				}
 			}
 
 			LeaveCriticalSection(&renderThread->criticalSection);
 
-			if (isRunning)
-				Sleep(3);
+			Sleep(3);
 		}
 
 		buffer->Stop();
