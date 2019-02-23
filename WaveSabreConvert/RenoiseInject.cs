@@ -39,6 +39,7 @@ namespace WaveSabreConvert
             {
                 if (track.Events.Count > 0)
                 {
+                    logger.WriteLine(string.Format("Converting track: {0}", track.Name));
                     insList.Add(CreateInstrument(track));
                     trkList.Add(CreateTrack(track));
                 }
@@ -56,12 +57,26 @@ namespace WaveSabreConvert
             rnsSong.Instruments.Instrument = insList.ToArray();
             rnsSong.Tracks.Items = trkList.ToArray();
 
+            var trk = rnsSong.PatternPool.Patterns.Pattern[0].Tracks.Items[0];
+            var mst = rnsSong.PatternPool.Patterns.Pattern[0].Tracks.Items[1];
+
+            var patList = new List<object>();
+
+            for (var i = 0; i < trkList.Count; i++)
+            {
+                if (i == trkList.Count - 1)
+                    patList.Add(mst);
+                else
+                    patList.Add(trk);
+            }
+            rnsSong.PatternPool.Patterns.Pattern[0].Tracks.Items = patList.ToArray();
             return rnsSong;
         }
 
         private SequencerTrack CreateTrack(Song.Track track)
         {
             var rnsTrack = (SequencerTrack)Deserializer(trackTemplate, typeof(SequencerTrack));
+            rnsTrack.Name = track.Name;
 
             var fxList = new List<object>();
             fxList.Add(rnsTrack.FilterDevices.Devices.Items[0]);
