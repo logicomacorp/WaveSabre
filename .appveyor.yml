@@ -1,0 +1,20 @@
+version: '{build}'
+image: Visual Studio 2013
+
+cache:
+  - Vst3.x
+
+install:
+  - ps: |
+      if (-Not (Test-Path ".\Vst3.x\public.sdk")) {
+        Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
+        Expand-Archive "vstsdk.zip" "C:\tmp"
+        Copy-Item -Path "C:\tmp\VST3 SDK\*" -Destination ".\Vst3.x" -Recurse
+      }
+  - ps: |
+      Invoke-WebRequest "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha13/premake-5.0.0-alpha13-windows.zip" -OutFile "premake5.zip"
+      Expand-Archive "premake5.zip" "."
+
+build_script:
+  - .\premake5.exe vs2013
+  - msbuild /v:minimal /nologo
