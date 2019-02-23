@@ -76,6 +76,13 @@ namespace WaveSabrePlayerLib
 		class Track
 		{
 		public:
+			typedef struct
+			{
+				int SendingTrackIndex;
+				int ReceivingChannelIndex;
+				float Volume;
+			} Receive;
+
 			Track(SongRenderer *songRenderer, DeviceFactory factory);
 			~Track();
 			
@@ -85,15 +92,11 @@ namespace WaveSabrePlayerLib
 			static const int numBuffers = 4;
 		public:
 			float *Buffers[numBuffers];
+
+			int NumReceives;
+			Receive *Receives;
+
 		private:
-
-			typedef struct
-			{
-				int SendingTrackIndex;
-				int ReceivingChannelIndex;
-				float Volume;
-			} Receive;
-
 			class Automation
 			{
 			public:
@@ -122,9 +125,6 @@ namespace WaveSabrePlayerLib
 			SongRenderer *songRenderer;
 
 			float volume;
-
-			int numReceives;
-			Receive *receives;
 
 			int numDevices;
 			int *devicesIndicies;
