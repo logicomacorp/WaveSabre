@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\WaveSabrePlayerLib.h" />
+    <ClInclude Include="include\WaveSabrePlayerLib\CriticalSection.h" />
     <ClInclude Include="include\WaveSabrePlayerLib\IPlayer.h" />
     <ClInclude Include="include\WaveSabrePlayerLib\RealtimePlayer.h" />
     <ClInclude Include="include\WaveSabrePlayerLib\DirectSoundRenderThread.h" />
@@ -20,6 +21,7 @@
     <ClInclude Include="include\WaveSabrePlayerLib\WavWriter.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CriticalSection.cpp" />
     <ClCompile Include="src\IPlayer.cpp" />
     <ClCompile Include="src\RealtimePlayer.cpp" />
     <ClCompile Include="src\DirectSoundRenderThread.cpp" />

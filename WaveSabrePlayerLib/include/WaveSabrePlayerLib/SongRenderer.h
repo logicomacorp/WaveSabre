@@ -1,6 +1,8 @@
 #ifndef __WAVESABREPLAYERLIB_SONGRENDERER_H__
 #define __WAVESABREPLAYERLIB_SONGRENDERER_H__
 
+#include "CriticalSection.h"
+
 #include <WaveSabreCore.h>
 
 namespace WaveSabrePlayerLib
@@ -173,7 +175,7 @@ namespace WaveSabrePlayerLib
 
 		int numRenderThreads;
 		HANDLE *renderThreads;
-		CRITICAL_SECTION criticalSection;
+		CriticalSection criticalSection;
 
 		bool renderThreadShutdown;
 		int renderThreadNumFloatSamples;

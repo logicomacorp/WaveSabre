@@ -62,7 +62,6 @@ namespace WaveSabrePlayerLib
 			trackRenderStates[i] = TrackRenderState::Finished;
 		}
 
-		InitializeCriticalSection(&criticalSection);
 		this->numRenderThreads = numRenderThreads;
 		renderThreads = new HANDLE[numRenderThreads];
 		renderThreadShutdown = false;
@@ -80,7 +79,6 @@ namespace WaveSabrePlayerLib
 		renderThreadShutdown = true;
 
 		WaitForMultipleObjects(numRenderThreads, renderThreads, TRUE, INFINITE);
-		DeleteCriticalSection(&criticalSection);
 
 		delete [] renderThreads;
 
@@ -100,14 +98,14 @@ namespace WaveSabrePlayerLib
 		MxcsrFlagGuard mxcsrFlagGuard;
 
 		// Dispatch work for render threads
-		EnterCriticalSection(&criticalSection);
+		{
+			auto criticalSectionGuard = criticalSection.Enter();
 
-		for (int i = 0; i < numTracks; i++)
-			trackRenderStates[i] = TrackRenderState::Idle;
+			for (int i = 0; i < numTracks; i++)
+				trackRenderStates[i] = TrackRenderState::Idle;
 
-		renderThreadNumFloatSamples = numSamples / 2;
-
-		LeaveCriticalSection(&criticalSection);
+			renderThreadNumFloatSamples = numSamples / 2;
+		}
 
 		// Wait for render threads to complete their work
 		//  Note that we don't need to enter/leave a critical section here since we're the only reader at this point.
@@ -138,39 +136,39 @@ namespace WaveSabrePlayerLib
 		// We don't need to enter/leave a critical section here since there's only one writer for this value.
 		while (!songRenderer->renderThreadShutdown)
 		{
-			EnterCriticalSection(&songRenderer->criticalSection);
-
-			// If we just did some work, let's mark that as finished
-			if (nextTrackIndex < songRenderer->numTracks)
-				songRenderer->trackRenderStates[nextTrackIndex] = TrackRenderState::Finished;
-
-			// Check if any new work is available
-			nextTrackIndex = 0;
-			for (; nextTrackIndex < songRenderer->numTracks; nextTrackIndex++)
 			{
-				// If track isn't idle, skip it
-				if (songRenderer->trackRenderStates[nextTrackIndex] != TrackRenderState::Idle)
-					continue;
+				auto criticalSectionGuard = songRenderer->criticalSection.Enter();
 
-				// If any of the track's dependencies aren't finished, skip it
-				bool allDependenciesFinished = true;
-				for (int i = 0; i < songRenderer->tracks[nextTrackIndex]->NumReceives; i++)
+				// If we just did some work, let's mark that as finished
+				if (nextTrackIndex < songRenderer->numTracks)
+					songRenderer->trackRenderStates[nextTrackIndex] = TrackRenderState::Finished;
+
+				// Check if any new work is available
+				nextTrackIndex = 0;
+				for (; nextTrackIndex < songRenderer->numTracks; nextTrackIndex++)
 				{
-					if (songRenderer->trackRenderStates[songRenderer->tracks[nextTrackIndex]->Receives[i].SendingTrackIndex] != TrackRenderState::Finished)
+					// If track isn't idle, skip it
+					if (songRenderer->trackRenderStates[nextTrackIndex] != TrackRenderState::Idle)
+						continue;
+
+					// If any of the track's dependencies aren't finished, skip it
+					bool allDependenciesFinished = true;
+					for (int i = 0; i < songRenderer->tracks[nextTrackIndex]->NumReceives; i++)
 					{
-						allDependenciesFinished = false;
-						break;
+						if (songRenderer->trackRenderStates[songRenderer->tracks[nextTrackIndex]->Receives[i].SendingTrackIndex] != TrackRenderState::Finished)
+						{
+							allDependenciesFinished = false;
+							break;
+						}
 					}
+					if (!allDependenciesFinished)
+						continue;
+
+					// We have a free track that we can work on, yay! Let's mark it so that no other thread takes it.
+					songRenderer->trackRenderStates[nextTrackIndex] = TrackRenderState::Rendering;
+					break;
 				}
-				if (!allDependenciesFinished)
-					continue;
-
-				// We have a free track that we can work on, yay! Let's mark it so that no other thread takes it.
-				songRenderer->trackRenderStates[nextTrackIndex] = TrackRenderState::Rendering;
-				break;
 			}
-
-			LeaveCriticalSection(&songRenderer->criticalSection);
 
 			// If we were able to find work, let's do that; otherwise, we'll yield to other threads
 			if (nextTrackIndex < songRenderer->numTracks)
