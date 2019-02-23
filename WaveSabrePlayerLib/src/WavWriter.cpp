@@ -66,6 +66,9 @@ namespace WaveSabrePlayerLib
 		}
 
 		fclose(file);
+
+		if (callback)
+			callback(1.0, data);
 	}
 
 	void WavWriter::writeInt(int i, FILE *file)
