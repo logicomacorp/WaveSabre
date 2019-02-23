@@ -1,6 +1,6 @@
 ![WaveSabre](Media/logo-black.png)
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logicomacorp/WaveSabre#license) [![Slack](https://img.shields.io/badge/chat-Slack-orange.svg)](https://wavesabre-invites.herokuapp.com/)
+[![build status](https://ci.appveyor.com/api/projects/status/4su4q028eywtr5gl?svg=true)](https://ci.appveyor.com/project/yupferris/wavesabre) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logicomacorp/WaveSabre#license) [![Slack](https://img.shields.io/badge/chat-Slack-orange.svg)](https://wavesabre-invites.herokuapp.com/)
 
 ## Description
 
