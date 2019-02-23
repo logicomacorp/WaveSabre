@@ -36,7 +36,7 @@ namespace WaveSabrePlayerLib
 
 		static const int NumChannels = 2;
 
-		SongRenderer(const SongRenderer::Song *song);
+		SongRenderer(const SongRenderer::Song *song, int numRenderThreads);
 		~SongRenderer();
 
 		void RenderSamples(Sample *buffer, int numSamples);
@@ -139,11 +139,20 @@ namespace WaveSabrePlayerLib
 			int eventIndex;
 		};
 
+		enum class TrackRenderState
+		{
+			Idle,
+			Rendering,
+			Finished,
+		};
+
 		// TODO: Templatize? Might actually be bigger..
 		unsigned char readByte();
 		int readInt();
 		float readFloat();
 		double readDouble();
+
+		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
 
 		const unsigned char *songBlobPtr;
 		int songDataIndex;
@@ -160,7 +169,14 @@ namespace WaveSabrePlayerLib
 
 		int numTracks;
 		Track **tracks;
+		TrackRenderState *trackRenderStates;
 
+		int numRenderThreads;
+		HANDLE *renderThreads;
+		CRITICAL_SECTION criticalSection;
+
+		bool renderThreadShutdown;
+		int renderThreadNumFloatSamples;
 	};
 }
 

@@ -39,6 +39,8 @@ int main(int argc, char **argv)
 	bool writeWav = argc >= 3 && !strcmp(argv[2], "-w");
 	bool preRender = argc == 3 && !strcmp(argv[2], "-p");
 
+	const int numRenderThreads = 3;
+
 	FILE * pFile;
 	long lSize;
 	unsigned char * buffer;
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
 
 	if (writeWav)
 	{
-		WavWriter wavWriter(&song);
+		WavWriter wavWriter(&song, numRenderThreads);
 
 		printf("WAV writer activated.\n");
 
@@ -87,13 +89,13 @@ int main(int argc, char **argv)
 			printf("Prerender activated.\n");
 			printf("Rendering...\n");
 
-			player = new PreRenderPlayer(&song, progressCallback, nullptr);
+			player = new PreRenderPlayer(&song, numRenderThreads, progressCallback, nullptr);
 
 			printf("\n\n");
 		}
 		else
 		{
-			player = new RealtimePlayer(&song);
+			player = new RealtimePlayer(&song, numRenderThreads);
 		}
 
 		printf("Realtime player activated. Press ESC to quit.\n");

@@ -10,7 +10,7 @@ namespace WaveSabrePlayerLib
 	class RealtimePlayer : public IPlayer
 	{
 	public:
-		RealtimePlayer(const SongRenderer::Song *song, int bufferSizeMs = 1000);
+		RealtimePlayer(const SongRenderer::Song *song, int numRenderThreads, int bufferSizeMs = 1000);
 		virtual ~RealtimePlayer();
 
 		virtual void Play();
@@ -24,6 +24,7 @@ namespace WaveSabrePlayerLib
 		static void renderCallback(SongRenderer::Sample *buffer, int numSamples, void *data);
 
 		const SongRenderer::Song *song;
+		int numRenderThreads;
 		int bufferSizeMs;
 
 		unsigned int startTime;

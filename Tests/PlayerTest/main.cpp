@@ -19,9 +19,11 @@ int main(int argc, char **argv)
 	bool writeWav = argc >= 2 && !strcmp(argv[1], "-w");
 	bool preRender = argc == 2 && !strcmp(argv[1], "-p");
 
+	const int numRenderThreads = 3;
+
 	if (writeWav)
 	{
-		WavWriter wavWriter(&Song);
+		WavWriter wavWriter(&Song, numRenderThreads);
 
 		printf("WAV writer activated.\n");
 
@@ -40,13 +42,13 @@ int main(int argc, char **argv)
 			printf("Prerender activated.\n");
 			printf("Rendering...\n");
 
-			player = new PreRenderPlayer(&Song, progressCallback, nullptr);
+			player = new PreRenderPlayer(&Song, numRenderThreads, progressCallback, nullptr);
 
 			printf("\n\n");
 		}
 		else
 		{
-			player = new RealtimePlayer(&Song);
+			player = new RealtimePlayer(&Song, numRenderThreads);
 		}
 
 		printf("Realtime player activated. Press ESC to quit.\n");

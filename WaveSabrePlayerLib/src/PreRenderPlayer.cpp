@@ -2,9 +2,9 @@
 
 namespace WaveSabrePlayerLib
 {
-	PreRenderPlayer::PreRenderPlayer(const SongRenderer::Song *song, ProgressCallback callback, void *data, int playbackBufferSizeMs)
+	PreRenderPlayer::PreRenderPlayer(const SongRenderer::Song *song, int numRenderThreads, ProgressCallback callback, void *data, int playbackBufferSizeMs)
 	{
-		SongRenderer songRenderer(song);
+		SongRenderer songRenderer(song, numRenderThreads);
 
 		tempo = songRenderer.GetTempo();
 		sampleRate = songRenderer.GetSampleRate();

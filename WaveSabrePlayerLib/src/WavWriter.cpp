@@ -4,9 +4,9 @@
 
 namespace WaveSabrePlayerLib
 {
-	WavWriter::WavWriter(const SongRenderer::Song *song)
+	WavWriter::WavWriter(const SongRenderer::Song *song, int numRenderThreads)
 	{
-		songRenderer = new SongRenderer(song);
+		songRenderer = new SongRenderer(song, numRenderThreads);
 	}
 
 	WavWriter::~WavWriter()
