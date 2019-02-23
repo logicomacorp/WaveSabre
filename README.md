@@ -37,7 +37,7 @@ WaveSabre has been used in several intros and demos by [logicoma](http://www.pou
 WaveSabre is made by [ferris](https://github.com/yupferris) and [h0ffman](https://github.com/djh0ffman) of [logicoma](https://github.com/logicomacorp), with additional contributions by:
 
 - [revival](https://github.com/revivalizer) (knob graphics, premake integration, helping with open-source prep, ...)
-- [kusma](https://www.kusma.xyz/) (sin/cos optimization, ...)
+- [kusma](https://www.kusma.xyz/) (sin/cos optimization, appveyor config, ...)
 - [cptd](https://github.com/cpdt) ([FL Studio project parser](https://github.com/logicomacorp/WaveSabre/tree/master/WaveSabreConvert/FLParser))
 - [Wertstahl](http://wertstahl.de) (logo)
 
