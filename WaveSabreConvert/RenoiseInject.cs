@@ -34,14 +34,16 @@ namespace WaveSabreConvert
 
             var insList = new List<RenoiseInstrument>();
             var trkList = new List<object>();
+            var trkIndex = 0;
 
             foreach (var track in song.Tracks)
             {
                 if (track.Events.Count > 0)
                 {
                     logger.WriteLine(string.Format("Converting track: {0}", track.Name));
-                    insList.Add(CreateInstrument(track));
+                    insList.Add(CreateInstrument(track, trkIndex));
                     trkList.Add(CreateTrack(track));
+                    trkIndex++;
                 }
             }
 
@@ -105,7 +107,7 @@ namespace WaveSabreConvert
             return rnsDevice;
         }
 
-        private RenoiseInstrument CreateInstrument(Song.Track track)
+        private RenoiseInstrument CreateInstrument(Song.Track track, int index)
         {
             var ins = (RenoiseInstrument)Deserializer(instrumentTemplate, typeof(RenoiseInstrument));
 
@@ -119,6 +121,8 @@ namespace WaveSabreConvert
             plug.PluginDisplayName = string.Format("VST: Logicoma: {0}", deviceName);
             plug.PluginShortDisplayName = deviceName;
 
+            ins.PluginGenerator.OutputRoutings.OutputRouting[0].AssignedTrack = index;
+            ins.PluginGenerator.OutputRoutings.OutputRouting[0].AutoAssign = false;
             return ins;
         }
 

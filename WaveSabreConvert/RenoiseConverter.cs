@@ -16,10 +16,20 @@ namespace WaveSabreConvert
         private Dictionary<string, byte> hexLookUp = new Dictionary<string, byte>();
         private Dictionary<object, List<RnsReceive>> trackReceives;
         private List<object> visitedTracks, orderedTracks;
+        //private List<object> projectTracks;
+        private Dictionary<Song.Track, object> projectTracks;
+        private List<List<RnsPatternLineNode>> noteTracks;
+        private List<RnsAutoMap> automationMaps;
 
-        class RsnPatternLineNode : PatternLineNode 
+        class RnsPatternLineNode : PatternLineNode 
         {
             public int OrigianlIndex { get; set; }
+        }
+
+        class RnsAutoMap
+        {
+            public object AutoSource { get; set; }
+            public Song.Automation Auotmation { get; set;}
         }
 
         class RnsIns
@@ -27,6 +37,8 @@ namespace WaveSabreConvert
             public int InstrumentId { get; set; }
             public string Name { get; set; }
             public Song.Device Device { get; set; }
+            public int AssignedTrack { get; set; }
+            public object InstrumentSource { get; set; }
         }
 
         class RnsAuto
@@ -74,11 +86,26 @@ namespace WaveSabreConvert
             sampleRate = song.SampleRate;
 
             song.Length = GetSongLength();
+            
+            // put instruments into a nice list
+            GetInstruments();
 
+            // build all track notes into full picture of song
+            BuildSongPicture();
+
+            projectTracks = new Dictionary<Song.Track, object>();
+
+            // create tracks (with notes and automation) for each instrument
+            CreateInstrumentTracks();
+            
             var master = this.project.Tracks.Items.Where(track => track is SequencerMasterTrack).First();
 
             trackReceives = new Dictionary<object, List<RnsReceive>>();
-            foreach (var projectTrack in this.project.Tracks.Items) trackReceives.Add(projectTrack, new List<RnsReceive>());
+
+            foreach (var projectTrack in this.project.Tracks.Items)
+            {
+                trackReceives.Add(projectTrack, new List<RnsReceive>());
+            }
 
             // send mapping
             foreach (var projectTrack in this.project.Tracks.Items)
@@ -99,7 +126,7 @@ namespace WaveSabreConvert
 
                     if (found && !(device is SendDevice))
                     {
-                        logger.WriteLine("WARNING: Track {0} has device {1} after send", trackName, device);
+                        logger.WriteLine("WARNING: Track [{0}] has device [{1}] after send", trackName, device);
                     }
                 }
 
@@ -107,7 +134,7 @@ namespace WaveSabreConvert
                 {
                     if (send.MuteSource && sends.IndexOf(send) != sends.Count-1)
                     {
-                        logger.WriteLine("WARNING: Track {0} has muted send which is not the last send in the chain", trackName);
+                        logger.WriteLine("WARNING: Track [{0}] has muted send which is not the last send in the chain", trackName);
                     }
 
                     if (send.IsActive.Value == 1 && send.SendAmount.Value > 0)
@@ -117,7 +144,7 @@ namespace WaveSabreConvert
                     }
                     else
                     {
-                        logger.WriteLine("WARNING: Track {0} has disabled send", trackName);
+                        logger.WriteLine("WARNING: Track [{0}] has disabled send", trackName);
                     }
                 }
 
@@ -147,7 +174,7 @@ namespace WaveSabreConvert
                     else
                     {
                         // routed to specific soundcard output
-                        logger.WriteLine(string.Format("WARNING: Track {0} routing to soundcard?? WTF!", trackName));
+                        logger.WriteLine(string.Format("WARNING: Track [{0}] routing to soundcard?? WTF!", trackName));
                     }
                 }
             }
@@ -155,9 +182,9 @@ namespace WaveSabreConvert
             visitedTracks = new List<object>();
             orderedTracks = new List<object>();
 
+            // time to head down to DFS for a new sofa (and yes I appreciate only UK people will get this reference)
             VisitTrack(master);
 
-            GetInstruments();
 
             var projectTracksToSongTracks = new Dictionary<object, Song.Track>();
 
@@ -184,6 +211,96 @@ namespace WaveSabreConvert
             }
 
             return song;
+        }
+
+        private void CreateInstrumentTracks()
+        {
+            foreach (var ins in instruments)
+            {
+                if (ins.Device != null)
+                {
+                    var track = new Song.Track();
+                    track.Name = ins.Name;
+                    track.Devices = new List<Song.Device>();
+                    track.Devices.Add(ins.Device);
+
+                    PopulateInstrumentTrack(track, ins);
+
+                    if (track.Events.Count > 0)
+                    {
+                        projectTracks.Add(track, ins);
+                    }
+                    else
+                    {
+                        logger.WriteLine("WARNING: Instrument {0} has no note data, skipping", ins.Name);
+                    }
+                }
+            }
+        }
+
+        private void PopulateInstrumentTrack(Song.Track track, RnsIns instrument)
+        {
+            // specific track assign, midi can come from any track but audio must go to track
+            if (instrument.AssignedTrack >= 0)
+            {
+                List<Song.Event> events = new List<Song.Event>();
+
+                // loop each track for notes and collect any for this instrument
+                foreach (var notes in noteTracks)
+                {
+                    track.Events.AddRange(NotesToEvents(notes, instrument.InstrumentId));
+                }
+            }
+            else
+            {
+                // no specific track, so find first track with instrument id and warn that the rest are ignored
+                var trackId = -1;
+
+                foreach (var notes in noteTracks)
+                {
+                    var events = NotesToEvents(notes, instrument.InstrumentId);
+                    if (events.Count > 0 && trackId == -1)
+                    {
+                        trackId = noteTracks.IndexOf(notes);
+                        instrument.AssignedTrack = trackId;
+                        track.Events.AddRange(events);
+                    }
+                    else if (events.Count > 0)
+                    {
+                        string trackA = GetProp("Name", project.Tracks.Items[trackId]).ToString();
+                        string trackB = GetProp("Name", project.Tracks.Items[noteTracks.IndexOf(notes)]).ToString();
+                        
+                        // warning you pesky renoise users!
+                        logger.WriteLine(
+                            "WARNING: Instrument [{0}] dynamically using track [{1}] but also present on track [{2}], notes will be ignored", 
+                            instrument.Name,
+                            trackA,
+                            trackB);
+                    }
+                }
+            }
+
+            foreach (var auto in automationMaps)
+            {
+                if (auto.AutoSource is RenoiseInstrument)
+                {
+                    if (auto.AutoSource == instrument.InstrumentSource)
+                    {
+                        auto.Auotmation.DeviceIndex = 0;
+                        track.Automations.Add(auto.Auotmation);
+                    }
+                }
+            }
+
+            // all collected, now sort the events as they could come from multiple tracks
+            track.Events.Sort((a, b) =>
+            {
+                if (a.TimeStamp > b.TimeStamp) return 1;
+                if (a.TimeStamp < b.TimeStamp) return -1;
+                if (a.Type == Song.EventType.NoteOn && b.Type == Song.EventType.NoteOff) return 1;
+                if (a.Type == Song.EventType.NoteOff && b.Type == Song.EventType.NoteOn) return -1;
+                return 0;
+            });
         }
 
         private float GetTrackVolume(object trackDevice)
@@ -235,6 +352,264 @@ namespace WaveSabreConvert
             return sendTracks[id];
         }
 
+        private void BuildSongPicture()
+        {
+            noteTracks = new List<List<RnsPatternLineNode>>();
+
+            // copy all patterns out to full song
+            var songPatterns = new List<Pattern>();
+            foreach (var seq in project.PatternSequence.SequenceEntries.SequenceEntry)
+            {
+                songPatterns.Add(project.PatternPool.Patterns.Pattern[seq.Pattern]);
+            }
+
+            // loop each track and build full song picture of notes and automations
+            // because tracking in 2019 is stoopid!
+            for (var trackId = 0; trackId < project.Tracks.Items.Count(); trackId++)
+            {
+                // loop each pattern to create complete picture of notes and automations...
+                var allLines = new List<RnsPatternLineNode>();
+                int lineIndex = 0;
+                foreach (var pattern in songPatterns)
+                {
+                    var track = pattern.Tracks.Items[trackId];
+
+                    // grab current lines on pattern
+                    var currentLines = (PatternLineNode[])GetProp("Lines", track);
+
+                    if (currentLines != null)
+                    {
+                        foreach (PatternLineNode line in currentLines)
+                        {
+                            var newLine = new RnsPatternLineNode();
+                            newLine.NoteColumns = line.NoteColumns;
+                            newLine.EffectColumns = line.EffectColumns;
+                            newLine.OrigianlIndex = line.index;     // keep original index for groooooove
+                            newLine.index = line.index += lineIndex;
+                            newLine.type = line.type;
+                            allLines.Add(newLine);
+                        }
+                    }
+
+                    lineIndex += pattern.NumberOfLines;
+                }
+
+                noteTracks.Add(allLines);
+            }
+
+            // now create map of all automations
+            automationMaps = new List<RnsAutoMap>();
+            for (var trackId = 0; trackId < project.Tracks.Items.Count(); trackId++)
+            {
+                // automations....
+                int autoIndex = 0;
+                var allAuto = new List<Song.Automation>();
+                var autoGroup = new List<PatternTrackAutomation>();
+
+                foreach (var pattern in songPatterns)
+                {
+                    var track = pattern.Tracks.Items[trackId];
+                    var automations = (PatternTrackAutomation)GetProp("Automations", track);
+                    if (automations != null) autoGroup.Add(automations);
+                }
+
+                // generate distinct list of device id's and params used on this track
+                var pita = new List<PatternTrackEnvelope>();
+                if (autoGroup.Count > 0)
+                {
+                    var allEnv = autoGroup.Select(g => g.Envelopes);
+                    if (allEnv != null)
+                    {
+                        foreach (var temp in allEnv)
+                        {
+                            pita.AddRange(temp.Envelope);
+                        }
+                    }
+                }
+
+                var distinct = pita.Select(a => new { DeviceIndex = a.DeviceIndex, ParamId = a.ParameterIndex }).Distinct().ToList();
+
+                //  now populate each distinct device and param
+                foreach (var thisAuto in distinct)
+                {
+                    var thisAutoList = new List<RnsAuto>();
+                    int deviceIndex = thisAuto.DeviceIndex;
+                    int paramId = thisAuto.ParamId;
+
+                    autoIndex = 0;
+                    foreach (var pattern in songPatterns)
+                    {
+                        var track = pattern.Tracks.Items[trackId];
+                        var automations = (PatternTrackAutomation)GetProp("Automations", track);
+                        if (automations == null)
+                        {
+                            // pattern has no autos, add start / end from last auto value
+                            if (thisAutoList.Count > 0)
+                            {
+                                var newAuto = new RnsAuto();
+                                newAuto.TimePoint = 0; // <--- start of pattern
+                                newAuto.Value = thisAutoList.Last().Value;
+                                newAuto.AutoLength = pattern.NumberOfLines * 256;
+                                newAuto.Offset = autoIndex;
+                                thisAutoList.Add(newAuto);
+
+                                newAuto = new RnsAuto();
+                                newAuto.TimePoint = (pattern.NumberOfLines * 256) - 1; // <--- end of pattern
+                                newAuto.Value = thisAutoList.Last().Value;
+                                newAuto.AutoLength = pattern.NumberOfLines * 256;
+                                newAuto.Offset = autoIndex;
+                                thisAutoList.Add(newAuto);
+                            }
+                        }
+                        else
+                        {
+                            var myAutos = automations.Envelopes.Envelope.Where(a => a.DeviceIndex == deviceIndex && a.ParameterIndex == paramId);
+
+                            if (myAutos.ToList().Count == 0)
+                            {
+                                // this pattern has no autos, add start / end from last auto value
+                                if (thisAutoList.Count > 0)
+                                {
+                                    var newAuto = new RnsAuto();
+                                    newAuto.TimePoint = 0; // <--- start of pattern
+                                    newAuto.Value = thisAutoList.Last().Value;
+                                    newAuto.AutoLength = pattern.NumberOfLines * 256;
+                                    newAuto.Offset = autoIndex;
+                                    thisAutoList.Add(newAuto);
+
+                                    newAuto = new RnsAuto();
+                                    newAuto.TimePoint = (pattern.NumberOfLines * 256) - 1; // <--- end of pattern
+                                    newAuto.Value = thisAutoList.Last().Value;
+                                    newAuto.AutoLength = pattern.NumberOfLines * 256;
+                                    newAuto.Offset = autoIndex;
+                                    thisAutoList.Add(newAuto);
+                                }
+                            }
+                            else
+                            {
+                                // this pattern has automations..  so process
+                                foreach (var a in myAutos)
+                                {
+                                    var autoTemp = new List<RnsAuto>();
+                                    foreach (string point in a.Envelope.Points) // add all current points
+                                    {
+                                        var timePoint = Convert.ToInt32(point.Split(',')[0]);
+                                        var value = (float)Convert.ToDouble(point.Split(',')[1]);
+
+                                        var newAuto = new RnsAuto();
+                                        newAuto.TimePoint = timePoint;
+                                        newAuto.Value = value;
+                                        newAuto.AutoLength = a.Envelope.Length;
+                                        newAuto.Offset = autoIndex;
+                                        autoTemp.Add(newAuto);
+                                    }
+
+                                    // create auto point for the start of this pattern
+                                    if (autoTemp.First().TimePoint != 0)
+                                    {
+                                        var newAuto = new RnsAuto();
+                                        newAuto.TimePoint = 0; // <--- start of pattern
+                                        newAuto.Value = autoTemp.First().Value;
+                                        newAuto.AutoLength = autoTemp.First().AutoLength;
+                                        newAuto.Offset = autoIndex;
+                                        autoTemp.Insert(0, newAuto);
+                                    }
+
+                                    // create auto point for the end of this pattern
+                                    if (autoTemp.Last().TimePoint != autoTemp.Last().AutoLength - 1)
+                                    {
+                                        var newAuto = new RnsAuto();
+                                        newAuto.TimePoint = autoTemp.Last().AutoLength - 1; // <--- end of pattern
+                                        newAuto.Value = autoTemp.Last().Value;
+                                        newAuto.AutoLength = autoTemp.Last().AutoLength;
+                                        newAuto.Offset = autoIndex;
+                                        autoTemp.Add(newAuto);
+                                    }
+
+                                    thisAutoList.AddRange(autoTemp);
+                                }
+                            }
+                        }
+
+                        // next position
+                        autoIndex += pattern.NumberOfLines * 256;
+                    }
+
+                    // double check we have starting point for this auto in case of a blank pattern
+                    if (thisAutoList.First().TimePoint != 0)
+                    {
+                        var newAuto = new RnsAuto();
+                        newAuto.TimePoint = 0;                      // <--- start of pattern
+                        newAuto.Value = thisAutoList.First().Value;
+                        newAuto.AutoLength = thisAutoList.First().AutoLength;
+                        newAuto.Offset = autoIndex;
+                        thisAutoList.ToList().Insert(0, newAuto);
+                    }
+
+                    // all automation points for this device / param collated, now convert to our automations
+                    thisAutoList.ForEach(a => a.TimePoint += a.Offset);
+
+                    var finalAuto = new Song.Automation();
+                    finalAuto.DeviceIndex = deviceIndex;
+                    finalAuto.ParamId = paramId - 1;  // renoise param index is out by one due to automation on active flag
+
+                    foreach (var p in thisAutoList)
+                    {
+                        var point = new Song.Point();
+                        point.Value = p.Value;
+                        point.TimeStamp = SecondsToSamples(p.TimePoint / 256.00 * (double)secondsPerIndex, sampleRate);
+                        finalAuto.Points.Add(point);
+                    }
+
+                    allAuto.Add(finalAuto);
+                }
+
+                var tempTrack = project.Tracks.Items[trackId];
+                var trackName = GetProp("Name", tempTrack).ToString();
+
+                var devices = (TrackFilterDeviceChain)GetProp("FilterDevices", tempTrack);
+
+                foreach (var auto in allAuto)
+                {
+                    if (devices.Devices.Items[auto.DeviceIndex] is InstrumentAutomationDevice)
+                    {
+                        // TODO: Add it to the instrument auto bank
+                        var autoMap = new RnsAutoMap();
+                        autoMap.Auotmation = auto;
+                        autoMap.AutoSource = project.Instruments.Instrument[auto.DeviceIndex];
+                        automationMaps.Add(autoMap);
+                    }
+                    else if (devices.Devices.Items[auto.DeviceIndex] is PatternTrackAutomation)
+                    {
+                        // TODO: add it to the track dsp auto bank
+                        var autoMap = new RnsAutoMap();
+                        autoMap.Auotmation = auto;
+                        autoMap.AutoSource = devices.Devices.Items[auto.DeviceIndex];
+                        automationMaps.Add(autoMap);
+                    }
+                    else
+                    {
+                        // TODO: not sure how this could even happen!
+                        logger.WriteLine("WARNING: unknown automation device on track {0}", trackName);
+                    }
+                }
+
+                /*
+                foreach (var auto in allAuto)
+                {
+                    if (devices.Find(a => a.DeviceIndex == auto.DeviceIndex).Device is InstrumentAutomationDevice)
+                    {
+                        auto.DeviceIndex = 0;   // 0 is always instrument
+                    }
+                    else
+                    {
+                        auto.DeviceIndex = devices.IndexOf(
+                            devices.Find(a => a.DeviceIndex == auto.DeviceIndex && a.Device is Song.Device));
+                    }
+                }*/
+            }
+        }
+
         private Song.Track ConvertTrack(int trackId)
         {
             Song.Track songTrack = null;
@@ -246,7 +621,7 @@ namespace WaveSabreConvert
 
             var songPatterns = new List<Pattern>();
 
-            var allLines = new List<RsnPatternLineNode>();
+            var allLines = new List<RnsPatternLineNode>();
 
             // copy all patterns out to full song
             foreach (var seq in project.PatternSequence.SequenceEntries.SequenceEntry)
@@ -267,7 +642,7 @@ namespace WaveSabreConvert
                 {
                     foreach (PatternLineNode line in currentLines)
                     {
-                        var newLine = new RsnPatternLineNode();
+                        var newLine = new RnsPatternLineNode();
                         newLine.NoteColumns = line.NoteColumns;
                         newLine.EffectColumns = line.EffectColumns;
                         newLine.OrigianlIndex = line.index;     // keep original index for groooooove
@@ -645,9 +1020,76 @@ namespace WaveSabreConvert
             return (byte)((octave * 12) + noteVal);
         }
 
+        private List<Song.Event> NotesToEvents(List<RnsPatternLineNode> lines, int instrumentId)
+        {
+            var events = new List<Song.Event>();
+
+            // quit if no notes..
+            if (lines.Count == 0) return events;
+
+            var lanes = lines.Select(l => l.NoteColumns.NoteColumn).ToList().Max(x => x.Count());
+
+            bool[] active = new bool[lanes];
+            string[] lastNote = new string[lanes];
+            for (int i = 0; i < lanes; i++)
+            {
+                lastNote[i] = "";
+                active[i] = false;
+            }
+
+            foreach (var line in lines)
+            {
+                double eventTime = (double)line.index * secondsPerIndex;
+
+                // shift event time based on global groove
+                if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                {
+                    int shuffle = (line.OrigianlIndex % 8) / 2;
+                    double indexFraction = (double)secondsPerIndex / 3 * 2;
+                    indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
+                    eventTime += indexFraction;
+                }
+
+                for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
+                {
+                    string note = line.NoteColumns.NoteColumn[i].Note;
+                    byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
+
+                    // active and new note or off command
+                    if (active[i] && note != "")
+                    {
+                        active[i] = false;
+                        events.Add(new Song.Event()
+                        {
+                            TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
+                            Type = Song.EventType.NoteOff,
+                            Note = NoteToByte(lastNote[i])
+                        });
+                    }
+                    if (Convert.ToInt32(line.NoteColumns.NoteColumn[i].Instrument) == instrumentId)
+                    {
+                        // new note
+                        if (note != "OFF" && note != "")
+                        {
+                            active[i] = true;
+                            lastNote[i] = note;
+                            events.Add(new Song.Event()
+                            {
+                                TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
+                                Type = Song.EventType.NoteOn,
+                                Note = NoteToByte(note),
+                                Velocity = velocity
+                            });
+                        }
+                    }
+                    
+                }
+            }
+            return events;
+        }
 
         // converts tracker notes to midi
-        private List<Song.Event> NotesToEvents(List<RsnPatternLineNode> lines)
+        private List<Song.Event> NotesToEvents(List<RnsPatternLineNode> lines)
         {
             var events = new List<Song.Event>();
 
@@ -730,20 +1172,21 @@ namespace WaveSabreConvert
                 rnsins.Name = instrument.Name;
                 rnsins.InstrumentId = insId;
 
+                // I "think" we look in two places here as we dual support old and new file formats
                 AudioPluginDevice plug = null;
                 if (instrument.PluginGenerator != null)
                 {
                     plug = instrument.PluginGenerator.PluginDevice;
+                    rnsins.AssignedTrack = instrument.PluginGenerator.OutputRoutings.OutputRouting[0].AssignedTrack;
                 }
                 else if (instrument.PluginProperties != null)
                 {
                     plug = instrument.PluginProperties.PluginDevice;
+                    rnsins.AssignedTrack = instrument.PluginProperties.OutputRoutings.OutputRouting[0].AssignedTrack;
                 }
 
                 if (plug != null)
                 {
-                    //var plug = instrument.PluginGenerator.PluginDevice;
-
                     Song.Device device = null;
 
                     Song.DeviceId deviceId;
@@ -753,17 +1196,17 @@ namespace WaveSabreConvert
                         device.Id = deviceId;
                         device.Chunk = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
                         rnsins.Device = device;
+                        rnsins.InstrumentSource = instrument;
                     }
                     if (device == null)
                     {
-                        logger.WriteLine(string.Format("WARNING: Instrument {0}[{2}] skipped (unsupported plugin): {1}",
-                        instrument.Name, plug.PluginIdentifier, insId));
+                        logger.WriteLine(string.Format("WARNING: Instrument [{0}] skipped (unsupported plugin): {1}",
+                        instrument.Name, plug.PluginIdentifier));
                     }
                 }
                 else
                 {
-                    logger.WriteLine(string.Format("WARNING: Instrument {0}[{1}] skipped (not a vst plugin)",
-                    instrument.Name, insId));
+                    logger.WriteLine(string.Format("WARNING: [{0}] skipped (not a vst plugin)", instrument.Name));
                 }
 
                 instruments.Add(rnsins);
