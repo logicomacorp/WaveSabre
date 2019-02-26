@@ -38,14 +38,7 @@ namespace WaveSabreConvert
 
         public void Save(RenoiseSong song, string fileName)
         {
-            var songData = "";
-
-            var x = new System.Xml.Serialization.XmlSerializer(song.GetType());
-            using (StringWriter writer = new StringWriter())
-            {
-                x.Serialize(writer, song);
-                songData = writer.ToString();
-            }
+            var songData = Utils.Serializer(song);
 
             using (var fileStream = new FileStream(fileName, FileMode.Create))
             {

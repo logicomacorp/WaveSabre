@@ -26,11 +26,11 @@ namespace WaveSabreConvert
             
             var insTemplate = rnsSong.Instruments.Instrument[0];
 
-            instrumentTemplate = Serializer(rnsSong.Instruments.Instrument[0]);
+            instrumentTemplate = Utils.Serializer(rnsSong.Instruments.Instrument[0]);
             var trackTemp = (SequencerTrack)rnsSong.Tracks.Items[0];
-            trackTemplate = Serializer(trackTemp);
+            trackTemplate = Utils.Serializer(trackTemp);
             var fxTemp = (AudioPluginDevice)trackTemp.FilterDevices.Devices.Items[1];
-            fxTemplate = Serializer(fxTemp);
+            fxTemplate = Utils.Serializer(fxTemp);
 
             var insList = new List<RenoiseInstrument>();
             var trkList = new List<object>();
@@ -77,7 +77,7 @@ namespace WaveSabreConvert
 
         private SequencerTrack CreateTrack(Song.Track track)
         {
-            var rnsTrack = (SequencerTrack)Deserializer(trackTemplate, typeof(SequencerTrack));
+            var rnsTrack = (SequencerTrack)Utils.Deserializer(trackTemplate, typeof(SequencerTrack));
             rnsTrack.Name = track.Name;
 
             var fxList = new List<object>();
@@ -95,7 +95,7 @@ namespace WaveSabreConvert
 
         private AudioPluginDevice CreateDevice(Song.Device device)
         {
-            var rnsDevice = (AudioPluginDevice)Deserializer(fxTemplate, typeof(AudioPluginDevice));
+            var rnsDevice = (AudioPluginDevice)Utils.Deserializer(fxTemplate, typeof(AudioPluginDevice));
             
             var deviceName = device.Id.ToString();
             rnsDevice.Parameters.Parameter = null;
@@ -109,7 +109,7 @@ namespace WaveSabreConvert
 
         private RenoiseInstrument CreateInstrument(Song.Track track, int index)
         {
-            var ins = (RenoiseInstrument)Deserializer(instrumentTemplate, typeof(RenoiseInstrument));
+            var ins = (RenoiseInstrument)Utils.Deserializer(instrumentTemplate, typeof(RenoiseInstrument));
 
             var deviceName = track.Devices[0].Id.ToString();
 
@@ -124,46 +124,6 @@ namespace WaveSabreConvert
             ins.PluginGenerator.OutputRoutings.OutputRouting[0].AssignedTrack = index;
             ins.PluginGenerator.OutputRoutings.OutputRouting[0].AutoAssign = false;
             return ins;
-        }
-
-        private string Serializer(object o)
-        {
-            var data = "";
-
-            try
-            {
-                var x = new System.Xml.Serialization.XmlSerializer(o.GetType());
-                using (StringWriter writer = new StringWriter())
-                {
-                    x.Serialize(writer, o);
-                    data = writer.ToString();
-                }
-            }
-            catch
-            {
-            }
-
-            return data;
-        }
-
-        private object Deserializer(string data, Type type)
-        {
-            object output;
-
-            try
-            {
-                var x = new System.Xml.Serialization.XmlSerializer(type);
-                using (StringReader reader = new StringReader(data))
-                {
-                    output = x.Deserialize(reader);
-                }
-            }
-            catch
-            {
-                output = null;
-            }
-
-            return output;
         }
     }
 }

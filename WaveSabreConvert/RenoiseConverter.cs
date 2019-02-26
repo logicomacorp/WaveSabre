@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Renoise;
+using System.Text;
+using System.IO;
 
 namespace WaveSabreConvert
 {
@@ -726,6 +728,13 @@ namespace WaveSabreConvert
                 {
                     var plug = (AudioPluginDevice)device;
                     var sabreDevice = PlugToDevice(plug);
+
+                    // check if sabre device is inside a Metaplugin for side chaining
+                    if (plug.PluginIdentifier == "Metaplugin")
+                    {
+                        sabreDevice = RipMetaPlug(plug);
+                    }
+
                     if (sabreDevice == null)
                     {
                         logger.WriteLine(string.Format("WARNING: Track {0} has unkown plugin {1}", 
@@ -756,6 +765,103 @@ namespace WaveSabreConvert
             }
 
             return sabreDevices;
+        }
+
+        private Song.Device RipMetaPlug(AudioPluginDevice plug)
+        {
+            var plugData = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+            var meta = (AllData)MetaPlugConvert(plugData, typeof(AllData));
+            if (meta == null)
+                return null;
+
+            var input = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Input").First();
+            var output = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Output").First();
+            var sabre = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.manufacturer == "Logicoma").First();
+            var sendIt = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "SendIt").First();
+
+            if (input == null || output == null || sabre == null || sendIt == null)
+                return null;
+
+            // check input
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == input.uid
+                && c.dstFilter == sabre.uid
+                && c.dstChannel <= 1).Count() != 2)
+                return null;
+
+            // check output
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == sabre.uid
+                && c.dstFilter == output.uid
+                && c.dstChannel <= 1).Count() != 2)
+                return null;
+
+            // check sendit
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == sendIt.uid
+                && c.dstFilter == sabre.uid
+                && c.dstChannel >= 2).Count() != 2)
+                return null;
+
+            var sendItChunk = Utils.Dejucer(sendIt.STATE);
+
+            MYPLUGINSETTINGS sendItConfig;
+
+            using (var reader = new BinaryReader(new MemoryStream(sendItChunk)))
+            {
+                reader.BaseStream.Position = 0xA0;
+                sendItConfig = (MYPLUGINSETTINGS)MetaPlugConvert(reader, typeof(MYPLUGINSETTINGS));
+            }
+
+            byte[] sabreDeviceChunk;
+            using (var reader = new BinaryReader(new MemoryStream(sendItChunk)))
+            {
+                reader.BaseStream.Position = 0xA0-4;
+                var size = BigEndianInt(reader);
+                sabreDeviceChunk = reader.ReadBytes(size);
+            }
+
+            Song.Device device = null;
+            Song.DeviceId deviceId;
+            if (Enum.TryParse<Song.DeviceId>(sabre.PLUGIN.name, out deviceId))
+            {
+                device = new Song.Device();
+                device.Id = deviceId;
+                device.Chunk = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+            }
+
+            return device;
+        }
+
+        private int BigEndianInt(BinaryReader reader)
+        {
+            int result = 0;
+
+            result += (int)(reader.ReadByte() << (8 * 3));
+            result += (int)(reader.ReadByte() << (8 * 2));
+            result += (int)(reader.ReadByte() << (8 * 1));
+            result += (int)(reader.ReadByte());
+
+            return result;
+        }
+
+        private object MetaPlugConvert(byte[] chunk, Type type)
+        {
+            using (var reader = new BinaryReader(new MemoryStream(chunk)))
+            {
+                return MetaPlugConvert(reader, type);
+            }
+        }
+
+        private object MetaPlugConvert(BinaryReader reader, Type type)
+        {
+            var tag = new string(reader.ReadChars(4));
+            if (tag != "VC2!")
+                return null;
+
+            var size = reader.ReadInt32();
+            var xmlChunk = new string(reader.ReadChars(size));
+            return Utils.Deserializer(xmlChunk, type);
         }
 
         private Song.Device PlugToDevice(AudioPluginDevice plug)
