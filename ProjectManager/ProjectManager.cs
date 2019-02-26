@@ -107,7 +107,7 @@ namespace ProjectManager
                 var tempFile = Path.GetTempPath() + "WaveSabre.bin";
                 GetRid(tempFile);
                 File.WriteAllBytes(tempFile, bin);
-                var proc = Process.Start(@"WaveSabreStandAlonePlayer.exe", tempFile);
+                var proc = Process.Start(@"WaveSabreStandAlonePlayer.exe", string.Format("\"{0}\"", tempFile));
                 proc.WaitForExit();
                 GetRid(tempFile);
             }

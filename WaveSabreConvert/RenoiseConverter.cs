@@ -990,6 +990,8 @@ namespace WaveSabreConvert
                     rnsins.AssignedTrack = instrument.PluginProperties.OutputRoutings.OutputRouting[0].AssignedTrack;
                 }
 
+                var instrumentName = string.IsNullOrEmpty(instrument.Name) ? insId.ToString("X2") : instrument.Name;
+
                 if (plug != null)
                 {
                     Song.Device device = null;
@@ -1006,12 +1008,12 @@ namespace WaveSabreConvert
                     if (device == null)
                     {
                         logger.WriteLine(string.Format("WARNING: Instrument [{0}] skipped (unsupported plugin): {1}",
-                        instrument.Name, plug.PluginIdentifier));
+                        instrumentName, plug.PluginIdentifier));
                     }
                 }
                 else
                 {
-                    logger.WriteLine(string.Format("WARNING: [{0}] skipped (not a vst plugin)", instrument.Name));
+                    logger.WriteLine(string.Format("WARNING: Instrument [{0}] skipped (not a vst plugin)", instrumentName));
                 }
 
                 instruments.Add(rnsins);
