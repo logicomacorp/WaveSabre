@@ -267,6 +267,7 @@ namespace WaveSabreConvert
                     track.Name = ins.Name;
                     track.Devices = new List<Song.Device>();
                     track.Devices.Add(ins.Device);
+                    track.Volume = 1.0f;
 
                     PopulateInstrumentTrack(track, ins);
 
