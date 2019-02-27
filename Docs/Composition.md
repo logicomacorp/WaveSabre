@@ -24,8 +24,9 @@ There are two methods of grouping tracks. You can use Group Tracks to house mult
 - All send devices need to be at the end of the DSP chain
 - You can have ONE muted send device and it has to be the last send device in DSP chain
 - Group tracks are supported including nesting of group tracks
-- No effects commands can be used, only automations of wavesabre parameters are allowed
+- No effects commands can be used apart from note velocity, only automations of WaveSabre parameters are allowed
 - Global Groove parameters are supported
+- Song option of Track Headroom is supported, we think.
 
 ### Side chaining
 
@@ -52,3 +53,7 @@ Most of the basic functions are supported in FL Studio. Obviously more DAW speci
 - Play Truncated Notes On or Off is supported
 - Automation and midi clips can have varying start end end points
 - Tension value in automation is NOT supported
+
+## Composition - Reaper
+
+Most basic functions should be fine.  It is a very new converter and hasn't been fully tested by the community as yet.
