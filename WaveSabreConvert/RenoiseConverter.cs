@@ -18,7 +18,6 @@ namespace WaveSabreConvert
         private Dictionary<string, byte> hexLookUp = new Dictionary<string, byte>();
         private Dictionary<object, List<RnsReceive>> trackReceives;
         private List<object> visitedTracks, orderedTracks;
-        //private List<object> projectTracks;
         private Dictionary<Song.Track, object> instrumentTracks;
         private List<List<RnsPatternLineNode>> noteTracks;
         private List<RnsAutoMap> automationMaps;
@@ -54,7 +53,6 @@ namespace WaveSabreConvert
 
         class RnsDevice
         {
-            public int DeviceIndex { get; set; }
             public object Device { get; set; }
             public object DeviceSource { get; set; }
         }
@@ -194,6 +192,8 @@ namespace WaveSabreConvert
                 }
             }
 
+            SideChainRouting();
+
             // clean up, i.e. remove any sequencer tracks with no receiving signal
             var deleteMe = new List<object>();
 
@@ -220,7 +220,6 @@ namespace WaveSabreConvert
 
             // time to head down to DFS for a new sofa (and yes I appreciate only UK people will get this reference)
             VisitTrack(master);
-
 
             var projectTracksToSongTracks = new Dictionary<object, Song.Track>();
 
@@ -259,6 +258,87 @@ namespace WaveSabreConvert
             return song;
         }
 
+        private void SideChainRouting()
+        {
+            // side chain routing
+            foreach (var receive in trackReceives)
+            {
+                if (!(receive.Key is Song.Track))
+                {
+                    var trackName = GetProp("Name", receive.Key).ToString();
+                    // not an instrument track so check side chain routine
+                    var devices = (TrackFilterDeviceChain)GetProp("FilterDevices", receive.Key);
+                    foreach (var device in devices.Devices.Items)
+                    {
+                        if (device is AudioPluginDevice)
+                        {
+                            var plug = (AudioPluginDevice)device;
+                            if (plug.PluginIdentifier == "Metaplugin")
+                            {
+                                var meta = RipMetaSendIt(plug);
+                                if (meta != null)
+                                {
+                                    if (meta.Mode != 1)
+                                    {
+                                        logger.WriteLine("WARNING: MetaPlug on track [{0}] has incorrect config", trackName);
+                                        continue;
+                                    }
+
+                                    var source = GetSideChainSourceTracks(meta.Channel);
+                                    foreach (var sourceTrack in source)
+                                    {
+                                        receive.Value.Add(new RnsReceive(sourceTrack, 2, 1.0));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private List<object> GetSideChainSourceTracks(int channel)
+        {
+            var tracks = new List<object>();
+
+            // side chain searching
+            foreach (var receive in trackReceives)
+            {
+                if (!(receive.Key is Song.Track))
+                {
+                    var trackName = GetProp("Name", receive.Key);
+                    // not an instrument track so check side chain routine
+                    var devices = (TrackFilterDeviceChain)GetProp("FilterDevices", receive.Key);
+                    foreach (var device in devices.Devices.Items)
+                    {
+                        if (device is AudioPluginDevice)
+                        {
+                            var plug = (AudioPluginDevice)device;
+                            if (plug.PluginIdentifier == "SendIt")
+                            {
+                                if (devices.Devices.Items.ToList().IndexOf(plug) != devices.Devices.Items.Count() - 1)
+                                {
+                                    logger.WriteLine("WARNING: SendIt device on [{0}] not last in chain, results will be incorrect", trackName);
+                                }
+
+                                var sendItChunk = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+                                var sendIt = (MYPLUGINSETTINGS)MetaPlugConvert(sendItChunk, typeof(MYPLUGINSETTINGS));
+
+                                if (sendIt.Channel == channel && sendIt.Mode == 0)
+                                {
+                                    tracks.Add(receive.Key);
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            return tracks;
+        }
+
         private void CreateInstrumentTracks()
         {
             foreach (var ins in instruments)
@@ -269,8 +349,7 @@ namespace WaveSabreConvert
                     track.Name = ins.Name;
                     track.Devices = new List<Song.Device>();
                     track.Devices.Add(ins.Device);
-                    track.Volume = 1.0f;
-
+                    track.Volume = ((RenoiseInstrument)ins.InstrumentSource).PluginGenerator.Volume * project.GlobalSongData.GlobalTrackHeadroom;
                     PopulateInstrumentTrack(track, ins);
 
                     if (track.Events.Count > 0)
@@ -370,6 +449,21 @@ namespace WaveSabreConvert
                     {
                         muted = true;
                         break;
+                    }
+                }
+                
+                if (device is AudioPluginDevice)
+                {
+                    var plug = (AudioPluginDevice)device;
+                    if (plug.PluginIdentifier == "SendIt")
+                    {
+                        var sendItChunk = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+                        var sendIt = (MYPLUGINSETTINGS)MetaPlugConvert(sendItChunk, typeof(MYPLUGINSETTINGS));
+                        if (sendIt.PassThru == 0)
+                        {
+                            muted = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -638,23 +732,9 @@ namespace WaveSabreConvert
                     else
                     {
                         // TODO: not sure how this could even happen!
-                        logger.WriteLine("WARNING: unknown automation device on track {0}", trackName);
+                        logger.WriteLine("WARNING: unknown automation device on track [{0}]", trackName);
                     }
                 }
-
-                /*
-                foreach (var auto in allAuto)
-                {
-                    if (devices.Find(a => a.DeviceIndex == auto.DeviceIndex).Device is InstrumentAutomationDevice)
-                    {
-                        auto.DeviceIndex = 0;   // 0 is always instrument
-                    }
-                    else
-                    {
-                        auto.DeviceIndex = devices.IndexOf(
-                            devices.Find(a => a.DeviceIndex == auto.DeviceIndex && a.Device is Song.Device));
-                    }
-                }*/
             }
         }
 
@@ -735,10 +815,13 @@ namespace WaveSabreConvert
                         sabreDevice = RipMetaPlug(plug);
                     }
 
-                    if (sabreDevice == null)
+                    if (plug.PluginIdentifier != "SendIt")
                     {
-                        logger.WriteLine(string.Format("WARNING: Track {0} has unkown plugin {1}", 
-                            trackName, plug.PluginIdentifier));
+                        if (sabreDevice == null)
+                        {
+                            logger.WriteLine(string.Format("WARNING: Track {0} has unkown plugin {1}",
+                                trackName, plug.PluginIdentifier));
+                        }
                     }
 
                     if (plug.IsActive.Value == 0)
@@ -748,7 +831,7 @@ namespace WaveSabreConvert
                     }
                     else
                     {
-                        sabreDevices.Add(new RnsDevice() { DeviceIndex = deviceIndex, Device = sabreDevice, DeviceSource = plug });
+                        sabreDevices.Add(new RnsDevice() { Device = sabreDevice, DeviceSource = plug });
                     }
                 }
                 else
@@ -767,6 +850,26 @@ namespace WaveSabreConvert
             return sabreDevices;
         }
 
+        private MYPLUGINSETTINGS RipMetaSendIt(AudioPluginDevice plug)
+        {
+            var plugData = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+            var meta = (AllData)MetaPlugConvert(plugData, typeof(AllData));
+            if (meta == null)
+                return null;
+
+            if (!CheckMetaRouting(meta))
+                return null;
+
+            var sendIt = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "SendIt").First();
+            var metaChunk = Utils.Dejucer(sendIt.STATE);
+
+            using (var reader = new BinaryReader(new MemoryStream(metaChunk)))
+            {
+                reader.BaseStream.Position = 0xA0;
+                return (MYPLUGINSETTINGS)MetaPlugConvert(reader, typeof(MYPLUGINSETTINGS));
+            }
+        }
+
         private Song.Device RipMetaPlug(AudioPluginDevice plug)
         {
             var plugData = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
@@ -774,51 +877,17 @@ namespace WaveSabreConvert
             if (meta == null)
                 return null;
 
-            var input = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Input").First();
-            var output = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Output").First();
+            if (!CheckMetaRouting(meta))
+                return null;
+            
             var sabre = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.manufacturer == "Logicoma").First();
-            var sendIt = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "SendIt").First();
-
-            if (input == null || output == null || sabre == null || sendIt == null)
-                return null;
-
-            // check input
-            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
-                c.srcFilter == input.uid
-                && c.dstFilter == sabre.uid
-                && c.dstChannel <= 1).Count() != 2)
-                return null;
-
-            // check output
-            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
-                c.srcFilter == sabre.uid
-                && c.dstFilter == output.uid
-                && c.dstChannel <= 1).Count() != 2)
-                return null;
-
-            // check sendit
-            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
-                c.srcFilter == sendIt.uid
-                && c.dstFilter == sabre.uid
-                && c.dstChannel >= 2).Count() != 2)
-                return null;
-
-            var sendItChunk = Utils.Dejucer(sendIt.STATE);
-
-            MYPLUGINSETTINGS sendItConfig;
-
-            using (var reader = new BinaryReader(new MemoryStream(sendItChunk)))
-            {
-                reader.BaseStream.Position = 0xA0;
-                sendItConfig = (MYPLUGINSETTINGS)MetaPlugConvert(reader, typeof(MYPLUGINSETTINGS));
-            }
-
-            byte[] sabreDeviceChunk;
-            using (var reader = new BinaryReader(new MemoryStream(sendItChunk)))
+            var metaChunk = Utils.Dejucer(sabre.STATE);
+            byte[] sabreChunk;
+            using (var reader = new BinaryReader(new MemoryStream(metaChunk)))
             {
                 reader.BaseStream.Position = 0xA0-4;
                 var size = BigEndianInt(reader);
-                sabreDeviceChunk = reader.ReadBytes(size);
+                sabreChunk = reader.ReadBytes(size);
             }
 
             Song.Device device = null;
@@ -827,10 +896,44 @@ namespace WaveSabreConvert
             {
                 device = new Song.Device();
                 device.Id = deviceId;
-                device.Chunk = Convert.FromBase64String(FixBase64(plug.ParameterChunk));
+                device.Chunk = sabreChunk;
             }
 
             return device;
+        }
+
+        private bool CheckMetaRouting(AllData meta)
+        {
+            var input = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Input").First();
+            var output = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "Audio Output").First();
+            var sabre = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.manufacturer == "Logicoma").First();
+            var sendIt = meta.FILTERGRAPH.FILTER.Where(f => f.PLUGIN.name == "SendIt").First();
+
+            if (input == null || output == null || sabre == null || sendIt == null)
+                return false;
+
+            // check input
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == input.uid
+                && c.dstFilter == sabre.uid
+                && c.dstChannel <= 1).Count() != 2)
+                return false;
+
+            // check output
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == sabre.uid
+                && c.dstFilter == output.uid
+                && c.dstChannel <= 1).Count() != 2)
+                return false;
+
+            // check sendit
+            if (meta.FILTERGRAPH.CONNECTION.Where(c =>
+                c.srcFilter == sendIt.uid
+                && c.dstFilter == sabre.uid
+                && c.dstChannel >= 2).Count() != 2)
+                return false;
+
+            return true;
         }
 
         private int BigEndianInt(BinaryReader reader)
