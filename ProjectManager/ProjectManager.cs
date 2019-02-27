@@ -59,6 +59,7 @@ namespace ProjectManager
             buttonPlaySong.Enabled = true;
             buttonExportWav.Enabled = true;
             buttonProjectDetails.Enabled = true;
+            buttonExportRenoise.Enabled = true;
         }
 
         private void buttonSaveHeader_Click(object sender, EventArgs e)
@@ -106,7 +107,7 @@ namespace ProjectManager
                 var tempFile = Path.GetTempPath() + "WaveSabre.bin";
                 GetRid(tempFile);
                 File.WriteAllBytes(tempFile, bin);
-                var proc = Process.Start(@"WaveSabreStandAlonePlayer.exe", tempFile);
+                var proc = Process.Start(@"WaveSabreStandAlonePlayer.exe", string.Format("\"{0}\"", tempFile));
                 proc.WaitForExit();
                 GetRid(tempFile);
             }
@@ -152,6 +153,28 @@ namespace ProjectManager
         {
             var details = new ProjectDetails(song);
             details.ShowDialog();
+        }
+
+        private void buttonExportRenoise_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var inject = new RenoiseInject();
+                var rnsSong = inject.InjectPatches(song, logger);
+
+                var sfd = new SaveFileDialog();
+                sfd.Filter = "Renoise Song File|*.xrns";
+                sfd.FileName = fileName;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    var rnsParser = new RenoiseParser();
+                    rnsParser.Save(rnsSong, sfd.FileName);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message);
+            }
         }
     }
 }

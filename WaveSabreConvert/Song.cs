@@ -104,6 +104,11 @@ namespace WaveSabreConvert
             public int MidiLaneId;
             
             public int DataSize;
+
+            public override string ToString()
+            {
+                return this.Name;
+            }
         }
 
         public class MidiLane

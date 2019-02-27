@@ -16,23 +16,44 @@ There are two methods of grouping tracks. You can use Group Tracks to house mult
 
 ## Composition - Renoise
 
-- Each track can only use one instrument
-- Do not use the same instrument on two different tracks
-- Instrument automations must be on the same track as the instrument
+- Instruments can only route audio to a single track
+- Instruments Audio Routing options are supported
+  - If set to "Current Track" then the converter will determine the first track it is used on.  Any notes on subsequent tracks will be ignored.
+  - If set to specific track, the notes can appear on any track
+- Instrument automations can be on any track
 - All send devices need to be at the end of the DSP chain
 - You can have ONE muted send device and it has to be the last send device in DSP chain
 - Group tracks are supported including nesting of group tracks
-- No effects commands can be used, only automations of wavesabre parameters are allowed
+- No effects commands can be used apart from note velocity, only automations of WaveSabre parameters are allowed
 - Global Groove parameters are supported
+- Song option of Track Headroom is supported, we think.
 
 ### Side chaining
 
-Sadly this is not possible in Renoise due to its lack of support for multiple channel plugins.
+Side chaining is supported through the use of a third party plugin called MetaPlugin which is available from DDMF -> https://ddmf.eu/metaplugin-chainer-vst-au-rtas-aax-wrapper/
+
+Setup on ducking channel
+
+1. Add a MetaPlugin to the track which requires ducking.
+2. Within MetaPlugin, add a Smasher and a SendIt
+3. Connect the "Audio Input" device to input channels 1 and 2 of Smasher
+4. Connect the audio output of SendIt to input channels 3 and 4 of Smasher
+5. Connect output channels of Smasher to the "Audio Output" device
+6. Within SendIt, set it to Receive and the required Channel
+
+Setup on key channel
+
+1. Add a SendIt device, this has to be at the END of the DSP chain
+2. Set it to Send and the same channel as above
 
 ## Composition - FL Studio
 
-Most of the basic functions are supported in FL Studio. Obviously more DAW specific items, such as LFO automations, layering etc. are not supported
+Most of the basic functions are supported in FL Studio. Obviously more DAW specific items, such as LFO automations and so on are not supported
 
 - Play Truncated Notes On or Off is supported
 - Automation and midi clips can have varying start end end points
 - Tension value in automation is NOT supported
+
+## Composition - Reaper
+
+Most basic functions should be fine.  It is a very new converter and hasn't been fully tested by the community as yet.

@@ -47,13 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SendItConfig.cs" />
+    <Compile Include="Utils.cs" />
     <Compile Include="FLConverter.cs" />
     <Compile Include="ILog.cs" />
     <Compile Include="LiveConverter.cs" />
     <Compile Include="LiveParser.cs" />
     <Compile Include="LiveProject.cs" />
+    <Compile Include="MetaPlugin.cs" />
     <Compile Include="ProjectConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ReaperConverter.cs" />
     <Compile Include="ReaperElements\ReaperElement.cs" />
     <Compile Include="ReaperElements\ReaperProject.cs" />
@@ -61,11 +69,22 @@
     <Compile Include="ReaperElements\ReaperTrack.cs" />
     <Compile Include="ReaperParser.cs" />
     <Compile Include="RenoiseConverter.cs" />
+    <Compile Include="RenoiseInject.cs" />
     <Compile Include="RenoiseParser.cs" />
     <Compile Include="RenoiseSong63.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Song.cs" />
     <Compile Include="SongDiff.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Song.xml" />
+    <None Include="Resources\template.xrns" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
