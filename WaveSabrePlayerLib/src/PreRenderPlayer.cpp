@@ -12,7 +12,7 @@ namespace WaveSabrePlayerLib
 
 		const int stepSize = 100 * SongRenderer::NumChannels;
 		renderBufferSize = (int)((double)(sampleRate * SongRenderer::NumChannels) * songRenderer.GetLength()) / stepSize * stepSize;
-		renderBuffer = new SongRenderer::Sample[renderBufferSize];
+		renderBuffer = (SongRenderer::Sample *)malloc(sizeof(SongRenderer::Sample) * renderBufferSize);
 
 		int stepCounter = 0;
 
@@ -45,7 +45,7 @@ namespace WaveSabrePlayerLib
 		if (renderThread)
 			delete renderThread;
 
-		delete [] renderBuffer;
+		free(renderBuffer);
 	}
 
 	void PreRenderPlayer::Play()
