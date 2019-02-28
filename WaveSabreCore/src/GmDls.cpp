@@ -20,7 +20,7 @@ namespace WaveSabreCore
 		}
 
 		auto gmDlsFileSize = GetFileSize(gmDlsFile, NULL);
-		auto gmDls = new unsigned char[gmDlsFileSize];
+		auto gmDls = (unsigned char *)malloc(gmDlsFileSize);
 		unsigned int bytesRead;
 		ReadFile(gmDlsFile, gmDls, gmDlsFileSize, (LPDWORD)&bytesRead, NULL);
 		CloseHandle(gmDlsFile);

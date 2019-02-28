@@ -161,7 +161,7 @@ namespace WaveSabreCore
 					}
 				}
 
-				delete [] gmDls;
+				free(gmDls);
 			}
 			break;
 
