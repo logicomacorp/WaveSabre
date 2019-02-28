@@ -141,20 +141,28 @@ namespace WaveSabrePlayerLib
 			int eventIndex;
 		};
 
-		enum class TrackRenderState
+		enum class TrackRenderState : unsigned int
 		{
 			Idle,
 			Rendering,
 			Finished,
 		};
 
+		typedef struct
+		{
+			SongRenderer *songRenderer;
+			int renderThreadIndex;
+		} RenderThreadData;
+
+		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
+
+		bool renderThreadWork(int renderThreadIndex);
+
 		// TODO: Templatize? Might actually be bigger..
 		unsigned char readByte();
 		int readInt();
 		float readFloat();
 		double readDouble();
-
-		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
 
 		const unsigned char *songBlobPtr;
 		int songDataIndex;
@@ -174,11 +182,13 @@ namespace WaveSabrePlayerLib
 		TrackRenderState *trackRenderStates;
 
 		int numRenderThreads;
-		HANDLE *renderThreads;
-		CriticalSection criticalSection;
+		HANDLE *additionalRenderThreads;
 
 		bool renderThreadShutdown;
 		int renderThreadNumFloatSamples;
+		unsigned int renderThreadsRunning;
+		HANDLE *renderThreadStartEvents;
+		HANDLE renderDoneEvent;
 	};
 }
 
