@@ -44,8 +44,8 @@ namespace WaveSabreCore
 		float feedback, cross;
 		float dryWet;
 
-		DelayBuffer *leftBuffer;
-		DelayBuffer *rightBuffer;
+		DelayBuffer leftBuffer;
+		DelayBuffer rightBuffer;
 
 		StateVariableFilter lowCutFilter[2], highCutFilter[2];
 	};
