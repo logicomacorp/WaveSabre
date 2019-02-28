@@ -24,10 +24,10 @@ namespace WaveSabreCore
 
 	Thunder::~Thunder()
 	{
-		if (chunkData) delete [] chunkData;
-		if (waveFormatData) delete [] waveFormatData;
-		if (compressedData) delete [] compressedData;
-		if (sampleData) delete [] sampleData;
+		free(chunkData);
+		free(waveFormatData);
+		free(compressedData);
+		free(sampleData);
 	}
 
 	typedef struct
@@ -51,9 +51,9 @@ namespace WaveSabreCore
 		ChunkHeader h;
 		h.CompressedSize = compressedSize;
 		h.UncompressedSize = uncompressedSize;
-		if (chunkData) delete [] chunkData;
+		free(chunkData);
 		int chunkSize = sizeof(ChunkHeader) + sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize + compressedSize + sizeof(int);
-		chunkData = new char[chunkSize];
+		chunkData = (char *)malloc(chunkSize);
 		memcpy(chunkData, &h, sizeof(ChunkHeader));
 		memcpy(chunkData + sizeof(ChunkHeader), waveFormatData, sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize);
 		memcpy(chunkData + sizeof(ChunkHeader) + sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize, compressedData, compressedSize);
@@ -67,11 +67,11 @@ namespace WaveSabreCore
 		this->compressedSize = compressedSize;
 		this->uncompressedSize = uncompressedSize;
 
-		if (waveFormatData) delete [] waveFormatData;
-		waveFormatData = new char[sizeof(WAVEFORMATEX) + waveFormat->cbSize];
+		free(waveFormatData);
+		waveFormatData = (char *)malloc(sizeof(WAVEFORMATEX) + waveFormat->cbSize);
 		memcpy(waveFormatData, waveFormat, sizeof(WAVEFORMATEX) + waveFormat->cbSize);
-		if (compressedData) delete [] compressedData;
-		compressedData = new char[compressedSize];
+		free(compressedData);
+		compressedData = (char *)malloc(compressedSize);
 		memcpy(compressedData, data, compressedSize);
 
 		acmDriverEnum(driverEnumCallback, NULL, NULL);
@@ -97,7 +97,7 @@ namespace WaveSabreCore
 		streamHeader.cbStruct = sizeof(ACMSTREAMHEADER);
 		streamHeader.pbSrc = (LPBYTE)compressedData;
 		streamHeader.cbSrcLength = compressedSize;
-		auto uncompressedData = new short[uncompressedSize * 2];
+		auto uncompressedData = (short *)malloc(sizeof(short) * uncompressedSize * 2);
 		streamHeader.pbDst = (LPBYTE)uncompressedData;
 		streamHeader.cbDstLength = uncompressedSize * 2;
 		acmStreamPrepareHeader(stream, &streamHeader, 0);
@@ -108,11 +108,11 @@ namespace WaveSabreCore
 		acmDriverClose(driver, 0);
 
 		sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
-		if (sampleData) delete [] sampleData;
-		sampleData = new float[sampleLength];
+		free(sampleData);
+		sampleData = (float *)malloc(sizeof(float) * sampleLength);
 		for (int i = 0; i < sampleLength; i++) sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
 
-		delete [] uncompressedData;
+		free(uncompressedData);
 	}
 
 	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
@@ -156,7 +156,7 @@ namespace WaveSabreCore
 
 		int waveFormatSize = 0;
 		acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, &waveFormatSize);
-		auto waveFormat = (WAVEFORMATEX *)(new char[waveFormatSize]);
+		auto waveFormat = (WAVEFORMATEX *)malloc(waveFormatSize);
 		memset(waveFormat, 0, waveFormatSize);
 		ACMFORMATDETAILS formatDetails;
 		memset(&formatDetails, 0, sizeof(formatDetails));
@@ -166,7 +166,7 @@ namespace WaveSabreCore
 		formatDetails.dwFormatTag = WAVE_FORMAT_UNKNOWN;
 		acmFormatEnum(driver, &formatDetails, formatEnumCallback, NULL, NULL);
 
-		delete [] (char *)waveFormat;
+		free(waveFormat);
 
 		acmDriverClose(driver, 0);
 
