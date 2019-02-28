@@ -1,6 +1,7 @@
 #include <WaveSabreCore/AllPass.h>
 #include <WaveSabreCore/Helpers.h>
 
+#include <stdlib.h>
 #include <math.h>
 
 namespace WaveSabreCore
@@ -13,19 +14,19 @@ namespace WaveSabreCore
 
 	AllPass::~AllPass()
 	{
-		if (buffer) delete[] buffer;
+		free(buffer);
 	}
 
 	void AllPass::SetBufferSize(int size)
 	{
 		if (size < 1) size = 1;
 		bufferSize = size;
-		auto newBuffer = new float[size];
+		auto newBuffer = (float *)malloc(sizeof(float) * size);
 		for (int i = 0; i < size; i++) newBuffer[i] = 0.0f;
 		bufferIndex = 0;
 		auto oldBuffer = buffer;
 		buffer = newBuffer;
-		if (oldBuffer) delete[] oldBuffer;
+		free(oldBuffer);
 	}
 
 	void AllPass::SetFeedback(float value)
