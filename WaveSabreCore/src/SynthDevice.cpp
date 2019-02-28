@@ -18,16 +18,12 @@ namespace WaveSabreCore
 
 		Rise = 0.0f;
 
-		voices = new Voice *[maxVoices];
-		events = new Event[maxEvents];
 		clearEvents();
 	}
 
 	SynthDevice::~SynthDevice()
 	{
 		for (int i = 0; i < maxVoices; i++) delete voices[i];
-		delete [] voices;
-		delete [] events;
 	}
 
 	void SynthDevice::Run(double songPosition, float **inputs, float **outputs, int numSamples)

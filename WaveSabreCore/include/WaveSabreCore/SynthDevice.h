@@ -67,9 +67,9 @@ namespace WaveSabreCore
 
 		void clearEvents();
 
-		Voice **voices;
+		Voice *voices[maxVoices];
 
-		Event *events;
+		Event events[maxEvents];
 	};
 }
 
