@@ -2,6 +2,7 @@
 #include <WaveSabreCore/Helpers.h>
 #include <WaveSabreCore/GmDls.h>
 
+#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -77,8 +78,7 @@ namespace WaveSabreCore
 
 	Adultery::~Adultery()
 	{
-		if (sampleData)
-			delete [] sampleData;
+		free(sampleData);
 	}
 
 	void Adultery::SetParam(int index, float value)
@@ -90,7 +90,7 @@ namespace WaveSabreCore
 
 			if (sampleData)
 			{
-				delete [] sampleData;
+				free(sampleData);
 				sampleData = nullptr;
 				sampleLength = 0;
 			}
@@ -141,7 +141,7 @@ namespace WaveSabreCore
 
 					// Data format is assumed to be mono 16-bit signed PCM
 					sampleLength = dataChunkSize / 2;
-					sampleData = new float[sampleLength];
+					sampleData = (float *)malloc(sizeof(float) * sampleLength);
 					for (int j = 0; j < sampleLength; j++)
 					{
 						auto sample = *((short *)wave);
