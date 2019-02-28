@@ -1,6 +1,8 @@
 #include <WaveSabreCore/Device.h>
 #include <WaveSabreCore/Helpers.h>
 
+#include <stdlib.h>
+
 namespace WaveSabreCore
 {
 	Device::Device(int numParams)
@@ -11,7 +13,7 @@ namespace WaveSabreCore
 
 	Device::~Device()
 	{
-		if (chunkData) delete (char *)chunkData;
+		free(chunkData);
 	}
 
 	void Device::AllNotesOff() { }
@@ -53,7 +55,7 @@ namespace WaveSabreCore
 	int Device::GetChunk(void **data)
 	{
 		int chunkSize = numParams * sizeof(float) + sizeof(int);
-		if (!chunkData) chunkData = new char[chunkSize];
+		if (!chunkData) chunkData = (char *)malloc(chunkSize);
 
 		for (int i = 0; i < numParams; i++)
 			((float *)chunkData)[i] = GetParam(i);
