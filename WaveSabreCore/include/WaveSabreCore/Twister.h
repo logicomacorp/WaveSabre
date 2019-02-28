@@ -63,8 +63,8 @@ namespace WaveSabreCore
 		float AllPassUpdateLeft(float input);
 		float AllPassUpdateRight(float input);
 
-		ResampleBuffer *leftBuffer;
-		ResampleBuffer *rightBuffer;
+		ResampleBuffer leftBuffer;
+		ResampleBuffer rightBuffer;
 		
 		StateVariableFilter lowCutFilter[2], highCutFilter[2];
 	};

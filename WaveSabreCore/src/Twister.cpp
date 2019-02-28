@@ -22,11 +22,8 @@ namespace WaveSabreCore
 
 		dryWet = .5f;
 
-		leftBuffer = new ResampleBuffer();
-		rightBuffer = new ResampleBuffer();
-		
-		leftBuffer->SetLength(1000);
-		rightBuffer->SetLength(1000);
+		leftBuffer.SetLength(1000);
+		rightBuffer.SetLength(1000);
 
 		lastLeft = 0.0f;
 		lastRight = 0.0f;
@@ -40,8 +37,6 @@ namespace WaveSabreCore
 
 	Twister::~Twister()
 	{
-		delete leftBuffer;
-		delete rightBuffer;
 	}
 
 	void Twister::Run(double songPosition, float **inputs, float **outputs, int numSamples)
@@ -87,18 +82,18 @@ namespace WaveSabreCore
 			case 0:
 				positionLeft *= 132.0f;
 				positionRight *= 132.0f;
-				outputLeft = highCutFilter[0].Next(lowCutFilter[0].Next(leftBuffer->ReadPosition(positionLeft + 2)));
-				outputRight = highCutFilter[1].Next(lowCutFilter[1].Next(rightBuffer->ReadPosition(positionRight + 2)));
-				leftBuffer->WriteSample(leftInput + (outputLeft * feedback));
-				rightBuffer->WriteSample(rightInput + (outputRight * feedback));
+				outputLeft = highCutFilter[0].Next(lowCutFilter[0].Next(leftBuffer.ReadPosition(positionLeft + 2)));
+				outputRight = highCutFilter[1].Next(lowCutFilter[1].Next(rightBuffer.ReadPosition(positionRight + 2)));
+				leftBuffer.WriteSample(leftInput + (outputLeft * feedback));
+				rightBuffer.WriteSample(rightInput + (outputRight * feedback));
 				break;
 			case 1:
 				positionLeft *= 132.0f;
 				positionRight *= 132.0f;
-				outputLeft = highCutFilter[0].Next(lowCutFilter[0].Next(leftBuffer->ReadPosition(positionLeft + 2)));
-				outputRight = highCutFilter[1].Next(lowCutFilter[1].Next(rightBuffer->ReadPosition(positionRight + 2)));
-				leftBuffer->WriteSample(leftInput - (outputLeft * feedback));
-				rightBuffer->WriteSample(rightInput - (outputRight * feedback));
+				outputLeft = highCutFilter[0].Next(lowCutFilter[0].Next(leftBuffer.ReadPosition(positionLeft + 2)));
+				outputRight = highCutFilter[1].Next(lowCutFilter[1].Next(rightBuffer.ReadPosition(positionRight + 2)));
+				leftBuffer.WriteSample(leftInput - (outputLeft * feedback));
+				rightBuffer.WriteSample(rightInput - (outputRight * feedback));
 				break;
 			case 2:
 				for (int i = 0; i<6; i++) allPassLeft[i].Delay(positionLeft);
