@@ -1,5 +1,6 @@
 #include <WaveSabreCore/ResampleBuffer.h>
 #include <WaveSabreCore/Helpers.h>
+#include <stdlib.h>
 #include <math.h>
 
 namespace WaveSabreCore
@@ -12,7 +13,7 @@ namespace WaveSabreCore
 
 	ResampleBuffer::~ResampleBuffer()
 	{
-		if (buffer) delete [] buffer;
+		free(buffer);
 	}
 
 	void ResampleBuffer::SetLength(float lengthMs)
@@ -26,13 +27,13 @@ namespace WaveSabreCore
 		if (samples < 1) samples = 1;
 		if (samples != length || !buffer)
 		{
-			auto newBuffer = new float[samples];
+			auto newBuffer = (float *)malloc(sizeof(float) * samples);
 			for (int i = 0; i < samples; i++) newBuffer[i] = 0.0f;
 			currentPosition = 0;
 			auto oldBuffer = buffer;
 			buffer = newBuffer;
 			length = samples;
-			if (oldBuffer) delete[] oldBuffer;
+			free(oldBuffer);
 		}
 	}
 
