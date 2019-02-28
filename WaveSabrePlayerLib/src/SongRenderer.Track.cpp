@@ -6,7 +6,6 @@ namespace WaveSabrePlayerLib
 {
 	SongRenderer::Track::Track(SongRenderer *songRenderer, SongRenderer::DeviceFactory factory)
 	{
-		Buffers = new float *[numBuffers];
 		for (int i = 0; i < numBuffers; i++) Buffers[i] = new float[songRenderer->sampleRate];
 
 		this->songRenderer = songRenderer;
@@ -56,7 +55,6 @@ namespace WaveSabrePlayerLib
 	SongRenderer::Track::~Track()
 	{
 		for (int i = 0; i < numBuffers; i++) delete [] Buffers[i];
-		delete [] Buffers;
 		if (numReceives) delete [] receives;
 		
 		if (numDevices)
