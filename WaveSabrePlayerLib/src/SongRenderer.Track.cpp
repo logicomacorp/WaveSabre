@@ -6,7 +6,7 @@ namespace WaveSabrePlayerLib
 {
 	SongRenderer::Track::Track(SongRenderer *songRenderer, SongRenderer::DeviceFactory factory)
 	{
-		for (int i = 0; i < numBuffers; i++) Buffers[i] = new float[songRenderer->sampleRate];
+		for (int i = 0; i < numBuffers; i++) Buffers[i] = (float *)malloc(sizeof(float) * songRenderer->sampleRate);
 
 		this->songRenderer = songRenderer;
 
@@ -15,7 +15,7 @@ namespace WaveSabrePlayerLib
 		NumReceives = songRenderer->readInt();
 		if (NumReceives)
 		{
-			Receives = new Receive[NumReceives];
+			Receives = (Receive *)malloc(sizeof(Receive) * NumReceives);
 			for (int i = 0; i < NumReceives; i++)
 			{
 				Receives[i].SendingTrackIndex = songRenderer->readInt();
@@ -27,7 +27,7 @@ namespace WaveSabrePlayerLib
 		numDevices = songRenderer->readInt();
 		if (numDevices)
 		{
-			devicesIndicies = new int[numDevices];
+			devicesIndicies = (int *)malloc(sizeof(int) * numDevices);
 			for (int i = 0; i < numDevices; i++)
 			{
 				devicesIndicies[i] = songRenderer->readInt();
@@ -39,7 +39,7 @@ namespace WaveSabrePlayerLib
 		numAutomations = songRenderer->readInt();
 		if (numAutomations)
 		{
-			automations = new Automation *[numAutomations];
+			automations = (Automation **)malloc(sizeof(Automation *) * numAutomations);
 			for (int i = 0; i < numAutomations; i++)
 			{
 				int deviceIndex = songRenderer->readInt();
@@ -54,20 +54,15 @@ namespace WaveSabrePlayerLib
 
 	SongRenderer::Track::~Track()
 	{
-		for (int i = 0; i < numBuffers; i++) delete [] Buffers[i];
-
-		if (NumReceives)
-			delete [] Receives;
+		for (int i = 0; i < numBuffers; i++) free(Buffers[i]);
+		free(Receives);
 		
-		if (numDevices)
-		{
-			delete[] devicesIndicies;
-		}
+		free(devicesIndicies);
 
 		if (numAutomations)
 		{
 			for (int i = 0; i < numAutomations; i++) delete automations[i];
-			delete [] automations;
+			free(automations);
 		}
 	}
 
@@ -123,7 +118,7 @@ namespace WaveSabrePlayerLib
 		this->device = device;
 		paramId = songRenderer->readInt();
 		numPoints = songRenderer->readInt();
-		points = new Point[numPoints];
+		points = (Point *)malloc(sizeof(Point) * numPoints);
 		int lastPointTime = 0;
 		for (int i = 0; i < numPoints; i++)
 		{
@@ -138,7 +133,7 @@ namespace WaveSabrePlayerLib
 
 	SongRenderer::Track::Automation::~Automation()
 	{
-		delete [] points;
+		free(points);
 	}
 
 	void SongRenderer::Track::Automation::Run(int numSamples)
