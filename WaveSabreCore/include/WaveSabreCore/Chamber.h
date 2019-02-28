@@ -43,9 +43,9 @@ namespace WaveSabreCore
 		float dryWet;
 		float preDelay;
 
-		DelayBuffer **delayBuffers;
+		DelayBuffer *delayBuffers[numBuffers];
 
-		DelayBuffer *preDelayBuffers;
+		DelayBuffer preDelayBuffers[2];
 
 		StateVariableFilter lowCutFilter[2], highCutFilter[2];
 	};

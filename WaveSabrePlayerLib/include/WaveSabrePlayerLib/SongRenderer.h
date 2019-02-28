@@ -81,10 +81,11 @@ namespace WaveSabrePlayerLib
 			
 			void Run(int numSamples);
 
-			float **Buffers;
-
 		private:
 			static const int numBuffers = 4;
+		public:
+			float *Buffers[numBuffers];
+		private:
 
 			typedef struct
 			{
