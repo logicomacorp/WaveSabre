@@ -13,10 +13,7 @@ namespace WaveSabreCore
 		dryWet = .27f;
 		preDelay = 0.0f;
 
-		delayBuffers = new DelayBuffer*[numBuffers];
 		for (int i = 0; i < numBuffers; i++) delayBuffers[i] = new DelayBuffer();
-
-		preDelayBuffers = new DelayBuffer[2];
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -28,9 +25,6 @@ namespace WaveSabreCore
 	Chamber::~Chamber()
 	{
 		for (int i = 0; i < numBuffers; i++) delete delayBuffers[i];
-		delete [] delayBuffers;
-
-		delete[] preDelayBuffers;
 	}
 
 	void Chamber::Run(double songPosition, float **inputs, float **outputs, int numSamples)
