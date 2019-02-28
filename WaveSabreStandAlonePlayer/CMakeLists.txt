@@ -1,0 +1,6 @@
+add_executable(WaveSabreStandAlonePlayer main.cpp)
+target_link_libraries(WaveSabreStandAlonePlayer WaveSabrePlayerLib)
+
+if(MSVC)
+	target_compile_definitions(WaveSabreStandAlonePlayer PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()

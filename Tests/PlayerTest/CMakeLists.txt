@@ -1,0 +1,2 @@
+add_executable(PlayerTest main.cpp)
+target_link_libraries(PlayerTest WaveSabrePlayerLib)
