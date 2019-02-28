@@ -39,8 +39,8 @@ namespace WaveSabreCore
 		float attack, release;
 		float outputGain;
 
-		DelayBuffer *leftBuffer;
-		DelayBuffer *rightBuffer;
+		DelayBuffer leftBuffer;
+		DelayBuffer rightBuffer;
 		float peak;
 	};
 }

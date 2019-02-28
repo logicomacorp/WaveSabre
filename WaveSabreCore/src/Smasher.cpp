@@ -18,21 +18,17 @@ namespace WaveSabreCore
 		release = 200.0f;
 		outputGain = 0.0f;
 
-		leftBuffer = new DelayBuffer();
-		rightBuffer = new DelayBuffer();
 		peak = 0.0f;
 	}
 
 	Smasher::~Smasher()
 	{
-		delete leftBuffer;
-		delete rightBuffer;
 	}
 
 	void Smasher::Run(double songPosition, float **inputs, float **outputs, int numSamples)
 	{
-		leftBuffer->SetLength(lookaheadMs);
-		rightBuffer->SetLength(lookaheadMs);
+		leftBuffer.SetLength(lookaheadMs);
+		rightBuffer.SetLength(lookaheadMs);
 
 		float inputGainScalar = Helpers::DbToScalar(inputGain);
 		float outputGainScalar = Helpers::DbToScalar(outputGain);
@@ -46,8 +42,8 @@ namespace WaveSabreCore
 
 		for (int i = 0; i < numSamples; i++)
 		{
-			leftBuffer->WriteSample(inputs[0][i] * inputGainScalar);
-			rightBuffer->WriteSample(inputs[1][i] * inputGainScalar);
+			leftBuffer.WriteSample(inputs[0][i] * inputGainScalar);
+			rightBuffer.WriteSample(inputs[1][i] * inputGainScalar);
 			float inputLeft = inputs[inputChannelOffset][i] * inputGainScalar;
 			float inputRight = inputs[inputChannelOffset + 1][i] * inputGainScalar;
 			float inputLeftLevel = fabsf(inputLeft);
@@ -68,8 +64,8 @@ namespace WaveSabreCore
 			float gainScalar = outputGainScalar;
 			if (peak > thresholdScalar) gainScalar *= (thresholdScalar + (peak - thresholdScalar) / ratio) / peak;
 
-			outputs[0][i] = leftBuffer->ReadSample() * gainScalar;
-			outputs[1][i] = rightBuffer->ReadSample() * gainScalar;
+			outputs[0][i] = leftBuffer.ReadSample() * gainScalar;
+			outputs[1][i] = rightBuffer.ReadSample() * gainScalar;
 		}
 	}
 
