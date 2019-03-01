@@ -1,6 +1,8 @@
 #ifndef __WAVESABREPLAYERLIB_SONGRENDERER_H__
 #define __WAVESABREPLAYERLIB_SONGRENDERER_H__
 
+#include "CriticalSection.h"
+
 #include <WaveSabreCore.h>
 
 namespace WaveSabrePlayerLib
@@ -36,7 +38,7 @@ namespace WaveSabrePlayerLib
 
 		static const int NumChannels = 2;
 
-		SongRenderer(const SongRenderer::Song *song);
+		SongRenderer(const SongRenderer::Song *song, int numRenderThreads);
 		~SongRenderer();
 
 		void RenderSamples(Sample *buffer, int numSamples);
@@ -76,6 +78,13 @@ namespace WaveSabrePlayerLib
 		class Track
 		{
 		public:
+			typedef struct
+			{
+				int SendingTrackIndex;
+				int ReceivingChannelIndex;
+				float Volume;
+			} Receive;
+
 			Track(SongRenderer *songRenderer, DeviceFactory factory);
 			~Track();
 			
@@ -85,15 +94,11 @@ namespace WaveSabrePlayerLib
 			static const int numBuffers = 4;
 		public:
 			float *Buffers[numBuffers];
+
+			int NumReceives;
+			Receive *Receives;
+
 		private:
-
-			typedef struct
-			{
-				int SendingTrackIndex;
-				int ReceivingChannelIndex;
-				float Volume;
-			} Receive;
-
 			class Automation
 			{
 			public:
@@ -123,9 +128,6 @@ namespace WaveSabrePlayerLib
 
 			float volume;
 
-			int numReceives;
-			Receive *receives;
-
 			int numDevices;
 			int *devicesIndicies;
 
@@ -138,6 +140,23 @@ namespace WaveSabrePlayerLib
 			int accumEventTimestamp;
 			int eventIndex;
 		};
+
+		enum class TrackRenderState : unsigned int
+		{
+			Idle,
+			Rendering,
+			Finished,
+		};
+
+		typedef struct
+		{
+			SongRenderer *songRenderer;
+			int renderThreadIndex;
+		} RenderThreadData;
+
+		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
+
+		bool renderThreadWork(int renderThreadIndex);
 
 		// TODO: Templatize? Might actually be bigger..
 		unsigned char readByte();
@@ -160,7 +179,16 @@ namespace WaveSabrePlayerLib
 
 		int numTracks;
 		Track **tracks;
+		TrackRenderState *trackRenderStates;
 
+		int numRenderThreads;
+		HANDLE *additionalRenderThreads;
+
+		bool renderThreadShutdown;
+		int renderThreadNumFloatSamples;
+		unsigned int renderThreadsRunning;
+		HANDLE *renderThreadStartEvents;
+		HANDLE renderDoneEvent;
 	};
 }
 

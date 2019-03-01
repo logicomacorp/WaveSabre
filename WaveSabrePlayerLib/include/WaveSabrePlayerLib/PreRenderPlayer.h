@@ -12,7 +12,7 @@ namespace WaveSabrePlayerLib
 	public:
 		typedef void (*ProgressCallback)(double progress, void *data);
 
-		PreRenderPlayer(const SongRenderer::Song *song, ProgressCallback callback, void *data, int playbackBufferSizeMs = 100);
+		PreRenderPlayer(const SongRenderer::Song *song, int numRenderThreads, ProgressCallback callback, void *data, int playbackBufferSizeMs = 100);
 		virtual ~PreRenderPlayer();
 
 		virtual void Play();

@@ -12,15 +12,15 @@ namespace WaveSabrePlayerLib
 
 		volume = songRenderer->readFloat();
 
-		numReceives = songRenderer->readInt();
-		if (numReceives)
+		NumReceives = songRenderer->readInt();
+		if (NumReceives)
 		{
-			receives = new Receive[numReceives];
-			for (int i = 0; i < numReceives; i++)
+			Receives = new Receive[NumReceives];
+			for (int i = 0; i < NumReceives; i++)
 			{
-				receives[i].SendingTrackIndex = songRenderer->readInt();
-				receives[i].ReceivingChannelIndex = songRenderer->readInt();
-				receives[i].Volume = songRenderer->readFloat();
+				Receives[i].SendingTrackIndex = songRenderer->readInt();
+				Receives[i].ReceivingChannelIndex = songRenderer->readInt();
+				Receives[i].Volume = songRenderer->readFloat();
 			}
 		}
 
@@ -55,7 +55,9 @@ namespace WaveSabrePlayerLib
 	SongRenderer::Track::~Track()
 	{
 		for (int i = 0; i < numBuffers; i++) delete [] Buffers[i];
-		if (numReceives) delete [] receives;
+
+		if (NumReceives)
+			delete [] Receives;
 		
 		if (numDevices)
 		{
@@ -93,9 +95,9 @@ namespace WaveSabrePlayerLib
 		for (int i = 0; i < numAutomations; i++) automations[i]->Run(numSamples);
 
 		for (int i = 0; i < numBuffers; i++) memset(Buffers[i], 0, numSamples * sizeof(float));
-		for (int i = 0; i < numReceives; i++)
+		for (int i = 0; i < NumReceives; i++)
 		{
-			Receive *r = &receives[i];
+			Receive *r = &Receives[i];
 			float **receiveBuffers = songRenderer->tracks[r->SendingTrackIndex]->Buffers;
 			for (int j = 0; j < 2; j++)
 			{

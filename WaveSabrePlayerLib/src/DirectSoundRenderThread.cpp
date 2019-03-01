@@ -10,20 +10,16 @@ namespace WaveSabrePlayerLib
 	{
 		shutdown = false;
 
-		InitializeCriticalSection(&criticalSection);
-
 		thread = CreateThread(0, 0, threadProc, (LPVOID)this, 0, 0);
 		SetThreadPriority(thread, THREAD_PRIORITY_HIGHEST);
 	}
 
 	DirectSoundRenderThread::~DirectSoundRenderThread()
 	{
-		EnterCriticalSection(&criticalSection);
+		// We don't need to enter/leave a critical section here since we're the only writer at this point.
 		shutdown = true;
-		LeaveCriticalSection(&criticalSection);
 
 		WaitForSingleObject(thread, INFINITE);
-		DeleteCriticalSection(&criticalSection);
 	}
 
 	DWORD WINAPI DirectSoundRenderThread::threadProc(LPVOID lpParameter)
@@ -65,17 +61,13 @@ namespace WaveSabrePlayerLib
 
 		int oldPlayCursorPos = 0;
 		buffer->Play(0, 0, DSBPLAY_LOOPING);
-		bool isRunning = true;
-		while (isRunning)
-		{
-			EnterCriticalSection(&renderThread->criticalSection);
 
-			if (renderThread->shutdown)
+		// We don't need to enter/leave a critical section here since there's only one writer for this value.
+		while (!renderThread->shutdown)
+		{
 			{
-				isRunning = false;
-			}
-			else
-			{
+				auto criticalSectionGuard = renderThread->criticalSection.Enter();
+
 				int playCursorPos;
 				buffer->GetCurrentPosition((LPDWORD)&playCursorPos, 0);
 				int bytesToRender = playCursorPos - oldPlayCursorPos;
@@ -95,10 +87,7 @@ namespace WaveSabrePlayerLib
 				}
 			}
 
-			LeaveCriticalSection(&renderThread->criticalSection);
-
-			if (isRunning)
-				Sleep(3);
+			Sleep(3);
 		}
 
 		buffer->Stop();

@@ -4,7 +4,7 @@ using namespace WaveSabreCore;
 
 namespace WaveSabrePlayerLib
 {
-	SongRenderer::SongRenderer(const SongRenderer::Song *song)
+	SongRenderer::SongRenderer(const SongRenderer::Song *song, int numRenderThreads)
 	{
 		Helpers::Init();
 
@@ -55,29 +55,85 @@ namespace WaveSabrePlayerLib
 
 		numTracks = readInt();
 		tracks = new Track *[numTracks];
-		for (int i = 0; i < numTracks; i++) tracks[i] = new Track(this, song->factory);
+		trackRenderStates = new TrackRenderState[numTracks];
+		for (int i = 0; i < numTracks; i++)
+		{
+			tracks[i] = new Track(this, song->factory);
+			trackRenderStates[i] = TrackRenderState::Finished;
+		}
+
+		this->numRenderThreads = numRenderThreads;
+
+		renderThreadShutdown = false;
+		renderThreadStartEvents = new HANDLE[numRenderThreads];
+		for (int i = 0; i < numRenderThreads; i++)
+			renderThreadStartEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
+		renderDoneEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+
+		if (numRenderThreads > 1)
+		{
+			additionalRenderThreads = new HANDLE[numRenderThreads - 1];
+			for (int i = 0; i < numRenderThreads - 1; i++)
+			{
+				auto renderThreadData = new RenderThreadData();
+				renderThreadData->songRenderer = this;
+				renderThreadData->renderThreadIndex = i + 1;
+				additionalRenderThreads[i] = CreateThread(0, 0, renderThreadProc, (LPVOID)renderThreadData, 0, 0);
+				SetThreadPriority(additionalRenderThreads[i], THREAD_PRIORITY_HIGHEST);
+			}
+		}
 	}
 
 	SongRenderer::~SongRenderer()
 	{
+		// Dispatch shutdown
+		renderThreadShutdown = true;
+
+		if (numRenderThreads > 1)
+		{
+			for (int i = 0; i < numRenderThreads; i++)
+				SetEvent(renderThreadStartEvents[i]);
+			WaitForMultipleObjects(numRenderThreads - 1, additionalRenderThreads, TRUE, INFINITE);
+			for (int i = 0; i < numRenderThreads - 1; i++)
+				CloseHandle(additionalRenderThreads[i]);
+			delete [] additionalRenderThreads;
+		}
+
 		for (int i = 0; i < numDevices; i++) delete devices[i];
 		delete [] devices;
 
 		for (int i = 0; i < numMidiLanes; i++) delete midiLanes[i];
-		delete[] midiLanes;
+		delete [] midiLanes;
 
 		for (int i = 0; i < numTracks; i++) delete tracks[i];
 		delete [] tracks;
+		delete [] trackRenderStates;
+
+		for (int i = 0; i < numRenderThreads; i++)
+			CloseHandle(renderThreadStartEvents[i]);
+		CloseHandle(renderDoneEvent);
 	}
 
 	void SongRenderer::RenderSamples(Sample *buffer, int numSamples)
 	{
 		MxcsrFlagGuard mxcsrFlagGuard;
 
-		int numFloatSamples = numSamples / 2;
+		// Set up work
+		for (int i = 0; i < numTracks; i++)
+			trackRenderStates[i] = TrackRenderState::Idle;
+		renderThreadNumFloatSamples = numSamples / 2;
 
-		for (int i = 0; i < numTracks; i++) tracks[i]->Run(numFloatSamples);
+		// Dispatch work
+		renderThreadsRunning = numRenderThreads;
+		for (int i = 0; i < numRenderThreads; i++)
+			SetEvent(renderThreadStartEvents[i]);
 
+		renderThreadWork(0);
+
+		// Wait for render threads to complete their work
+		WaitForSingleObject(renderDoneEvent, INFINITE);
+
+		// Copy final output
 		float **masterTrackBuffers = tracks[numTracks - 1]->Buffers;
 		for (int i = 0; i < numSamples; i++)
 		{
@@ -86,6 +142,72 @@ namespace WaveSabrePlayerLib
 			if (sample > 32767) sample = 32767;
 			buffer[i] = (Sample)sample;
 		}
+	}
+
+	DWORD WINAPI SongRenderer::renderThreadProc(LPVOID lpParameter)
+	{
+		auto renderThreadData = (RenderThreadData *)lpParameter;
+
+		auto songRenderer = renderThreadData->songRenderer;
+		int renderThreadIndex = renderThreadData->renderThreadIndex;
+
+		delete renderThreadData;
+
+		while (songRenderer->renderThreadWork(renderThreadIndex))
+			;
+
+		return 0;
+	}
+
+	bool SongRenderer::renderThreadWork(int renderThreadIndex)
+	{
+		WaitForSingleObject(renderThreadStartEvents[renderThreadIndex], INFINITE);
+
+		if (renderThreadShutdown)
+			return false;
+
+		MxcsrFlagGuard mxcsrFlagGuard;
+
+		// Check that there's _any_ potential work to be done
+		while (trackRenderStates[numTracks - 1] != TrackRenderState::Finished)
+		{
+			// Try to find some work to do
+			for (int i = 0; i < numTracks; i++)
+			{
+				// If track isn't idle, skip it
+				if (trackRenderStates[i] != TrackRenderState::Idle)
+					continue;
+
+				// If any of the track's dependencies aren't finished, skip it
+				bool allDependenciesFinished = true;
+				for (int j = 0; j < tracks[i]->NumReceives; j++)
+				{
+					if (trackRenderStates[tracks[i]->Receives[j].SendingTrackIndex] != TrackRenderState::Finished)
+					{
+						allDependenciesFinished = false;
+						break;
+					}
+				}
+				if (!allDependenciesFinished)
+					continue;
+
+				// We have a free track that we can work on, yay!
+				//  Let's try to mark it so that no other thread takes it
+				if ((TrackRenderState)InterlockedCompareExchange((unsigned int *)&trackRenderStates[i], (unsigned int)TrackRenderState::Rendering, (unsigned int)TrackRenderState::Idle) == TrackRenderState::Idle)
+				{
+					// We marked it successfully, so now we'll do the work
+					tracks[i]->Run(renderThreadNumFloatSamples);
+					// And mark it as finished :)
+					trackRenderStates[i] = TrackRenderState::Finished;
+					break;
+				}
+			}
+		}
+
+		if (!InterlockedDecrement(&renderThreadsRunning))
+			SetEvent(renderDoneEvent);
+
+		return true;
 	}
 
 	int SongRenderer::GetTempo() const

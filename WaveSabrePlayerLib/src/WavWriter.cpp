@@ -4,9 +4,9 @@
 
 namespace WaveSabrePlayerLib
 {
-	WavWriter::WavWriter(const SongRenderer::Song *song)
+	WavWriter::WavWriter(const SongRenderer::Song *song, int numRenderThreads)
 	{
-		songRenderer = new SongRenderer(song);
+		songRenderer = new SongRenderer(song, numRenderThreads);
 	}
 
 	WavWriter::~WavWriter()
@@ -66,6 +66,9 @@ namespace WaveSabrePlayerLib
 		}
 
 		fclose(file);
+
+		if (callback)
+			callback(1.0, data);
 	}
 
 	void WavWriter::writeInt(int i, FILE *file)
