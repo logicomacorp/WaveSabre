@@ -1,6 +1,7 @@
 project("WaveSabre")
 
 cmake_minimum_required(VERSION 3.11)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # shared code
 add_subdirectory(WaveSabreCore)
