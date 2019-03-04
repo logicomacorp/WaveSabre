@@ -53,4 +53,5 @@ target_include_directories(WaveSabreVstLib PUBLIC
 
 if(MSVC)
 	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS)
+	target_compile_options(WaveSabreVstLib PUBLIC /EHsc)
 endif()

@@ -56,3 +56,17 @@ add_library(WaveSabreCore
 
 target_link_libraries(WaveSabreCore Msacm32.lib)
 target_include_directories(WaveSabreCore PUBLIC include)
+
+if(MSVC)
+	target_compile_options(WaveSabreCore
+		PUBLIC $<$<CONFIG:MinSizeRel>:/GS- /Gy /Zi /GL /GR->
+		PRIVATE $<$<CONFIG:MinSizeRel>:/Oi /fp:fast>)
+
+	set_property(TARGET WaveSabreCore APPEND_STRING PROPERTY STATIC_LIBRARY_FLAGS_MINSIZEREL
+		" /LTCG")
+
+	if(MSVC_VERSION GREATER 1900)
+		target_compile_options(WaveSabreCore PUBLIC
+			$<$<CONFIG:MinSizeRel>:/Zc:sizedDealloc->)
+	endif()
+endif()

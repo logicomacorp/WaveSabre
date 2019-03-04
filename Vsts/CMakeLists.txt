@@ -8,6 +8,8 @@ foreach(child ${children})
 		add_library(${child} SHARED
 			${sources} ../Data/data.rc ${CMAKE_BINARY_DIR}/${child}.def)
 		target_link_libraries(${child} WaveSabreCore WaveSabreVstLib)
+		set_property(TARGET ${child} APPEND_STRING PROPERTY LINK_FLAGS_MINSIZEREL
+			" /LTCG")
 		set_property(TARGET ${child} PROPERTY FOLDER VSTs)
 	endif()
 endforeach()
