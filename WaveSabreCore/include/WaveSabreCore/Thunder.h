@@ -5,6 +5,10 @@
 
 #include <Windows.h>
 #include <mmreg.h>
+
+#ifdef UNICODE
+#define _UNICODE
+#endif
 #include <MSAcm.h>
 
 namespace WaveSabreCore
