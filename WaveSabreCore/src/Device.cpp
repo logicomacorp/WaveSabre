@@ -11,7 +11,7 @@ namespace WaveSabreCore
 
 	Device::~Device()
 	{
-		if (chunkData) delete chunkData;
+		if (chunkData) delete (char *)chunkData;
 	}
 
 	void Device::AllNotesOff() { }
