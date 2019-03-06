@@ -42,17 +42,17 @@ namespace WaveSabrePlayerLib
 		{
 			WAVE_FORMAT_PCM,
 			SongRenderer::NumChannels,
-			sampleRate,
-			bytesPerSec,
-			blockAlign,
-			bitsPerSample,
+			(DWORD)sampleRate,
+			(DWORD)bytesPerSec,
+			(WORD)blockAlign,
+			(WORD)bitsPerSample,
 			0
 		};
 		DSBUFFERDESC bufferDesc =
 		{
 			sizeof(DSBUFFERDESC),
 			DSBCAPS_GLOBALFOCUS | DSBCAPS_GETCURRENTPOSITION2,
-			bufferSizeBytes,
+			(DWORD)bufferSizeBytes,
 			0,
 			&bufferFormat,
 			GUID_NULL
