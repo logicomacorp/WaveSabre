@@ -1,6 +1,11 @@
 version: '{build}'
 image: Visual Studio 2013
 
+environment:
+  matrix:
+    - USE_CMAKE: 1
+    - USE_CMAKE: 0
+
 cache:
   - Vst3.x
 
@@ -12,9 +17,20 @@ install:
         Copy-Item -Path "C:\tmp\VST3 SDK\*" -Destination ".\Vst3.x" -Recurse
       }
   - ps: |
-      Invoke-WebRequest "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha13/premake-5.0.0-alpha13-windows.zip" -OutFile "premake5.zip"
-      Expand-Archive "premake5.zip" "."
+      if (${env:USE_CMAKE} -eq 0) {
+        Invoke-WebRequest "https://github.com/premake/premake-core/releases/download/v5.0.0-alpha13/premake-5.0.0-alpha13-windows.zip" -OutFile "premake5.zip"
+        Expand-Archive "premake5.zip" "."
+      }
 
 build_script:
-  - .\premake5.exe vs2013
-  - msbuild /v:minimal /nologo
+  - ps: |
+      if (${env:USE_CMAKE} -eq 1) {
+        New-Item -ItemType Directory -Path build | Out-Null
+        cd build
+        cmake ..
+        msbuild /v:minimal /nologo WaveSabre.sln
+        cd ..
+      } else {
+        .\premake5.exe vs2013
+        msbuild /v:minimal /nologo
+      }
