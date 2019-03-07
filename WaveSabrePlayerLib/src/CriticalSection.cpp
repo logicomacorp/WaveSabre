@@ -1,4 +1,4 @@
-#include <WaveSabrePlayerLib\CriticalSection.h>
+#include <WaveSabrePlayerLib/CriticalSection.h>
 
 namespace WaveSabrePlayerLib
 {

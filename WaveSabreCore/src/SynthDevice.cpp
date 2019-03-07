@@ -2,8 +2,6 @@
 
 #include <WaveSabreCore/Helpers.h>
 
-#include <Windows.h>
-
 namespace WaveSabreCore
 {
 	SynthDevice::SynthDevice(int numParams)

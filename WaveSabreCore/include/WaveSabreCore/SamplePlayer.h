@@ -42,11 +42,11 @@ namespace WaveSabreCore
 
 		float SampleStart;
 		bool Reverse;
-		LoopMode LoopMode;
-		LoopBoundaryMode LoopBoundaryMode;
+		WaveSabreCore::LoopMode LoopMode;
+		WaveSabreCore::LoopBoundaryMode LoopBoundaryMode;
 		float LoopStart, LoopLength;
 
-		InterpolationMode InterpolationMode;
+		WaveSabreCore::InterpolationMode InterpolationMode;
 
 		float *SampleData;
 		int SampleLength;
