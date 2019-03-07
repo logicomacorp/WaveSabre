@@ -2,7 +2,7 @@
 
 ## Building
 
-- WaveSabre builds have only been tested with Visual Studio 2013 and version 3.6.6 of the VST3 SDK.
+- WaveSabre builds have only been tested with Visual Studio 2013/2017 and version 3.6.6 of the VST3 SDK.
 - Due to licensing requirements, WaveSabre requires you to [download](https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip) and copy the VST3 SDK into the build yourself. Download, extract, and copy into the *"Vst3.x"* folder. See [this readme](https://github.com/logicomacorp/WaveSabre/blob/master/Vst3.x/README).
 
 ### CMake
