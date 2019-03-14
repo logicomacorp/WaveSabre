@@ -14,6 +14,7 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
   - Alternatively, you can install CMake from [Chocolatey](https://chocolatey.org/) or other package managers.
 - To avoid overwriting the in-repo Visual Studio project files, it's *strongly* recommended to build out-of-tree.
 - Run `cmake -B build` to generate the Visual Studio project files and solution
+  - Optionally, you can also specify `-DVSTDIR=<some-path>` to copy the VST plugins into your DAW's VST plugin directory upon build.
 - Open the generated solution from the build directory, and proceed as normal.
 
 ### PreMake + Visual Studio
