@@ -17,7 +17,7 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
   - Optionally, you can also specify `-DVSTDIR=<some-path>` to copy the VST plugins into your DAW's VST plugin directory upon build.
 - Open the generated solution from the build directory, and proceed as normal.
 
-### PreMake + Visual Studio
+### PreMake + Visual Studio (legacy!)
 
 WaveSabre can also use Premake 5.0 to generate project files.
 - Download a Premake 5.0 binary from here: http://premake.github.io/download.html
