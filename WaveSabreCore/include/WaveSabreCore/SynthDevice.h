@@ -16,6 +16,7 @@ namespace WaveSabreCore
 		virtual void AllNotesOff();
 		virtual void NoteOn(int note, int velocity, int deltaSamples);
 		virtual void NoteOff(int note, int deltaSamples);
+		virtual void NoteSlide(int note, int velocity);
 
 		int VoicesUnisono;
 		float VoicesDetune;
@@ -64,6 +65,11 @@ namespace WaveSabreCore
 
 			int Note, Velocity;
 		};
+
+		bool monoActive;
+		int noteLog[127];
+		int noteCount;
+		bool activeNotes[127];
 
 		void clearEvents();
 

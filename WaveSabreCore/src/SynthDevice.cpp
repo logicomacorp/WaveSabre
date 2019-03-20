@@ -18,6 +18,15 @@ namespace WaveSabreCore
 
 		Rise = 0.0f;
 
+		monoActive = false;
+		noteCount = 0;
+
+		for (int i = 0; i < 127; i++)
+		{
+			activeNotes[i] = false;
+			noteLog[i] = 0;
+		}
+		
 		clearEvents();
 	}
 
@@ -49,23 +58,66 @@ namespace WaveSabreCore
 						{
 						case EventType::NoteOn:
 							{
-								int j = VoicesUnisono;
-								for (int k = 0; j && k < maxVoices; k++)
+								if (!monoActive)  // no current note active, start new one
 								{
-									if (!voices[k]->IsOn)
+									monoActive = true;
+									activeNotes[e->Note] = true;
+									noteLog[noteCount] = e->Note;
+									noteCount++;
+									int j = VoicesUnisono;
+									for (int k = 0; j && k < maxVoices; k++)
 									{
-										j--;
-										float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
-										voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
+										if (!voices[k]->IsOn)
+										{
+											j--;
+											float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
+											voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
+										}
+									}
+								}
+								else   // note active, slide to new note
+								{
+									activeNotes[e->Note] = true;
+									noteLog[noteCount] = e->Note;
+									noteCount++;
+									for (int j = 0; j < maxVoices; j++)
+									{
+										if (voices[j]->IsOn)
+										{
+											voices[j]->Note = e->Note;
+											//voices[j]->NoteSlide(e->Note, e->Velocity);		// TODO: Note sliding
+										}
 									}
 								}
 							}
 							break;
 
 						case EventType::NoteOff:
-							for (int j = 0; j < maxVoices; j++)
+							activeNotes[e->Note] = false;
+							if (e->Note == noteLog[noteCount-1])	// note off is last note played, find last active note
 							{
-								if (voices[j]->IsOn && voices[j]->Note == e->Note) voices[j]->NoteOff();
+								for (; noteCount > 0; noteCount--)
+								{
+									if (activeNotes[noteLog[noteCount-1]])
+									{
+										for (int j = 0; j < maxVoices; j++)
+										{
+											if (voices[j]->IsOn) voices[j]->Note = noteLog[noteCount-1]; 
+											//voices[j]->NoteSlide(e->Note, e->Velocity);		// TODO: Note sliding
+										}
+										break;
+									}
+								}
+
+								if (noteCount <= 0)   // no notes left, switch of the voices
+								{	
+									monoActive = false;
+									for (int j = 0; j < 127; j++) activeNotes[j] = false;
+									for (int j = 0; j < maxVoices; j++)
+									{
+										if (voices[j]->IsOn) voices[j]->NoteOff();
+									}
+								}
 							}
 						}
 						events[i].Type = EventType::None;
@@ -98,6 +150,9 @@ namespace WaveSabreCore
 		{
 			if (voices[i]->IsOn) voices[i]->NoteOff();
 		}
+		monoActive = false;
+		noteCount = 0;
+		for (int i = 0; i < 127; i++) activeNotes[i] = false;
 		clearEvents();
 	}
 
@@ -128,6 +183,11 @@ namespace WaveSabreCore
 				break;
 			}
 		}
+	}
+
+	void SynthDevice::NoteSlide(int note, int velocity)
+	{
+
 	}
 
 	SynthDevice::Voice::Voice()
