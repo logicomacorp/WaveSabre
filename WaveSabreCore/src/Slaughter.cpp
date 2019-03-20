@@ -96,6 +96,9 @@ namespace WaveSabreCore
 		case ParamIndices::VibratoAmount: VibratoAmount = value; break;
 
 		case ParamIndices::Rise: Rise = value; break;
+
+		case ParamIndices::VoiceMode: SetVoiceMode(Helpers::ParamToVoiceMode(value)); break;
+		case ParamIndices::SlideTime: Slide = value; break;
 		}
 	}
 
@@ -157,6 +160,9 @@ namespace WaveSabreCore
 		case ParamIndices::VibratoAmount: return VibratoAmount;
 
 		case ParamIndices::Rise: return Rise;
+
+		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
+		case ParamIndices::SlideTime: return Slide;
 		}
 	}
 
@@ -168,6 +174,11 @@ namespace WaveSabreCore
 		osc2.Phase = (double)Helpers::RandFloat() * 2.0 * 3.141592;
 		osc3.Phase = (double)Helpers::RandFloat() * 2.0 * 3.141592;
 		osc1.Integral = osc2.Integral = osc3.Integral = 0.0;
+	}
+
+	SynthDevice *Slaughter::SlaughterVoice::SynthDevice() const
+	{
+		return slaughter;
 	}
 
 	void Slaughter::SlaughterVoice::Run(double songPosition, float **outputs, int numSamples)
@@ -193,8 +204,8 @@ namespace WaveSabreCore
 		for (int i = 0; i < numSamples; i++)
 		{
 			filter.SetFreq(Helpers::Clamp(slaughter->filterFreq + modEnv.GetValue() * (20000.0f - 20.0f) * (slaughter->filterModAmt * 2.0f - 1.0f), 0.0f, 20000.0f - 20.0f));
-			
-			double baseNote = (double)Note + Detune + pitchEnv.GetValue() * slaughter->pitchEnvAmt + Helpers::FastSin(vibratoPhase) * slaughter->VibratoAmount + slaughter->Rise * 24.0f;
+
+			double baseNote = GetNote() + Detune + pitchEnv.GetValue() * slaughter->pitchEnvAmt + Helpers::FastSin(vibratoPhase) * slaughter->VibratoAmount + slaughter->Rise * 24.0f;
 			float oscMix = 0.0;
 			if (osc1VolumeScalar > 0.0f) oscMix += (float)(osc1.Next(baseNote + osc1Detune, slaughter->osc1Waveform, slaughter->osc1PulseWidth) * osc1VolumeScalar);
 			if (osc2VolumeScalar > 0.0f) oscMix += (float)(osc2.Next(baseNote + osc2Detune, slaughter->osc2Waveform, slaughter->osc2PulseWidth) * osc2VolumeScalar);

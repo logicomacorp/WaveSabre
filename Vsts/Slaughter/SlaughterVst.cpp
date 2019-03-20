@@ -71,6 +71,8 @@ void SlaughterVst::getParameterName(VstInt32 index, char *text)
 	case Slaughter::ParamIndices::VibratoAmount: vst_strncpy(text, "Vib Amt", kVstMaxParamStrLen); break;
 
 	case Slaughter::ParamIndices::Rise: vst_strncpy(text, "Rise", kVstMaxParamStrLen); break;
+	case Slaughter::ParamIndices::VoiceMode: vst_strncpy(text, "Mode", kVstMaxParamStrLen); break;
+	case Slaughter::ParamIndices::SlideTime: vst_strncpy(text, "Slide", kVstMaxParamStrLen); break;
 	}
 }
 

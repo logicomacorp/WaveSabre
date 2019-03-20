@@ -98,6 +98,9 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesPan: VoicesPan = value; break;
 
 		case ParamIndices::Master: masterLevel = value; break;
+
+		case ParamIndices::VoiceMode: SetVoiceMode(Helpers::ParamToVoiceMode(value)); break;
+		case ParamIndices::SlideTime: Slide = value; break;
 		}
 	}
 
@@ -135,6 +138,9 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesPan: return VoicesPan;
 
 		case ParamIndices::Master: return masterLevel;
+
+		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
+		case ParamIndices::SlideTime: return Slide;
 		}
 	}
 
@@ -283,6 +289,11 @@ namespace WaveSabreCore
 		this->specimen = specimen;
 	}
 
+	SynthDevice *Specimen::SpecimenVoice::SynthDevice() const
+	{
+		return specimen;
+	}
+
 	void Specimen::SpecimenVoice::Run(double songPosition, float **outputs, int numSamples)
 	{
 		filter.SetType(specimen->filterType);
@@ -297,7 +308,6 @@ namespace WaveSabreCore
 		samplePlayer.Reverse = specimen->reverse;
 
 		samplePlayer.RunPrep();
-		calcPitch();
 
 		float amp = Helpers::VolumeToScalar(specimen->masterLevel);
 		float panLeft = Helpers::PanToScalarLeft(Pan);
@@ -305,6 +315,8 @@ namespace WaveSabreCore
 
 		for (int i = 0; i < numSamples; i++)
 		{
+			calcPitch();
+
 			filter.SetFreq(Helpers::Clamp(specimen->filterFreq + modEnv.GetValue() * (20000.0f - 20.0f) * (specimen->filterModAmt * 2.0f - 1.0f), 0.0f, 20000.0f - 20.0f));
 
 			float sample = samplePlayer.Next();
@@ -376,7 +388,7 @@ namespace WaveSabreCore
 
 	void Specimen::SpecimenVoice::calcPitch()
 	{
-		samplePlayer.CalcPitch(Note - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
+		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
 	}
 
 	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD dwInstance, DWORD fdwSupport)
