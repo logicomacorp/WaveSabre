@@ -62,7 +62,7 @@ namespace WaveSabreCore
 		{
 		public:
 			AdulteryVoice(Adultery *adultery);
-
+			AdulteryVoice();
 			virtual void Run(double songPosition, float **outputs, int numSamples);
 
 			virtual void NoteOn(int note, int velocity, float detune, float pan);
