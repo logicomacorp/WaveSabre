@@ -271,12 +271,10 @@ namespace WaveSabreCore
 			this->voiceMode = voiceMode;
 		}
 	}
-
-	SynthDevice::Voice::Voice() { }
 	
-	SynthDevice::Voice::Voice(SynthDevice *synth)
+	SynthDevice::Voice::Voice(SynthDevice *synthDevice) 
+		: synthDevice(synthDevice)
 	{
-		this->synth = synth;
 		IsOn = false;
 		vibratoPhase = 0.0;
 	}

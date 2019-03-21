@@ -46,9 +46,10 @@ namespace WaveSabreCore
 		class Voice
 		{
 		public:
-			Voice(SynthDevice *synth);
-			Voice();
+			Voice(SynthDevice *synthDevice);
 			virtual ~Voice();
+
+			virtual SynthDevice *synthDevice() const = 0;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples) = 0;
 
@@ -65,7 +66,6 @@ namespace WaveSabreCore
 
 			double vibratoPhase;
 		private:
-			SynthDevice *synth;
 			bool slideActive;
 			double slideDelta;
 			int slideSamples;
