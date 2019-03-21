@@ -49,7 +49,7 @@ namespace WaveSabreCore
 			Voice(SynthDevice *synthDevice);
 			virtual ~Voice();
 
-			virtual SynthDevice *synthDevice() const = 0;
+			SynthDevice *synthDevice;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples) = 0;
 

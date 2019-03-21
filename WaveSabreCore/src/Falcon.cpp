@@ -135,7 +135,7 @@ namespace WaveSabreCore
 		}
 	}
 
-	Falcon::FalconVoice::FalconVoice(Falcon *falcon)
+	Falcon::FalconVoice::FalconVoice(Falcon *falcon) : Voice(falcon), falcon(falcon)
 	{
 		this->falcon = falcon;
 	}

@@ -242,7 +242,7 @@ namespace WaveSabreCore
 		}
 	}
 
-	Adultery::AdulteryVoice::AdulteryVoice(Adultery *adultery)
+	Adultery::AdulteryVoice::AdulteryVoice(Adultery *adultery) : Voice(adultery), adultery(adultery)
 	{
 		this->adultery = adultery;
 	}

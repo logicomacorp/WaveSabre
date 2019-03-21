@@ -160,7 +160,7 @@ namespace WaveSabreCore
 		}
 	}
 
-	Slaughter::SlaughterVoice::SlaughterVoice(Slaughter *slaughter)
+	Slaughter::SlaughterVoice::SlaughterVoice(Slaughter *slaughter) : Voice(slaughter), slaughter(slaughter)
 	{
 		this->slaughter = slaughter;
 

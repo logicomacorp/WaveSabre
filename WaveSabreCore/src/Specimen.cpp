@@ -278,7 +278,7 @@ namespace WaveSabreCore
 		delete [] uncompressedData;
 	}
 
-	Specimen::SpecimenVoice::SpecimenVoice(Specimen *specimen)
+	Specimen::SpecimenVoice::SpecimenVoice(Specimen *specimen) : Voice(specimen), specimen(specimen)
 	{
 		this->specimen = specimen;
 	}

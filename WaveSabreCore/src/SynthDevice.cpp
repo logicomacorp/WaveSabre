@@ -19,7 +19,7 @@ namespace WaveSabreCore
 		Rise = 0.0f;
 		Slide = 0.0f;
 
-		voiceMode = VoiceMode::Polyphonic;
+		voiceMode = VoiceMode::MonoLegatoTrill;
 		monoActive = false;
 		noteCount = 0;
 
@@ -272,9 +272,9 @@ namespace WaveSabreCore
 		}
 	}
 	
-	SynthDevice::Voice::Voice(SynthDevice *synthDevice) 
-		: synthDevice(synthDevice)
+	SynthDevice::Voice::Voice(SynthDevice *synthDevice) : Voice(synthDevice)
 	{
+		this->synthDevice = synthDevice;
 		IsOn = false;
 		vibratoPhase = 0.0;
 	}
@@ -288,7 +288,7 @@ namespace WaveSabreCore
 		Detune = detune;
 		Pan = pan;
 		
-		switch (synth->voiceMode)
+		switch (synthDevice->voiceMode)
 		{
 		case VoiceMode::Polyphonic:
 		default:

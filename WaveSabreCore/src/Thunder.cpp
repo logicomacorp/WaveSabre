@@ -115,7 +115,7 @@ namespace WaveSabreCore
 		delete [] uncompressedData;
 	}
 
-	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
+	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder) : Voice(thunder), thunder(thunder)
 	{
 		this->thunder = thunder;
 	}
