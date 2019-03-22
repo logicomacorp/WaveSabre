@@ -196,6 +196,9 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesDetune: VoicesDetune = value; break;
 		case ParamIndices::VoicesPan: VoicesPan = value; break;
 
+		case ParamIndices::VoiceMode: SetVoiceMode(Helpers::ParamToVoiceMode(value)); break;
+		case ParamIndices::SlideTime: Slide = value; break;
+
 		case ParamIndices::Master: masterLevel = value; break;
 		}
 	}
@@ -237,14 +240,22 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesUnisono: return Helpers::UnisonoToParam(VoicesUnisono);
 		case ParamIndices::VoicesDetune: return VoicesDetune;
 		case ParamIndices::VoicesPan: return VoicesPan;
+		
+		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
+		case ParamIndices::SlideTime: return Slide;
 
 		case ParamIndices::Master: return masterLevel;
 		}
 	}
 
-	Adultery::AdulteryVoice::AdulteryVoice(Adultery *adultery) : Voice(adultery), adultery(adultery)
+	Adultery::AdulteryVoice::AdulteryVoice(Adultery *adultery)
 	{
 		this->adultery = adultery;
+	}
+
+	SynthDevice *Adultery::AdulteryVoice::SynthDevice() const
+	{
+		return adultery;
 	}
 
 	void Adultery::AdulteryVoice::Run(double songPosition, float **outputs, int numSamples)
@@ -261,7 +272,6 @@ namespace WaveSabreCore
 		samplePlayer.Reverse = adultery->reverse;
 
 		samplePlayer.RunPrep();
-		calcPitch();
 
 		float amp = Helpers::VolumeToScalar(adultery->masterLevel);
 		float panLeft = Helpers::PanToScalarLeft(Pan);
@@ -269,6 +279,8 @@ namespace WaveSabreCore
 
 		for (int i = 0; i < numSamples; i++)
 		{
+			calcPitch();
+
 			filter.SetFreq(Helpers::Clamp(adultery->filterFreq + modEnv.GetValue() * (20000.0f - 20.0f) * (adultery->filterModAmt * 2.0f - 1.0f), 0.0f, 20000.0f - 20.0f));
 
 			float sample = samplePlayer.Next();
@@ -340,6 +352,6 @@ namespace WaveSabreCore
 
 	void Adultery::AdulteryVoice::calcPitch()
 	{
-		samplePlayer.CalcPitch(Note - 60 + Detune + adultery->fineTune * 2.0f - 1.0f + AdulteryVoice::coarseDetune(adultery->coarseTune));
+		samplePlayer.CalcPitch(GetNote() - 60 + Detune + adultery->fineTune * 2.0f - 1.0f + AdulteryVoice::coarseDetune(adultery->coarseTune));
 	}
 }

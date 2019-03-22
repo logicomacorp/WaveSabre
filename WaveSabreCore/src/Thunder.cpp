@@ -115,9 +115,14 @@ namespace WaveSabreCore
 		delete [] uncompressedData;
 	}
 
-	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder) : Voice(thunder), thunder(thunder)
+	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
 	{
 		this->thunder = thunder;
+	}
+
+	SynthDevice *Thunder::ThunderVoice::SynthDevice() const
+	{
+		return thunder;
 	}
 
 	void Thunder::ThunderVoice::Run(double songPosition, float **outputs, int numSamples)

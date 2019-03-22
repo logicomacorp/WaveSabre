@@ -66,12 +66,11 @@ void FalconEditor::Open()
 	addKnob((VstInt32)Falcon::ParamIndices::VoicesDetune, "DETUNE");
 	addKnob((VstInt32)Falcon::ParamIndices::VoicesPan, "PAN");
 
-	addSpacer();
-
 	addKnob((VstInt32)Falcon::ParamIndices::VibratoFreq, "VIB FREQ");
 	addKnob((VstInt32)Falcon::ParamIndices::VibratoAmount, "VIB AMT");
 
-	addSpacer();
+	addKnob((VstInt32)Falcon::ParamIndices::VoiceMode, "MODE");
+	addKnob((VstInt32)Falcon::ParamIndices::SlideTime, "SLIDE");
 
 	addKnob((VstInt32)Falcon::ParamIndices::Rise, "RISE");
 

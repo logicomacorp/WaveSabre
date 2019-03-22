@@ -5,17 +5,16 @@
 
 namespace WaveSabreCore
 {
+	enum class VoiceMode
+	{
+		Polyphonic,
+		MonoLegatoTrill,
+		NumParams,
+	};
+
 	class SynthDevice : public Device
 	{
 	public:
-		enum class VoiceMode
-		{
-			Polyphonic,
-			MonoLegatoTrill,
-			MonoLegatoAlways,
-			NumParams,
-		};
-
 		SynthDevice(int numParams);
 		virtual ~SynthDevice();
 
@@ -28,6 +27,7 @@ namespace WaveSabreCore
 		virtual void NoteOff(int note, int deltaSamples);
 
 		void SetVoiceMode(VoiceMode voiceMode);
+		VoiceMode GetVoiceMode() const;
 
 		int VoicesUnisono;
 		float VoicesDetune;
@@ -37,6 +37,7 @@ namespace WaveSabreCore
 		float VibratoAmount;
 
 		float Rise;
+
 		float Slide;
 
 	protected:
@@ -46,10 +47,10 @@ namespace WaveSabreCore
 		class Voice
 		{
 		public:
-			Voice(SynthDevice *synthDevice);
+			Voice();
 			virtual ~Voice();
 
-			SynthDevice *synthDevice;
+			virtual SynthDevice *SynthDevice() const = 0;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples) = 0;
 
@@ -70,6 +71,7 @@ namespace WaveSabreCore
 			double slideDelta;
 			int slideSamples;
 			int destinationNote;
+			int lastNote;
 			double currentNote;
 		};
 
@@ -92,12 +94,11 @@ namespace WaveSabreCore
 		int noteLog[127];
 		int noteCount;
 		bool activeNotes[127];
-		VoiceMode voiceMode;
 
 		void clearEvents();
 
 		Voice *voices[maxVoices];
-
+		VoiceMode voiceMode;
 		Event events[maxEvents];
 	};
 }

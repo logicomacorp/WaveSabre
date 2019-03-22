@@ -4,7 +4,7 @@
 using namespace WaveSabreCore;
 
 SlaughterEditor::SlaughterEditor(AudioEffect *audioEffect)
-	: VstEditor(audioEffect, 500, 580, "SLAUGHTER")
+	: VstEditor(audioEffect, 500, 600, "SLAUGHTER")
 {
 }
 
@@ -90,16 +90,13 @@ void SlaughterEditor::Open()
 	addKnob((VstInt32)Slaughter::ParamIndices::VoicesDetune, "DETUNE");
 	addKnob((VstInt32)Slaughter::ParamIndices::VoicesPan, "PAN");
 
-	addSpacer();
-
 	addKnob((VstInt32)Slaughter::ParamIndices::VibratoFreq, "VIB FREQ");
 	addKnob((VstInt32)Slaughter::ParamIndices::VibratoAmount, "VIB AMT");
 
-	addSpacer();
-
 	addKnob((VstInt32)Slaughter::ParamIndices::Rise, "RISE");
 
-	addSpacer();
+	addKnob((VstInt32)Slaughter::ParamIndices::VoiceMode, "MODE");
+	addKnob((VstInt32)Slaughter::ParamIndices::SlideTime, "SLIDE");
 
 	addKnob((VstInt32)Slaughter::ParamIndices::MasterLevel, "MASTER");
 

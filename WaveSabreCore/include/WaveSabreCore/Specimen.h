@@ -49,6 +49,9 @@ namespace WaveSabreCore
 
 			Master,
 
+			VoiceMode,
+			SlideTime,
+
 			NumParams,
 		};
 
@@ -70,6 +73,7 @@ namespace WaveSabreCore
 		{
 		public:
 			SpecimenVoice(Specimen *thunder);
+			virtual WaveSabreCore::SynthDevice *SynthDevice() const;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples);
 

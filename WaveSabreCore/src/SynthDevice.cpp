@@ -19,7 +19,7 @@ namespace WaveSabreCore
 		Rise = 0.0f;
 		Slide = 0.0f;
 
-		voiceMode = VoiceMode::MonoLegatoTrill;
+		voiceMode = VoiceMode::Polyphonic;
 		monoActive = false;
 		noteCount = 0;
 
@@ -53,7 +53,6 @@ namespace WaveSabreCore
 				RunPolyVoice(songPosition, runningOutputs, numSamples);
 				break;
 			case VoiceMode::MonoLegatoTrill:
-			case VoiceMode::MonoLegatoAlways:
 				RunMonoVoice(songPosition, runningOutputs, numSamples);
 				break;
 		}
@@ -134,12 +133,12 @@ namespace WaveSabreCore
 						{
 						case EventType::NoteOn:
 						{
+							activeNotes[e->Note] = true;
+							noteLog[noteCount] = e->Note;
+							noteCount++;
 							if (!monoActive)  // no current note active, start new one
 							{
 								monoActive = true;
-								activeNotes[e->Note] = true;
-								noteLog[noteCount] = e->Note;
-								noteCount++;
 								int j = VoicesUnisono;
 								for (int k = 0; j && k < maxVoices; k++)
 								{
@@ -153,9 +152,6 @@ namespace WaveSabreCore
 							}
 							else   // note active, slide to new note
 							{
-								activeNotes[e->Note] = true;
-								noteLog[noteCount] = e->Note;
-								noteCount++;
 								for (int j = 0; j < maxVoices; j++)
 								{
 									if (voices[j]->IsOn)
@@ -165,7 +161,7 @@ namespace WaveSabreCore
 								}
 							}
 						}
-							break;
+						break;
 
 						case EventType::NoteOff:
 							activeNotes[e->Note] = false;
@@ -193,7 +189,10 @@ namespace WaveSabreCore
 									for (int j = 0; j < 127; j++) activeNotes[j] = false;
 									for (int j = 0; j < maxVoices; j++)
 									{
-										if (voices[j]->IsOn) voices[j]->NoteOff();
+										if (voices[j]->IsOn)
+										{
+											voices[j]->NoteOff();
+										}
 									}
 								}
 							}
@@ -268,13 +267,18 @@ namespace WaveSabreCore
 		if (this->voiceMode != voiceMode)
 		{
 			AllNotesOff();
+			for (int i = 0; i < maxVoices; i++) voices[i]->IsOn = false;
 			this->voiceMode = voiceMode;
 		}
 	}
-	
-	SynthDevice::Voice::Voice(SynthDevice *synthDevice) : Voice(synthDevice)
+
+	VoiceMode SynthDevice::GetVoiceMode() const
 	{
-		this->synthDevice = synthDevice;
+		return voiceMode;
+	}
+	
+	SynthDevice::Voice::Voice()
+	{
 		IsOn = false;
 		vibratoPhase = 0.0;
 	}
@@ -287,32 +291,19 @@ namespace WaveSabreCore
 		Note = note;
 		Detune = detune;
 		Pan = pan;
-		
-		switch (synthDevice->voiceMode)
-		{
-		case VoiceMode::Polyphonic:
-		default:
-			currentNote = (double)note;
-			break;
-		case VoiceMode::MonoLegatoTrill:
-			currentNote = (double)note;
-			slideActive = false;
-			break;
-		case VoiceMode::MonoLegatoAlways:
-			break;
-		}
+		currentNote = (double)note;
+		slideActive = false;
 	}
 
-	void SynthDevice::Voice::NoteOff()
-	{
-	}
+	void SynthDevice::Voice::NoteOff() { }
 
 	void SynthDevice::Voice::NoteSlide(int note)
 	{
 		slideActive = true;
 		destinationNote = note;
-		slideDelta = ((double)note - currentNote) / (Helpers::CurrentSampleRate * 0.2f);
-		slideSamples = (int)(Helpers::CurrentSampleRate * 0.2f);
+		double slideTime = 10.f * this->SynthDevice()->Slide * this->SynthDevice()->Slide * this->SynthDevice()->Slide;
+		slideDelta = ((double)note - currentNote) / (Helpers::CurrentSampleRate * slideTime);
+		slideSamples = (int)(Helpers::CurrentSampleRate * slideTime);
 	}
 
 	double SynthDevice::Voice::GetNote()

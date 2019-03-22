@@ -58,7 +58,8 @@ void FalconVst::getParameterName(VstInt32 index, char *text)
 	case Falcon::ParamIndices::PitchRelease: vst_strncpy(text, "Ptch Rls", kVstMaxParamStrLen); break;
 	case Falcon::ParamIndices::PitchEnvAmt1: vst_strncpy(text, "Ptc Env1", kVstMaxParamStrLen); break;
 	case Falcon::ParamIndices::PitchEnvAmt2: vst_strncpy(text, "Ptc Env2", kVstMaxParamStrLen); break;
-
+	case Falcon::ParamIndices::VoiceMode: vst_strncpy(text, "Mode", kVstMaxParamStrLen); break;
+	case Falcon::ParamIndices::SlideTime: vst_strncpy(text, "Slide", kVstMaxParamStrLen); break;
 	}
 }
 

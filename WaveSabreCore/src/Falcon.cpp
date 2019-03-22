@@ -83,6 +83,9 @@ namespace WaveSabreCore
 		case ParamIndices::PitchRelease: pitchRelease = Helpers::ScalarToEnvValue(value); break;
 		case ParamIndices::PitchEnvAmt1: pitchEnvAmt1 = (value - .5f) * 2.0f * 36.0f; break;
 		case ParamIndices::PitchEnvAmt2: pitchEnvAmt2 = (value - .5f) * 2.0f * 36.0f; break;
+
+		case ParamIndices::VoiceMode: SetVoiceMode(Helpers::ParamToVoiceMode(value)); break;
+		case ParamIndices::SlideTime: Slide = value; break;
 		}
 	}
 
@@ -132,12 +135,19 @@ namespace WaveSabreCore
 		case ParamIndices::PitchEnvAmt1: return pitchEnvAmt1 / 36.0f / 2.0f + .5f;
 		case ParamIndices::PitchEnvAmt2: return pitchEnvAmt2 / 36.0f / 2.0f + .5f;
 
+		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
+		case ParamIndices::SlideTime: return Slide;
 		}
 	}
 
-	Falcon::FalconVoice::FalconVoice(Falcon *falcon) : Voice(falcon), falcon(falcon)
+	Falcon::FalconVoice::FalconVoice(Falcon *falcon)
 	{
 		this->falcon = falcon;
+	}
+
+	SynthDevice *Falcon::FalconVoice::SynthDevice() const
+	{
+		return falcon;
 	}
 
 	void Falcon::FalconVoice::Run(double songPosition, float **outputs, int numSamples)
@@ -153,12 +163,14 @@ namespace WaveSabreCore
 		float leftPanScalar = Helpers::PanToScalarLeft(Pan);
 		float rightPanScalar = Helpers::PanToScalarRight(Pan);
 
-		double baseNote = (double)Note + Detune + falcon->Rise * 24.0f;
+
 		double osc1RatioScalar = ratioScalar((double)falcon->osc1RatioCoarse, (double)falcon->osc1RatioFine);
 		double osc2RatioScalar = ratioScalar((double)falcon->osc2RatioCoarse, (double)falcon->osc2RatioFine);
 
 		for (int i = 0; i < numSamples; i++)
 		{
+			double baseNote = GetNote() + Detune + falcon->Rise * 24.0f;
+
 			double osc1Input = osc1Phase / Helpers::CurrentSampleRate * 2.0 * 3.141592 + osc1Output * osc1Feedback;
 			osc1Output = ((Helpers::FastSin(osc1Input) + Helpers::Square35(osc1Input) * (double)falcon->osc1Waveform)) * osc1Env.GetValue() * 13.25;
 

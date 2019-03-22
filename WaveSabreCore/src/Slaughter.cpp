@@ -96,6 +96,9 @@ namespace WaveSabreCore
 		case ParamIndices::VibratoAmount: VibratoAmount = value; break;
 
 		case ParamIndices::Rise: Rise = value; break;
+
+		case ParamIndices::VoiceMode: SetVoiceMode(Helpers::ParamToVoiceMode(value)); break;
+		case ParamIndices::SlideTime: Slide = value; break;
 		}
 	}
 
@@ -157,10 +160,13 @@ namespace WaveSabreCore
 		case ParamIndices::VibratoAmount: return VibratoAmount;
 
 		case ParamIndices::Rise: return Rise;
+
+		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
+		case ParamIndices::SlideTime: return Slide;
 		}
 	}
 
-	Slaughter::SlaughterVoice::SlaughterVoice(Slaughter *slaughter) : Voice(slaughter), slaughter(slaughter)
+	Slaughter::SlaughterVoice::SlaughterVoice(Slaughter *slaughter)
 	{
 		this->slaughter = slaughter;
 
@@ -168,6 +174,11 @@ namespace WaveSabreCore
 		osc2.Phase = (double)Helpers::RandFloat() * 2.0 * 3.141592;
 		osc3.Phase = (double)Helpers::RandFloat() * 2.0 * 3.141592;
 		osc1.Integral = osc2.Integral = osc3.Integral = 0.0;
+	}
+
+	SynthDevice *Slaughter::SlaughterVoice::SynthDevice() const
+	{
+		return slaughter;
 	}
 
 	void Slaughter::SlaughterVoice::Run(double songPosition, float **outputs, int numSamples)
