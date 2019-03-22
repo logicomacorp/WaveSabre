@@ -4,7 +4,7 @@
 using namespace WaveSabreCore;
 
 FalconEditor::FalconEditor(AudioEffect *audioEffect)
-	: VstEditor(audioEffect, 760, 220, "FALCON")
+	: VstEditor(audioEffect, 820, 220, "FALCON")
 {
 }
 
@@ -26,12 +26,16 @@ void FalconEditor::Open()
 
 	addSpacer();
 	addSpacer();
+	addSpacer();
+	addSpacer();
+	addSpacer();
 
 	addKnob((VstInt32)Falcon::ParamIndices::Osc1Attack, "ATTACK");
 	addKnob((VstInt32)Falcon::ParamIndices::Osc1Decay, "DECAY");
 	addKnob((VstInt32)Falcon::ParamIndices::Osc1Sustain, "SUSTAIN");
 	addKnob((VstInt32)Falcon::ParamIndices::Osc1Release, "RELEASE");
 
+	addSpacer();
 	addSpacer();
 	addSpacer();
 
@@ -49,6 +53,9 @@ void FalconEditor::Open()
 	addSpacer();
 	addKnob((VstInt32)Falcon::ParamIndices::Osc2Feedback, "FEEDBACK");
 
+	addSpacer();
+	addSpacer();
+	addSpacer();
 	addSpacer();
 	addSpacer();
 	addSpacer();

@@ -301,7 +301,8 @@ namespace WaveSabreCore
 	{
 		slideActive = true;
 		destinationNote = note;
-		double slideTime = 10.f * this->SynthDevice()->Slide * this->SynthDevice()->Slide * this->SynthDevice()->Slide;
+		
+		double slideTime = 10.f * Helpers::Pow(this->SynthDevice()->Slide,4.0);
 		slideDelta = ((double)note - currentNote) / (Helpers::CurrentSampleRate * slideTime);
 		slideSamples = (int)(Helpers::CurrentSampleRate * slideTime);
 	}
