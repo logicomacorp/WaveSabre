@@ -1091,7 +1091,7 @@ namespace WaveSabreConvert
                             Note = NoteToByte(lastNote[i])
                         });
                     }
-                    if (Convert.ToInt32(line.NoteColumns.NoteColumn[i].Instrument) == instrumentId)
+                    if (Convert.ToInt32(line.NoteColumns.NoteColumn[i].Instrument, 16) == instrumentId)
                     {
                         // new note
                         if (note != "OFF" && note != "")
