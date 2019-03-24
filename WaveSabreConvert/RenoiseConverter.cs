@@ -715,9 +715,10 @@ namespace WaveSabreConvert
                     if (devices.Devices.Items[auto.DeviceIndex] is InstrumentAutomationDevice)
                     {
                         // TODO: Add it to the instrument auto bank
+                        var autoDevice = (InstrumentAutomationDevice)devices.Devices.Items[auto.DeviceIndex];
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
-                        autoMap.AutoSource = project.Instruments.Instrument[auto.DeviceIndex];
+                        autoMap.AutoSource = project.Instruments.Instrument[autoDevice.LinkedInstrument];
                         automationMaps.Add(autoMap);
                     }
                     else if (devices.Devices.Items[auto.DeviceIndex] is AudioPluginDevice)
@@ -836,11 +837,21 @@ namespace WaveSabreConvert
                 }
                 else
                 {
-                    if (deviceIndex > 0)
+                    var deviceType = device.GetType().Name.ToString();
+                    
+                    switch (deviceType)
                     {
-                        logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported", 
+                        case "InstrumentAutomationDevice":
+                        case "TrackMixerDevice":
+                        case "GroupTrackMixerDevice":
+                        case "MasterTrackMixerDevice":
+                        case "SendDevice":
+                            break;
+                        default:
+                            logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported",
                             trackName,
                             device.GetType()));
+                            break;
                     }
                 }
 
