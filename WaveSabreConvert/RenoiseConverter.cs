@@ -4,6 +4,7 @@ using System.Linq;
 using Renoise;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace WaveSabreConvert
 {
@@ -345,11 +346,16 @@ namespace WaveSabreConvert
             {
                 if (ins.Device != null)
                 {
+                    var instrument = (RenoiseInstrument)ins.InstrumentSource;
                     var track = new Song.Track();
                     track.Name = ins.Name;
                     track.Devices = new List<Song.Device>();
                     track.Devices.Add(ins.Device);
-                    track.Volume = ((RenoiseInstrument)ins.InstrumentSource).PluginGenerator.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+                    if (instrument.PluginGenerator == null)
+                        track.Volume = instrument.PluginProperties.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+                    else
+                        track.Volume = instrument.PluginGenerator.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+
                     PopulateInstrumentTrack(track, ins);
 
                     if (track.Events.Count > 0)
@@ -712,17 +718,17 @@ namespace WaveSabreConvert
 
                 foreach (var auto in allAuto)
                 {
-                    if (devices.Devices.Items[auto.DeviceIndex] is InstrumentAutomationDevice)
+                    var dest = devices.Devices.Items[auto.DeviceIndex];
+                    if (dest is InstrumentAutomationDevice)
                     {
-                        // TODO: Add it to the instrument auto bank
+                        var autoDevice = (InstrumentAutomationDevice)devices.Devices.Items[auto.DeviceIndex];
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
-                        autoMap.AutoSource = project.Instruments.Instrument[auto.DeviceIndex];
+                        autoMap.AutoSource = project.Instruments.Instrument[autoDevice.LinkedInstrument];
                         automationMaps.Add(autoMap);
                     }
-                    else if (devices.Devices.Items[auto.DeviceIndex] is AudioPluginDevice)
+                    else if (dest is AudioPluginDevice)
                     {
-                        // TODO: add it to the track dsp auto bank
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
                         autoMap.AutoSource = tempTrack;
@@ -731,8 +737,7 @@ namespace WaveSabreConvert
                     }
                     else
                     {
-                        // TODO: not sure how this could even happen!
-                        logger.WriteLine("WARNING: unknown automation device on track [{0}]", trackName);
+                        logger.WriteLine("WARNING: automation for device [{1}] on track [{0}] is NOT supported", trackName, dest.GetType().Name);
                     }
                 }
             }
@@ -836,11 +841,25 @@ namespace WaveSabreConvert
                 }
                 else
                 {
-                    if (deviceIndex > 0)
+                    var deviceType = device.GetType().Name.ToString();
+                    
+                    switch (deviceType)
                     {
-                        logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported", 
+                        case "InstrumentAutomationDevice":
+                        case "TrackMixerDevice":
+                        case "GroupTrackMixerDevice":
+                        case "MasterTrackMixerDevice":
+                        case "SendDevice":
+                        case "SequencerTrackDevice":
+                        case "SequencerGroupTrackDevice":
+                        case "SequencerSendTrackDevice":
+                        case "SequencerMasterTrackDevice":
+                            break;
+                        default:
+                            logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported",
                             trackName,
                             device.GetType()));
+                            break;
                     }
                 }
 
@@ -1066,7 +1085,11 @@ namespace WaveSabreConvert
 
                 for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
                 {
-                    string note = line.NoteColumns.NoteColumn[i].Note;
+                    int inst = -1;
+                    var note = line.NoteColumns.NoteColumn[i].Note;
+                    if (!int.TryParse(line.NoteColumns.NoteColumn[i].Instrument, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out inst))
+                        inst = -1;
+
                     byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
 
                     // active and new note or off command
@@ -1080,7 +1103,8 @@ namespace WaveSabreConvert
                             Note = NoteToByte(lastNote[i])
                         });
                     }
-                    if (Convert.ToInt32(line.NoteColumns.NoteColumn[i].Instrument) == instrumentId)
+
+                    if (inst == instrumentId)
                     {
                         // new note
                         if (note != "OFF" && note != "")
