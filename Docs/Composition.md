@@ -1,3 +1,12 @@
+## Composition - General
+
+At a basic level, the WaveSabre play routine suppots the following.
+
+- Midi note on / off
+- Midi velocity ( some devices do not use this )
+- Linear automation of any WaveSabre parameter
+- Audio track routing ( each track can send or route audio to a another track, you cannot send audio pre-effects )
+
 ## Composition - Ableton
 
 Almost everything you do within the DAW is supported apart from the following features.
