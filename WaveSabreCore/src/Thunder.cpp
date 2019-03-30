@@ -120,6 +120,11 @@ namespace WaveSabreCore
 		this->thunder = thunder;
 	}
 
+	SynthDevice *Thunder::ThunderVoice::SynthDevice() const
+	{
+		return thunder;
+	}
+
 	void Thunder::ThunderVoice::Run(double songPosition, float **outputs, int numSamples)
 	{
 		for (int i = 0; i < numSamples; i++)

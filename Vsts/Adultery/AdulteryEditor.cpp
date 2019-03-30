@@ -211,6 +211,9 @@ void AdulteryEditor::Open()
 	addSpacer();
 	addKnob((VstInt32)Adultery::ParamIndices::FineTune, "FINE TUNE");
 	addSpacer();
+	addKnob((VstInt32)Adultery::ParamIndices::VoiceMode, "MODE");
+	addKnob((VstInt32)Adultery::ParamIndices::SlideTime, "SLIDE");
+	addSpacer();
 	addKnob((VstInt32)Adultery::ParamIndices::Master, "MASTER");
 
 	VstEditor::Open();

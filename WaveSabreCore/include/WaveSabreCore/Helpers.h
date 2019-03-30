@@ -3,6 +3,7 @@
 
 #include "StateVariableFilter.h"
 #include "Twister.h"
+#include "SynthDevice.h"
 
 namespace WaveSabreCore
 {
@@ -69,6 +70,8 @@ namespace WaveSabreCore
 		static Spread ParamToSpread(float param);
 		static float SpreadToParam(Spread spread);
 
+		static VoiceMode ParamToVoiceMode(float param);
+		static float VoiceModeToParam(VoiceMode type);
 	private:
 		static const int fastCosTabLog2Size = 9; // size = 512
 		static const int fastCosTabSize = (1 << fastCosTabLog2Size);

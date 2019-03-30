@@ -4,7 +4,7 @@
 using namespace WaveSabreCore;
 
 SlaughterEditor::SlaughterEditor(AudioEffect *audioEffect)
-	: VstEditor(audioEffect, 500, 580, "SLAUGHTER")
+	: VstEditor(audioEffect, 520, 600, "SLAUGHTER")
 {
 }
 
@@ -21,7 +21,15 @@ void SlaughterEditor::Open()
 	addKnob((VstInt32)Slaughter::ParamIndices::Osc1DetuneFine, "DET FINE");
 	addSpacer();
 	addKnob((VstInt32)Slaughter::ParamIndices::Osc1Volume, "VOLUME");
+	
+	addSpacer();
+	addSpacer();
+	addSpacer();
+	addSpacer();
+	addSpacer();
 
+	addKnob((VstInt32)Slaughter::ParamIndices::MasterLevel, "MASTER");
+	
 	startNextRow();
 
 	addKnob((VstInt32)Slaughter::ParamIndices::Osc2Waveform, "WAVEFORM");
@@ -95,13 +103,13 @@ void SlaughterEditor::Open()
 	addKnob((VstInt32)Slaughter::ParamIndices::VibratoFreq, "VIB FREQ");
 	addKnob((VstInt32)Slaughter::ParamIndices::VibratoAmount, "VIB AMT");
 
-	addSpacer();
-
 	addKnob((VstInt32)Slaughter::ParamIndices::Rise, "RISE");
 
 	addSpacer();
 
-	addKnob((VstInt32)Slaughter::ParamIndices::MasterLevel, "MASTER");
+	addKnob((VstInt32)Slaughter::ParamIndices::VoiceMode, "MODE");
+	addKnob((VstInt32)Slaughter::ParamIndices::SlideTime, "SLIDE");
+
 
 	VstEditor::Open();
 }

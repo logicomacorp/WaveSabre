@@ -355,4 +355,14 @@ namespace WaveSabreCore
 	{
 		return (float)spread / 2.0f;
 	}
+
+	VoiceMode Helpers::ParamToVoiceMode(float param)
+	{
+		return (VoiceMode)(int)(param * 1.0f);
+	}
+
+	float Helpers::VoiceModeToParam(VoiceMode voiceMode)
+	{
+		return (float)voiceMode / 1.0f;
+	}
 }

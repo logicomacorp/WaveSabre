@@ -17,6 +17,17 @@ namespace WaveSabreCore
 		VibratoAmount = 0.0f;
 
 		Rise = 0.0f;
+		Slide = 0.0f;
+
+		voiceMode = VoiceMode::Polyphonic;
+		monoActive = false;
+		noteCount = 0;
+
+		for (int i = 0; i < 127; i++)
+		{
+			activeNotes[i] = false;
+			noteLog[i] = 0;
+		}
 
 		clearEvents();
 	}
@@ -35,6 +46,20 @@ namespace WaveSabreCore
 		runningOutputs[0] = outputs[0];
 		runningOutputs[1] = outputs[1];
 
+		switch (voiceMode)
+		{
+			case VoiceMode::Polyphonic:
+			default:
+				RunPolyVoice(songPosition, runningOutputs, numSamples);
+				break;
+			case VoiceMode::MonoLegatoTrill:
+				RunMonoVoice(songPosition, runningOutputs, numSamples);
+				break;
+		}
+	}
+
+	void SynthDevice::RunPolyVoice(double songPosition, float **runningOutputs, int numSamples)
+	{
 		while (numSamples)
 		{
 			int samplesToNextEvent = numSamples;
@@ -48,18 +73,18 @@ namespace WaveSabreCore
 						switch (e->Type)
 						{
 						case EventType::NoteOn:
+						{
+							int j = VoicesUnisono;
+							for (int k = 0; j && k < maxVoices; k++)
 							{
-								int j = VoicesUnisono;
-								for (int k = 0; j && k < maxVoices; k++)
+								if (!voices[k]->IsOn)
 								{
-									if (!voices[k]->IsOn)
-									{
-										j--;
-										float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
-										voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
-									}
+									j--;
+									float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
+									voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
 								}
 							}
+						}
 							break;
 
 						case EventType::NoteOff:
@@ -92,12 +117,119 @@ namespace WaveSabreCore
 		}
 	}
 
+	void SynthDevice::RunMonoVoice(double songPosition, float **runningOutputs, int numSamples)
+	{
+		while (numSamples)
+		{
+			int samplesToNextEvent = numSamples;
+			for (int i = 0; i < maxEvents; i++)
+			{
+				Event *e = &events[i];
+				if (e->Type != EventType::None)
+				{
+					if (!e->DeltaSamples)
+					{
+						switch (e->Type)
+						{
+						case EventType::NoteOn:
+						{
+							activeNotes[e->Note] = true;
+							noteLog[noteCount] = e->Note;
+							noteCount++;
+							if (!monoActive)  // no current note active, start new one
+							{
+								monoActive = true;
+								int j = VoicesUnisono;
+								for (int k = 0; j && k < maxVoices; k++)
+								{
+									if (!voices[k]->IsOn)
+									{
+										j--;
+										float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
+										voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
+									}
+								}
+							}
+							else   // note active, slide to new note
+							{
+								for (int j = 0; j < maxVoices; j++)
+								{
+									if (voices[j]->IsOn)
+									{
+										voices[j]->NoteSlide(e->Note);
+									}
+								}
+							}
+						}
+						break;
+
+						case EventType::NoteOff:
+							activeNotes[e->Note] = false;
+							if (e->Note == noteLog[noteCount - 1])	// note off is last note played, find last active note
+							{
+								for (; noteCount > 0; noteCount--)
+								{
+									if (activeNotes[noteLog[noteCount - 1]])
+									{
+										for (int j = 0; j < maxVoices; j++)
+										{
+											if (voices[j]->IsOn)
+											{
+												voices[j]->NoteSlide(noteLog[noteCount - 1]);
+											}
+										}
+										break;
+									}
+								}
+
+								if (noteCount <= 0)   // no notes left, switch of the voices
+								{
+									monoActive = false;
+									noteCount = 0;
+									for (int j = 0; j < 127; j++) activeNotes[j] = false;
+									for (int j = 0; j < maxVoices; j++)
+									{
+										if (voices[j]->IsOn)
+										{
+											voices[j]->NoteOff();
+										}
+									}
+								}
+							}
+						}
+						events[i].Type = EventType::None;
+					}
+					else if (e->DeltaSamples < samplesToNextEvent)
+					{
+						samplesToNextEvent = e->DeltaSamples;
+					}
+				}
+			}
+
+			for (int i = 0; i < maxVoices; i++)
+			{
+				if (voices[i]->IsOn) voices[i]->Run(songPosition, runningOutputs, samplesToNextEvent);
+			}
+			for (int i = 0; i < maxEvents; i++)
+			{
+				if (events[i].Type != EventType::None) events[i].DeltaSamples -= samplesToNextEvent;
+			}
+			songPosition += (double)samplesToNextEvent / Helpers::CurrentSampleRate;
+			runningOutputs[0] += samplesToNextEvent;
+			runningOutputs[1] += samplesToNextEvent;
+			numSamples -= samplesToNextEvent;
+		}
+	}
+
 	void SynthDevice::AllNotesOff()
 	{
 		for (int i = 0; i < maxVoices; i++)
 		{
 			if (voices[i]->IsOn) voices[i]->NoteOff();
 		}
+		monoActive = false;
+		noteCount = 0;
+		for (int i = 0; i < 127; i++) activeNotes[i] = false;
 		clearEvents();
 	}
 
@@ -130,6 +262,21 @@ namespace WaveSabreCore
 		}
 	}
 
+	void SynthDevice::SetVoiceMode(VoiceMode voiceMode)
+	{
+		if (this->voiceMode != voiceMode)
+		{
+			AllNotesOff();
+			for (int i = 0; i < maxVoices; i++) voices[i]->IsOn = false;
+			this->voiceMode = voiceMode;
+		}
+	}
+
+	VoiceMode SynthDevice::GetVoiceMode() const
+	{
+		return voiceMode;
+	}
+	
 	SynthDevice::Voice::Voice()
 	{
 		IsOn = false;
@@ -144,10 +291,36 @@ namespace WaveSabreCore
 		Note = note;
 		Detune = detune;
 		Pan = pan;
+		currentNote = (double)note;
+		slideActive = false;
 	}
 
-	void SynthDevice::Voice::NoteOff()
+	void SynthDevice::Voice::NoteOff() { }
+
+	void SynthDevice::Voice::NoteSlide(int note)
 	{
+		slideActive = true;
+		destinationNote = note;
+		
+		double slideTime = 10.f * Helpers::Pow(this->SynthDevice()->Slide,4.0);
+		slideDelta = ((double)note - currentNote) / (Helpers::CurrentSampleRate * slideTime);
+		slideSamples = (int)(Helpers::CurrentSampleRate * slideTime);
+	}
+
+	double SynthDevice::Voice::GetNote()
+	{
+		if (slideActive)
+		{
+			currentNote += slideDelta;
+			slideSamples--;
+			if (slideSamples < 0)
+			{
+				Note = (int)destinationNote;
+				slideActive = false;
+				currentNote = (double)destinationNote;
+			}
+		}
+		return currentNote;
 	}
 
 	void SynthDevice::clearEvents()

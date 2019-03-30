@@ -5,6 +5,13 @@
 
 namespace WaveSabreCore
 {
+	enum class VoiceMode
+	{
+		Polyphonic,
+		MonoLegatoTrill,
+		NumParams,
+	};
+
 	class SynthDevice : public Device
 	{
 	public:
@@ -12,10 +19,15 @@ namespace WaveSabreCore
 		virtual ~SynthDevice();
 
 		virtual void Run(double songPosition, float **inputs, float **outputs, int numSamples);
+		void RunPolyVoice(double songPosition, float **runningOutputs, int numSamples);
+		void RunMonoVoice(double songPosition, float **runningOutputs, int numSamples);
 
 		virtual void AllNotesOff();
 		virtual void NoteOn(int note, int velocity, int deltaSamples);
 		virtual void NoteOff(int note, int deltaSamples);
+
+		void SetVoiceMode(VoiceMode voiceMode);
+		VoiceMode GetVoiceMode() const;
 
 		int VoicesUnisono;
 		float VoicesDetune;
@@ -25,6 +37,8 @@ namespace WaveSabreCore
 		float VibratoAmount;
 
 		float Rise;
+
+		float Slide;
 
 	protected:
 		static const int maxVoices = 256;
@@ -36,10 +50,14 @@ namespace WaveSabreCore
 			Voice();
 			virtual ~Voice();
 
+			virtual SynthDevice *SynthDevice() const = 0;
+
 			virtual void Run(double songPosition, float **outputs, int numSamples) = 0;
 
 			virtual void NoteOn(int note, int velocity, float detune, float pan);
 			virtual void NoteOff();
+			virtual void NoteSlide(int note);
+			virtual double GetNote();
 
 			bool IsOn;
 			int Note;
@@ -48,6 +66,13 @@ namespace WaveSabreCore
 			float Pan;
 
 			double vibratoPhase;
+		private:
+			bool slideActive;
+			double slideDelta;
+			int slideSamples;
+			int destinationNote;
+			int lastNote;
+			double currentNote;
 		};
 
 		enum class EventType
@@ -65,10 +90,15 @@ namespace WaveSabreCore
 			int Note, Velocity;
 		};
 
+		bool monoActive;
+		int noteLog[127];
+		int noteCount;
+		bool activeNotes[127];
+
 		void clearEvents();
 
 		Voice *voices[maxVoices];
-
+		VoiceMode voiceMode;
 		Event events[maxEvents];
 	};
 }
