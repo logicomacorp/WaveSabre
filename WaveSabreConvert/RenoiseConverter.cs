@@ -641,7 +641,8 @@ namespace WaveSabreConvert
                                     foreach (string point in a.Envelope.Points) // add all current points
                                     {
                                         var timePoint = Convert.ToInt32(point.Split(',')[0]);
-                                        var value = (float)Convert.ToDouble(point.Split(',')[1]);
+
+                                        var value = (float)double.Parse(point.Split(',')[1], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-gb"));
 
                                         var newAuto = new RnsAuto();
                                         newAuto.TimePoint = timePoint;
