@@ -726,6 +726,8 @@ namespace WaveSabreConvert
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
                         autoMap.AutoSource = project.Instruments.Instrument[autoDevice.LinkedInstrument];
+                        var paramName = string.Format("ParameterNumber{0}", autoMap.Auotmation.ParamId);
+                        autoMap.Auotmation.ParamId = (int)GetProp(paramName, autoDevice);
                         automationMaps.Add(autoMap);
                     }
                     else if (dest is AudioPluginDevice)
@@ -850,6 +852,7 @@ namespace WaveSabreConvert
                         case "TrackMixerDevice":
                         case "GroupTrackMixerDevice":
                         case "MasterTrackMixerDevice":
+                        case "SendTrackMixerDevice":
                         case "SendDevice":
                         case "SequencerTrackDevice":
                         case "SequencerGroupTrackDevice":
@@ -859,7 +862,7 @@ namespace WaveSabreConvert
                         default:
                             logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported",
                             trackName,
-                            device.GetType()));
+                            device.GetType().Name));
                             break;
                     }
                 }
