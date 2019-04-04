@@ -182,7 +182,7 @@ namespace WaveSabreCore
 									}
 								}
 
-								if (noteCount <= 0)   // no notes left, switch of the voices
+								if (noteCount <= 0)   // no notes left, switch off the voices
 								{
 									monoActive = false;
 									noteCount = 0;

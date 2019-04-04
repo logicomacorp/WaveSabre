@@ -71,7 +71,6 @@ namespace WaveSabreCore
 			double slideDelta;
 			int slideSamples;
 			int destinationNote;
-			int lastNote;
 			double currentNote;
 		};
 
