@@ -434,10 +434,16 @@ namespace WaveSabreConvert
                 return 0;
             });
         }
-
+        
         private float GetTrackVolume(object trackDevice)
         {
             float volume = (float)GetProp("Value", GetProp("Volume", trackDevice));
+            return volume;
+        }
+
+        private float GetPostVolume(object trackDevice)
+        {
+            float volume = (float)GetProp("Value", GetProp("PostVolume", trackDevice));
             return volume;
         }
 
@@ -641,7 +647,6 @@ namespace WaveSabreConvert
                                     foreach (string point in a.Envelope.Points) // add all current points
                                     {
                                         var timePoint = Convert.ToInt32(point.Split(',')[0]);
-
                                         var value = (float)double.Parse(point.Split(',')[1], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-gb"));
 
                                         var newAuto = new RnsAuto();
@@ -726,6 +731,8 @@ namespace WaveSabreConvert
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
                         autoMap.AutoSource = project.Instruments.Instrument[autoDevice.LinkedInstrument];
+                        var paramName = string.Format("ParameterNumber{0}", autoMap.Auotmation.ParamId);
+                        autoMap.Auotmation.ParamId = (int)GetProp(paramName, autoDevice);
                         automationMaps.Add(autoMap);
                     }
                     else if (dest is AudioPluginDevice)
@@ -755,7 +762,7 @@ namespace WaveSabreConvert
 
             songTrack = new Song.Track();
             songTrack.Name = trackName;
-            songTrack.Volume = GetTrackVolume(trackDevices[0]); 
+            songTrack.Volume = GetPostVolume(trackDevices[0]); 
             var devices = new List<RnsDevice>();
 
             devices.AddRange(GetDevices(trackDevices, trackName));  // add track devices
@@ -850,6 +857,7 @@ namespace WaveSabreConvert
                         case "TrackMixerDevice":
                         case "GroupTrackMixerDevice":
                         case "MasterTrackMixerDevice":
+                        case "SendTrackMixerDevice":
                         case "SendDevice":
                         case "SequencerTrackDevice":
                         case "SequencerGroupTrackDevice":
@@ -859,7 +867,7 @@ namespace WaveSabreConvert
                         default:
                             logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported",
                             trackName,
-                            device.GetType()));
+                            device.GetType().Name));
                             break;
                     }
                 }
@@ -1063,55 +1071,57 @@ namespace WaveSabreConvert
 
             var lanes = lines.Select(l => l.NoteColumns.NoteColumn).ToList().Max(x => x.Count());
 
-            bool[] active = new bool[lanes];
-            string[] lastNote = new string[lanes];
             for (int i = 0; i < lanes; i++)
             {
-                lastNote[i] = "";
-                active[i] = false;
-            }
+                bool active = false;
+                string lastNote = "";
 
-            foreach (var line in lines)
-            {
-                double eventTime = (double)line.index * secondsPerIndex;
-
-                // shift event time based on global groove
-                if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                foreach (var line in lines)
                 {
-                    int shuffle = (line.OrigianlIndex % 8) / 2;
-                    double indexFraction = (double)secondsPerIndex / 3 * 2;
-                    indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
-                    eventTime += indexFraction;
-                }
+                    if (i >= line.NoteColumns.NoteColumn.Count())
+                    {
+                        continue;
+                    }
 
-                for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
-                {
+                    double eventTime = (double)line.index * secondsPerIndex;
+
+                    // shift event time based on global groove
+                    if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                    {
+                        int shuffle = (line.OrigianlIndex % 8) / 2;
+                        double indexFraction = (double)secondsPerIndex / 3 * 2;
+                        indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
+                        eventTime += indexFraction;
+                    }
+
                     int inst = -1;
                     var note = line.NoteColumns.NoteColumn[i].Note;
-                    if (!int.TryParse(line.NoteColumns.NoteColumn[i].Instrument, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out inst))
+                    var insId = line.NoteColumns.NoteColumn[i].Instrument;
+
+                    if (!int.TryParse(insId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out inst))
                         inst = -1;
 
                     byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
 
                     // active and new note or off command
-                    if (active[i] && note != "")
+                    if (active && !string.IsNullOrEmpty(note))
                     {
-                        active[i] = false;
+                        active = false;
                         events.Add(new Song.Event()
                         {
                             TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
                             Type = Song.EventType.NoteOff,
-                            Note = NoteToByte(lastNote[i])
+                            Note = NoteToByte(lastNote)
                         });
                     }
 
-                    if (inst == instrumentId)
+                    // new note
+                    if (note != "OFF" && note != "")
                     {
-                        // new note
-                        if (note != "OFF" && note != "")
+                        if (inst == instrumentId)
                         {
-                            active[i] = true;
-                            lastNote[i] = note;
+                            active = true;
+                            lastNote = note;
                             events.Add(new Song.Event()
                             {
                                 TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
@@ -1121,7 +1131,6 @@ namespace WaveSabreConvert
                             });
                         }
                     }
-                    
                 }
             }
             return events;
@@ -1148,17 +1157,16 @@ namespace WaveSabreConvert
             foreach (var line in lines)
             {
                 double eventTime = (double)line.index * secondsPerIndex;
-
-                if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
-                {
-                    int shuffle = (line.OrigianlIndex % 8) / 2;
-                    double indexFraction = (double)secondsPerIndex / 3 * 2;
-                    indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
-                    eventTime += indexFraction;
-                }
-
                 for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
                 {
+                    if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                    {
+                        int shuffle = (line.OrigianlIndex % 8) / 2;
+                        double indexFraction = (double)secondsPerIndex / 3 * 2;
+                        indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
+                        eventTime += indexFraction;
+                    }
+
                     string note = line.NoteColumns.NoteColumn[i].Note;
                     byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
                     // active and new note or off command
