@@ -434,10 +434,16 @@ namespace WaveSabreConvert
                 return 0;
             });
         }
-
+        
         private float GetTrackVolume(object trackDevice)
         {
             float volume = (float)GetProp("Value", GetProp("Volume", trackDevice));
+            return volume;
+        }
+
+        private float GetPostVolume(object trackDevice)
+        {
+            float volume = (float)GetProp("Value", GetProp("PostVolume", trackDevice));
             return volume;
         }
 
@@ -756,7 +762,7 @@ namespace WaveSabreConvert
 
             songTrack = new Song.Track();
             songTrack.Name = trackName;
-            songTrack.Volume = GetTrackVolume(trackDevices[0]); 
+            songTrack.Volume = GetPostVolume(trackDevices[0]); 
             var devices = new List<RnsDevice>();
 
             devices.AddRange(GetDevices(trackDevices, trackName));  // add track devices
