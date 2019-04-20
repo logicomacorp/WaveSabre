@@ -56,8 +56,6 @@ namespace WaveSabrePlayerLib
 		playbackBufferIndex = 0;
 
 		renderThread = new DirectSoundRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
-
-		startTime = timeGetTime();
 	}
 
 	int PreRenderPlayer::GetTempo() const
@@ -80,7 +78,7 @@ namespace WaveSabrePlayerLib
 		if (!renderThread)
 			return 0.0;
 
-		return max(((double)(timeGetTime() - startTime) - (double)playbackBufferSizeMs) / 1000.0, 0.0);
+		return max(((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0, 0.0);
 	}
 
 	void PreRenderPlayer::renderCallback(SongRenderer::Sample *buffer, int numSamples, void *data)

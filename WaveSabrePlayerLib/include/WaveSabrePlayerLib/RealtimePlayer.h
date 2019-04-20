@@ -27,8 +27,6 @@ namespace WaveSabrePlayerLib
 		int numRenderThreads;
 		int bufferSizeMs;
 
-		unsigned int startTime;
-
 		SongRenderer *songRenderer;
 		DirectSoundRenderThread *renderThread;
 	};
