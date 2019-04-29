@@ -63,6 +63,36 @@ namespace WaveSabreConvert.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] ReaperDevices {
+            get {
+                object obj = ResourceManager.GetObject("ReaperDevices", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ReaperProject {
+            get {
+                object obj = ResourceManager.GetObject("ReaperProject", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] ReaperTrack {
+            get {
+                object obj = ResourceManager.GetObject("ReaperTrack", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] RenoiseTemplate {
             get {
                 object obj = ResourceManager.GetObject("RenoiseTemplate", resourceCulture);

@@ -38,14 +38,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.buttonProjectDetails = new System.Windows.Forms.Button();
             this.buttonExportRenoise = new System.Windows.Forms.Button();
+            this.buttonExportReaper = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonOpenProject
             // 
-            this.buttonOpenProject.Location = new System.Drawing.Point(32, 29);
-            this.buttonOpenProject.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonOpenProject.Location = new System.Drawing.Point(16, 15);
+            this.buttonOpenProject.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonOpenProject.Name = "buttonOpenProject";
-            this.buttonOpenProject.Size = new System.Drawing.Size(277, 55);
+            this.buttonOpenProject.Size = new System.Drawing.Size(138, 28);
             this.buttonOpenProject.TabIndex = 0;
             this.buttonOpenProject.Text = "Open Project";
             this.buttonOpenProject.UseVisualStyleBackColor = true;
@@ -54,10 +55,10 @@
             // buttonSaveHeader
             // 
             this.buttonSaveHeader.Enabled = false;
-            this.buttonSaveHeader.Location = new System.Drawing.Point(32, 329);
-            this.buttonSaveHeader.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonSaveHeader.Location = new System.Drawing.Point(16, 170);
+            this.buttonSaveHeader.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonSaveHeader.Name = "buttonSaveHeader";
-            this.buttonSaveHeader.Size = new System.Drawing.Size(277, 55);
+            this.buttonSaveHeader.Size = new System.Drawing.Size(138, 28);
             this.buttonSaveHeader.TabIndex = 0;
             this.buttonSaveHeader.Text = "Save C++ Header";
             this.buttonSaveHeader.UseVisualStyleBackColor = true;
@@ -66,10 +67,10 @@
             // buttonSaveBinary
             // 
             this.buttonSaveBinary.Enabled = false;
-            this.buttonSaveBinary.Location = new System.Drawing.Point(32, 398);
-            this.buttonSaveBinary.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonSaveBinary.Location = new System.Drawing.Point(16, 205);
+            this.buttonSaveBinary.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonSaveBinary.Name = "buttonSaveBinary";
-            this.buttonSaveBinary.Size = new System.Drawing.Size(277, 55);
+            this.buttonSaveBinary.Size = new System.Drawing.Size(138, 28);
             this.buttonSaveBinary.TabIndex = 0;
             this.buttonSaveBinary.Text = "Save Binary Song";
             this.buttonSaveBinary.UseVisualStyleBackColor = true;
@@ -78,10 +79,10 @@
             // buttonPlaySong
             // 
             this.buttonPlaySong.Enabled = false;
-            this.buttonPlaySong.Location = new System.Drawing.Point(32, 215);
-            this.buttonPlaySong.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonPlaySong.Location = new System.Drawing.Point(16, 111);
+            this.buttonPlaySong.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonPlaySong.Name = "buttonPlaySong";
-            this.buttonPlaySong.Size = new System.Drawing.Size(277, 55);
+            this.buttonPlaySong.Size = new System.Drawing.Size(138, 28);
             this.buttonPlaySong.TabIndex = 0;
             this.buttonPlaySong.Text = "Play Song";
             this.buttonPlaySong.UseVisualStyleBackColor = true;
@@ -90,10 +91,10 @@
             // buttonExportWav
             // 
             this.buttonExportWav.Enabled = false;
-            this.buttonExportWav.Location = new System.Drawing.Point(32, 467);
-            this.buttonExportWav.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonExportWav.Location = new System.Drawing.Point(16, 241);
+            this.buttonExportWav.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonExportWav.Name = "buttonExportWav";
-            this.buttonExportWav.Size = new System.Drawing.Size(277, 55);
+            this.buttonExportWav.Size = new System.Drawing.Size(138, 28);
             this.buttonExportWav.TabIndex = 0;
             this.buttonExportWav.Text = "Export Wav";
             this.buttonExportWav.UseVisualStyleBackColor = true;
@@ -104,31 +105,31 @@
             this.textBoxOutput.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBoxOutput.Location = new System.Drawing.Point(325, 67);
-            this.textBoxOutput.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.textBoxOutput.Location = new System.Drawing.Point(162, 35);
+            this.textBoxOutput.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxOutput.Multiline = true;
             this.textBoxOutput.Name = "textBoxOutput";
             this.textBoxOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxOutput.Size = new System.Drawing.Size(1135, 655);
+            this.textBoxOutput.Size = new System.Drawing.Size(570, 388);
             this.textBoxOutput.TabIndex = 2;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(325, 29);
-            this.label1.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            this.label1.Location = new System.Drawing.Point(162, 15);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(286, 32);
+            this.label1.Size = new System.Drawing.Size(143, 17);
             this.label1.TabIndex = 3;
             this.label1.Text = "Conversion Warnings";
             // 
             // buttonProjectDetails
             // 
             this.buttonProjectDetails.Enabled = false;
-            this.buttonProjectDetails.Location = new System.Drawing.Point(29, 98);
-            this.buttonProjectDetails.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonProjectDetails.Location = new System.Drawing.Point(14, 51);
+            this.buttonProjectDetails.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonProjectDetails.Name = "buttonProjectDetails";
-            this.buttonProjectDetails.Size = new System.Drawing.Size(277, 55);
+            this.buttonProjectDetails.Size = new System.Drawing.Size(138, 28);
             this.buttonProjectDetails.TabIndex = 4;
             this.buttonProjectDetails.Text = "Project Details";
             this.buttonProjectDetails.UseVisualStyleBackColor = true;
@@ -137,23 +138,36 @@
             // buttonExportRenoise
             // 
             this.buttonExportRenoise.Enabled = false;
-            this.buttonExportRenoise.Location = new System.Drawing.Point(32, 636);
-            this.buttonExportRenoise.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.buttonExportRenoise.Location = new System.Drawing.Point(16, 328);
+            this.buttonExportRenoise.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonExportRenoise.Name = "buttonExportRenoise";
-            this.buttonExportRenoise.Size = new System.Drawing.Size(277, 86);
+            this.buttonExportRenoise.Size = new System.Drawing.Size(138, 44);
             this.buttonExportRenoise.TabIndex = 0;
             this.buttonExportRenoise.Text = "Export Renoise Patch Song";
             this.buttonExportRenoise.UseVisualStyleBackColor = true;
             this.buttonExportRenoise.Click += new System.EventHandler(this.buttonExportRenoise_Click);
             // 
+            // buttonExportReaper
+            // 
+            this.buttonExportReaper.Enabled = false;
+            this.buttonExportReaper.Location = new System.Drawing.Point(16, 380);
+            this.buttonExportReaper.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonExportReaper.Name = "buttonExportReaper";
+            this.buttonExportReaper.Size = new System.Drawing.Size(138, 44);
+            this.buttonExportReaper.TabIndex = 0;
+            this.buttonExportReaper.Text = "Export Reaper Patch Song";
+            this.buttonExportReaper.UseVisualStyleBackColor = true;
+            this.buttonExportReaper.Click += new System.EventHandler(this.buttonExportReaper_Click);
+            // 
             // ProjectManager
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1499, 756);
+            this.ClientSize = new System.Drawing.Size(750, 438);
             this.Controls.Add(this.buttonProjectDetails);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBoxOutput);
+            this.Controls.Add(this.buttonExportReaper);
             this.Controls.Add(this.buttonExportRenoise);
             this.Controls.Add(this.buttonExportWav);
             this.Controls.Add(this.buttonPlaySong);
@@ -161,7 +175,7 @@
             this.Controls.Add(this.buttonSaveHeader);
             this.Controls.Add(this.buttonOpenProject);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ProjectManager";
             this.Text = "Project Manager";
             this.ResumeLayout(false);
@@ -180,6 +194,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonProjectDetails;
         private System.Windows.Forms.Button buttonExportRenoise;
+        private System.Windows.Forms.Button buttonExportReaper;
     }
 }
 

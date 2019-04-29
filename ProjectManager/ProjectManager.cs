@@ -60,6 +60,7 @@ namespace ProjectManager
             buttonExportWav.Enabled = true;
             buttonProjectDetails.Enabled = true;
             buttonExportRenoise.Enabled = true;
+            buttonExportReaper.Enabled = true;
         }
 
         private void buttonSaveHeader_Click(object sender, EventArgs e)
@@ -176,5 +177,27 @@ namespace ProjectManager
                 MessageBox.Show(err.Message);
             }
         }
+
+        private void buttonExportReaper_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var inject = new ReaperInject();
+                var project = inject.InjectPatches(song, logger);
+
+                var sfd = new SaveFileDialog();
+                sfd.Filter = "Reaper Song File|*.rpp";
+                sfd.FileName = fileName;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllText(sfd.FileName, project);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message);
+            }
+        }
+
     }
 }

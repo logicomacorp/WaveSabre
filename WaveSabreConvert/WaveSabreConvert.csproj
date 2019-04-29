@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReaperInject.cs" />
     <Compile Include="SendItConfig.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="FLConverter.cs" />
@@ -83,6 +84,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ReaperDevices.rpp" />
+    <None Include="Resources\ReaperProject.rpp" />
+    <None Include="Resources\ReaperTrack.rpp" />
     <None Include="Resources\Song.xml" />
     <None Include="Resources\template.xrns" />
   </ItemGroup>
