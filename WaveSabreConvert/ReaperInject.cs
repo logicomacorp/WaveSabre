@@ -144,47 +144,68 @@ namespace WaveSabreConvert
                 }
             }
 
-            var writer = new BinaryWriter(new MemoryStream());
+            var headerChunk = new BinaryWriter(new MemoryStream());
+            var footerChunk = new BinaryWriter(new MemoryStream());
 
             // vst chunk
             using (var reader = new BinaryReader(new MemoryStream(chunkList.ToArray())))
             {
-                writer.Write(reader.ReadChars(4));
+                headerChunk.Write(reader.ReadChars(4));
                 //var tag = reader.ReadChars(4);
-                writer.Write(reader.ReadInt32());
+                headerChunk.Write(reader.ReadInt32());
                 //var something = reader.ReadInt32();
                 var inputChannels = reader.ReadInt32();
-                writer.Write(inputChannels);
-                writer.Write(reader.ReadBytes(inputChannels * 8));
+                headerChunk.Write(inputChannels);
+                headerChunk.Write(reader.ReadBytes(inputChannels * 8));
                 //reader.ReadBytes(inputChannels * 8);
                 
                 var outputChannels = reader.ReadInt32();
-                writer.Write(outputChannels);
-                writer.Write(reader.ReadBytes(outputChannels * 8));
+                headerChunk.Write(outputChannels);
+                headerChunk.Write(reader.ReadBytes(outputChannels * 8));
                 //reader.ReadBytes(outputChannels * 8);
                 
                 var chunkLength = reader.ReadInt32();
-                writer.Write(deviceChunk.Length);
-                writer.Write(reader.ReadInt32());
-                writer.Write(reader.ReadInt32());
+                headerChunk.Write(deviceChunk.Length);
+                headerChunk.Write(reader.ReadInt32());
+                headerChunk.Write(reader.ReadInt32());
                 //reader.ReadInt32();     // no idea what this is
                 //reader.ReadInt32();     // or this for that matter
+
+                //mainChunk.Write(deviceChunk);
                 
-                writer.Write(deviceChunk);
                 reader.ReadBytes(chunkLength);
                 int leftover = (int)reader.BaseStream.Length - (int)reader.BaseStream.Position;
-                writer.Write(reader.ReadBytes(leftover));
+                footerChunk.Write(reader.ReadBytes(leftover));
             }
 
             var sb = new StringBuilder();
-            var ms = (MemoryStream)writer.BaseStream;
+            var headerMs = (MemoryStream)headerChunk.BaseStream;
+            var footerMs = (MemoryStream)footerChunk.BaseStream;
+            var baseChunks = SplitInParts(Convert.ToBase64String(deviceChunk), 128);
+
 
             sb.AppendLine(header);
-            sb.AppendLine(Convert.ToBase64String(ms.ToArray()));
+            sb.AppendLine(Convert.ToBase64String(headerMs.ToArray()));
+            foreach (var chunk in baseChunks)
+            {
+                sb.AppendLine(chunk);
+            }
+            sb.AppendLine(Convert.ToBase64String(footerMs.ToArray()));
             sb.AppendLine(footer);
 
             return sb.ToString();
 
+        }
+
+        private IEnumerable<String> SplitInParts(string s, Int32 partLength)
+        {
+            if (s == null)
+                throw new ArgumentNullException("s");
+            if (partLength <= 0)
+                throw new ArgumentException("Part length has to be positive.", "partLength");
+
+            for (var i = 0; i < s.Length; i += partLength)
+                yield return s.Substring(i, Math.Min(partLength, s.Length - i));
         }
 
 
