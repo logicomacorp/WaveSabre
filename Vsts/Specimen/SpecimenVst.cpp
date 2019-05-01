@@ -50,6 +50,8 @@ void SpecimenVst::getParameterName(VstInt32 index, char *text)
 	case Specimen::ParamIndices::VoicesPan: vst_strncpy(text, "Vcs Pan", kVstMaxParamStrLen); break;
 
 	case Specimen::ParamIndices::Master: vst_strncpy(text, "Master", kVstMaxParamStrLen); break;
+	case Specimen::ParamIndices::VoiceMode: vst_strncpy(text, "Mode", kVstMaxParamStrLen); break;
+	case Specimen::ParamIndices::SlideTime: vst_strncpy(text, "Slide", kVstMaxParamStrLen); break;
 	}
 }
 
