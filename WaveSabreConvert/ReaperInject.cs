@@ -151,27 +151,22 @@ namespace WaveSabreConvert
             using (var reader = new BinaryReader(new MemoryStream(chunkList.ToArray())))
             {
                 headerChunk.Write(reader.ReadChars(4));
-                //var tag = reader.ReadChars(4);
                 headerChunk.Write(reader.ReadInt32());
-                //var something = reader.ReadInt32();
                 var inputChannels = reader.ReadInt32();
                 headerChunk.Write(inputChannels);
                 headerChunk.Write(reader.ReadBytes(inputChannels * 8));
-                //reader.ReadBytes(inputChannels * 8);
                 
                 var outputChannels = reader.ReadInt32();
                 headerChunk.Write(outputChannels);
                 headerChunk.Write(reader.ReadBytes(outputChannels * 8));
-                //reader.ReadBytes(outputChannels * 8);
-                
+
                 var chunkLength = reader.ReadInt32();
                 headerChunk.Write(deviceChunk.Length);
-                headerChunk.Write(reader.ReadInt32());
-                headerChunk.Write(reader.ReadInt32());
-                //reader.ReadInt32();     // no idea what this is
-                //reader.ReadInt32();     // or this for that matter
+                var val1 = reader.ReadInt32();
+                var val2 = reader.ReadInt32();
 
-                //mainChunk.Write(deviceChunk);
+                headerChunk.Write(val1);
+                headerChunk.Write(val2);
                 
                 reader.ReadBytes(chunkLength);
                 int leftover = (int)reader.BaseStream.Length - (int)reader.BaseStream.Position;
