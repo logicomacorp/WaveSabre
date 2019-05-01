@@ -4,6 +4,7 @@ using System.Linq;
 using Renoise;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace WaveSabreConvert
 {
@@ -345,11 +346,16 @@ namespace WaveSabreConvert
             {
                 if (ins.Device != null)
                 {
+                    var instrument = (RenoiseInstrument)ins.InstrumentSource;
                     var track = new Song.Track();
                     track.Name = ins.Name;
                     track.Devices = new List<Song.Device>();
                     track.Devices.Add(ins.Device);
-                    track.Volume = ((RenoiseInstrument)ins.InstrumentSource).PluginGenerator.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+                    if (instrument.PluginGenerator == null)
+                        track.Volume = instrument.PluginProperties.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+                    else
+                        track.Volume = instrument.PluginGenerator.Volume * project.GlobalSongData.GlobalTrackHeadroom;
+
                     PopulateInstrumentTrack(track, ins);
 
                     if (track.Events.Count > 0)
@@ -428,10 +434,16 @@ namespace WaveSabreConvert
                 return 0;
             });
         }
-
+        
         private float GetTrackVolume(object trackDevice)
         {
             float volume = (float)GetProp("Value", GetProp("Volume", trackDevice));
+            return volume;
+        }
+
+        private float GetPostVolume(object trackDevice)
+        {
+            float volume = (float)GetProp("Value", GetProp("PostVolume", trackDevice));
             return volume;
         }
 
@@ -635,7 +647,7 @@ namespace WaveSabreConvert
                                     foreach (string point in a.Envelope.Points) // add all current points
                                     {
                                         var timePoint = Convert.ToInt32(point.Split(',')[0]);
-                                        var value = (float)Convert.ToDouble(point.Split(',')[1]);
+                                        var value = (float)double.Parse(point.Split(',')[1], NumberStyles.AllowDecimalPoint, CultureInfo.GetCultureInfo("en-gb"));
 
                                         var newAuto = new RnsAuto();
                                         newAuto.TimePoint = timePoint;
@@ -712,17 +724,19 @@ namespace WaveSabreConvert
 
                 foreach (var auto in allAuto)
                 {
-                    if (devices.Devices.Items[auto.DeviceIndex] is InstrumentAutomationDevice)
+                    var dest = devices.Devices.Items[auto.DeviceIndex];
+                    if (dest is InstrumentAutomationDevice)
                     {
-                        // TODO: Add it to the instrument auto bank
+                        var autoDevice = (InstrumentAutomationDevice)devices.Devices.Items[auto.DeviceIndex];
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
-                        autoMap.AutoSource = project.Instruments.Instrument[auto.DeviceIndex];
+                        autoMap.AutoSource = project.Instruments.Instrument[autoDevice.LinkedInstrument];
+                        var paramName = string.Format("ParameterNumber{0}", autoMap.Auotmation.ParamId);
+                        autoMap.Auotmation.ParamId = (int)GetProp(paramName, autoDevice);
                         automationMaps.Add(autoMap);
                     }
-                    else if (devices.Devices.Items[auto.DeviceIndex] is AudioPluginDevice)
+                    else if (dest is AudioPluginDevice)
                     {
-                        // TODO: add it to the track dsp auto bank
                         var autoMap = new RnsAutoMap();
                         autoMap.Auotmation = auto;
                         autoMap.AutoSource = tempTrack;
@@ -731,8 +745,7 @@ namespace WaveSabreConvert
                     }
                     else
                     {
-                        // TODO: not sure how this could even happen!
-                        logger.WriteLine("WARNING: unknown automation device on track [{0}]", trackName);
+                        logger.WriteLine("WARNING: automation for device [{1}] on track [{0}] is NOT supported", trackName, dest.GetType().Name);
                     }
                 }
             }
@@ -749,7 +762,7 @@ namespace WaveSabreConvert
 
             songTrack = new Song.Track();
             songTrack.Name = trackName;
-            songTrack.Volume = GetTrackVolume(trackDevices[0]); 
+            songTrack.Volume = GetPostVolume(trackDevices[0]); 
             var devices = new List<RnsDevice>();
 
             devices.AddRange(GetDevices(trackDevices, trackName));  // add track devices
@@ -836,11 +849,26 @@ namespace WaveSabreConvert
                 }
                 else
                 {
-                    if (deviceIndex > 0)
+                    var deviceType = device.GetType().Name.ToString();
+                    
+                    switch (deviceType)
                     {
-                        logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported", 
+                        case "InstrumentAutomationDevice":
+                        case "TrackMixerDevice":
+                        case "GroupTrackMixerDevice":
+                        case "MasterTrackMixerDevice":
+                        case "SendTrackMixerDevice":
+                        case "SendDevice":
+                        case "SequencerTrackDevice":
+                        case "SequencerGroupTrackDevice":
+                        case "SequencerSendTrackDevice":
+                        case "SequencerMasterTrackDevice":
+                            break;
+                        default:
+                            logger.WriteLine(string.Format("WARNING: Track {0} has device {1} which is not supported",
                             trackName,
-                            device.GetType()));
+                            device.GetType().Name));
+                            break;
                     }
                 }
 
@@ -1043,50 +1071,57 @@ namespace WaveSabreConvert
 
             var lanes = lines.Select(l => l.NoteColumns.NoteColumn).ToList().Max(x => x.Count());
 
-            bool[] active = new bool[lanes];
-            string[] lastNote = new string[lanes];
             for (int i = 0; i < lanes; i++)
             {
-                lastNote[i] = "";
-                active[i] = false;
-            }
+                bool active = false;
+                string lastNote = "";
 
-            foreach (var line in lines)
-            {
-                double eventTime = (double)line.index * secondsPerIndex;
-
-                // shift event time based on global groove
-                if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                foreach (var line in lines)
                 {
-                    int shuffle = (line.OrigianlIndex % 8) / 2;
-                    double indexFraction = (double)secondsPerIndex / 3 * 2;
-                    indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
-                    eventTime += indexFraction;
-                }
+                    if (i >= line.NoteColumns.NoteColumn.Count())
+                    {
+                        continue;
+                    }
 
-                for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
-                {
-                    string note = line.NoteColumns.NoteColumn[i].Note;
+                    double eventTime = (double)line.index * secondsPerIndex;
+
+                    // shift event time based on global groove
+                    if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                    {
+                        int shuffle = (line.OrigianlIndex % 8) / 2;
+                        double indexFraction = (double)secondsPerIndex / 3 * 2;
+                        indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
+                        eventTime += indexFraction;
+                    }
+
+                    int inst = -1;
+                    var note = line.NoteColumns.NoteColumn[i].Note;
+                    var insId = line.NoteColumns.NoteColumn[i].Instrument;
+
+                    if (!int.TryParse(insId, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out inst))
+                        inst = -1;
+
                     byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
 
                     // active and new note or off command
-                    if (active[i] && note != "")
+                    if (active && !string.IsNullOrEmpty(note))
                     {
-                        active[i] = false;
+                        active = false;
                         events.Add(new Song.Event()
                         {
                             TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
                             Type = Song.EventType.NoteOff,
-                            Note = NoteToByte(lastNote[i])
+                            Note = NoteToByte(lastNote)
                         });
                     }
-                    if (Convert.ToInt32(line.NoteColumns.NoteColumn[i].Instrument) == instrumentId)
+
+                    // new note
+                    if (note != "OFF" && note != "")
                     {
-                        // new note
-                        if (note != "OFF" && note != "")
+                        if (inst == instrumentId)
                         {
-                            active[i] = true;
-                            lastNote[i] = note;
+                            active = true;
+                            lastNote = note;
                             events.Add(new Song.Event()
                             {
                                 TimeStamp = SecondsToSamples(eventTime, (double)sampleRate),
@@ -1096,7 +1131,6 @@ namespace WaveSabreConvert
                             });
                         }
                     }
-                    
                 }
             }
             return events;
@@ -1123,17 +1157,16 @@ namespace WaveSabreConvert
             foreach (var line in lines)
             {
                 double eventTime = (double)line.index * secondsPerIndex;
-
-                if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
-                {
-                    int shuffle = (line.OrigianlIndex % 8) / 2;
-                    double indexFraction = (double)secondsPerIndex / 3 * 2;
-                    indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
-                    eventTime += indexFraction;
-                }
-
                 for (int i = 0; i < line.NoteColumns.NoteColumn.ToList().Count; i++)
                 {
+                    if (line.OrigianlIndex % 2 == 1)        // odd line, add groove
+                    {
+                        int shuffle = (line.OrigianlIndex % 8) / 2;
+                        double indexFraction = (double)secondsPerIndex / 3 * 2;
+                        indexFraction = indexFraction / 100 * project.GlobalSongData.ShuffleAmounts[shuffle];
+                        eventTime += indexFraction;
+                    }
+
                     string note = line.NoteColumns.NoteColumn[i].Note;
                     byte velocity = VolumeToByte(line.NoteColumns.NoteColumn[i].Volume);
                     // active and new note or off command
