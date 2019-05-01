@@ -51,6 +51,8 @@ target_include_directories(WaveSabreVstLib PUBLIC
 	../Vst3.x/public.sdk/source/vst2.x
 	../Vst3.x)
 
+target_compile_definitions(WaveSabreVstLib PUBLIC USE_LIBPNG)
+
 if(MSVC)
 	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS)
 	target_compile_options(WaveSabreVstLib PUBLIC /EHsc)
