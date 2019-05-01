@@ -35,8 +35,6 @@ namespace WaveSabrePlayerLib
 		int playbackBufferSizeMs;
 		int playbackBufferIndex;
 
-		unsigned int startTime;
-
 		DirectSoundRenderThread *renderThread;
 	};
 }

@@ -37,6 +37,8 @@ namespace WaveSabrePlayerLib
 		typedef short Sample;
 
 		static const int NumChannels = 2;
+		static const int BitsPerSample = 16;
+		static const int BlockAlign = NumChannels * BitsPerSample / 8;
 
 		SongRenderer(const SongRenderer::Song *song, int numRenderThreads);
 		~SongRenderer();
