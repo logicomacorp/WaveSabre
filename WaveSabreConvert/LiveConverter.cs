@@ -219,7 +219,6 @@ namespace WaveSabreConvert
                     var time = e.Time - songStartTime;
                     int timeStamp = Math.Max(secondsToSamples(time, (double)song.Tempo, (double)song.SampleRate), lastTimeStamp);
 
-                    //songEvent.TimeStamp = secondsToSamples(time, (double) song.Tempo, (double) song.SampleRate);
                     songEvent.TimeStamp = e.Samples;
                     songEvent.Type = e.Type;
                     songEvent.Note = e.Note;
