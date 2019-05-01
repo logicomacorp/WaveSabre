@@ -46,20 +46,6 @@ namespace WaveSabreCore
 		runningOutputs[0] = outputs[0];
 		runningOutputs[1] = outputs[1];
 
-		switch (voiceMode)
-		{
-			case VoiceMode::Polyphonic:
-			default:
-				RunPolyVoice(songPosition, runningOutputs, numSamples);
-				break;
-			case VoiceMode::MonoLegatoTrill:
-				RunMonoVoice(songPosition, runningOutputs, numSamples);
-				break;
-		}
-	}
-
-	void SynthDevice::RunPolyVoice(double songPosition, float **runningOutputs, int numSamples)
-	{
 		while (numSamples)
 		{
 			int samplesToNextEvent = numSamples;
@@ -72,129 +58,100 @@ namespace WaveSabreCore
 					{
 						switch (e->Type)
 						{
-						case EventType::NoteOn:
-						{
-							int j = VoicesUnisono;
-							for (int k = 0; j && k < maxVoices; k++)
+							case EventType::NoteOn:
 							{
-								if (!voices[k]->IsOn)
-								{
-									j--;
-									float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
-									voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
-								}
-							}
-						}
-							break;
-
-						case EventType::NoteOff:
-							for (int j = 0; j < maxVoices; j++)
-							{
-								if (voices[j]->IsOn && voices[j]->Note == e->Note) voices[j]->NoteOff();
-							}
-						}
-						events[i].Type = EventType::None;
-					}
-					else if (e->DeltaSamples < samplesToNextEvent)
-					{
-						samplesToNextEvent = e->DeltaSamples;
-					}
-				}
-			}
-
-			for (int i = 0; i < maxVoices; i++)
-			{
-				if (voices[i]->IsOn) voices[i]->Run(songPosition, runningOutputs, samplesToNextEvent);
-			}
-			for (int i = 0; i < maxEvents; i++)
-			{
-				if (events[i].Type != EventType::None) events[i].DeltaSamples -= samplesToNextEvent;
-			}
-			songPosition += (double)samplesToNextEvent / Helpers::CurrentSampleRate;
-			runningOutputs[0] += samplesToNextEvent;
-			runningOutputs[1] += samplesToNextEvent;
-			numSamples -= samplesToNextEvent;
-		}
-	}
-
-	void SynthDevice::RunMonoVoice(double songPosition, float **runningOutputs, int numSamples)
-	{
-		while (numSamples)
-		{
-			int samplesToNextEvent = numSamples;
-			for (int i = 0; i < maxEvents; i++)
-			{
-				Event *e = &events[i];
-				if (e->Type != EventType::None)
-				{
-					if (!e->DeltaSamples)
-					{
-						switch (e->Type)
-						{
-						case EventType::NoteOn:
-						{
-							activeNotes[e->Note] = true;
-							noteLog[noteCount] = e->Note;
-							noteCount++;
-							if (!monoActive)  // no current note active, start new one
-							{
-								monoActive = true;
 								int j = VoicesUnisono;
-								for (int k = 0; j && k < maxVoices; k++)
+								switch (voiceMode)
 								{
-									if (!voices[k]->IsOn)
-									{
-										j--;
-										float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
-										voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
-									}
-								}
-							}
-							else   // note active, slide to new note
-							{
-								for (int j = 0; j < maxVoices; j++)
-								{
-									if (voices[j]->IsOn)
-									{
-										voices[j]->NoteSlide(e->Note);
-									}
-								}
-							}
-						}
-						break;
+								case VoiceMode::Polyphonic:
+								default:
 
-						case EventType::NoteOff:
-							activeNotes[e->Note] = false;
-							if (e->Note == noteLog[noteCount - 1])	// note off is last note played, find last active note
-							{
-								for (; noteCount > 0; noteCount--)
-								{
-									if (activeNotes[noteLog[noteCount - 1]])
+									for (int k = 0; j && k < maxVoices; k++)
+									{
+										if (!voices[k]->IsOn)
+										{
+											j--;
+											float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
+											voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
+										}
+									}
+									break;
+								case VoiceMode::MonoLegatoTrill:
+									activeNotes[e->Note] = true;
+									noteLog[noteCount] = e->Note;
+									noteCount++;
+									if (!monoActive)  // no current note active, start new one
+									{
+										monoActive = true;
+										for (int k = 0; j && k < maxVoices; k++)
+										{
+											if (!voices[k]->IsOn)
+											{
+												j--;
+												float f = (float)j / (VoicesUnisono > 1 ? (float)(VoicesUnisono - 1) : 1.0f);
+												voices[k]->NoteOn(e->Note, e->Velocity, f * VoicesDetune, (f - .5f) * (VoicesPan * 2.0f - 1.0f) + .5f);
+											}
+										}
+									}
+									else   // note active, slide to new note
 									{
 										for (int j = 0; j < maxVoices; j++)
 										{
 											if (voices[j]->IsOn)
 											{
-												voices[j]->NoteSlide(noteLog[noteCount - 1]);
+												voices[j]->NoteSlide(e->Note);
 											}
 										}
-										break;
 									}
+									break;
 								}
+							}
+							break;
 
-								if (noteCount <= 0)   // no notes left, switch off the voices
+						case EventType::NoteOff:
+							switch (voiceMode)
+							{
+							case VoiceMode::Polyphonic:
+							default:
+								for (int j = 0; j < maxVoices; j++)
 								{
-									monoActive = false;
-									noteCount = 0;
-									for (int j = 0; j < 127; j++) activeNotes[j] = false;
-									for (int j = 0; j < maxVoices; j++)
+									if (voices[j]->IsOn && voices[j]->Note == e->Note) voices[j]->NoteOff();
+								}
+								break;
+							case VoiceMode::MonoLegatoTrill:
+								activeNotes[e->Note] = false;
+								if (e->Note == noteLog[noteCount - 1])	// note off is last note played, find last active note
+								{
+									for (; noteCount > 0; noteCount--)
 									{
-										if (voices[j]->IsOn)
+										if (activeNotes[noteLog[noteCount - 1]])
 										{
-											voices[j]->NoteOff();
+											for (int j = 0; j < maxVoices; j++)
+											{
+												if (voices[j]->IsOn)
+												{
+													voices[j]->NoteSlide(noteLog[noteCount - 1]);
+												}
+											}
+											break;
+										}
+									}
+
+									if (noteCount <= 0)   // no notes left, switch off the voices
+									{
+										monoActive = false;
+										noteCount = 0;
+										for (int j = 0; j < 127; j++) activeNotes[j] = false;
+										for (int j = 0; j < maxVoices; j++)
+										{
+											if (voices[j]->IsOn)
+											{
+												voices[j]->NoteOff();
+											}
 										}
 									}
 								}
+								break;
 							}
 						}
 						events[i].Type = EventType::None;
