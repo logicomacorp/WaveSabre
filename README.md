@@ -20,7 +20,7 @@ Contributions are very welcome, however as the public release is still in its in
 
 ## Productions
 
-WaveSabre has been used in several intros, demos, and executable entries, including (but not limited to):
+WaveSabre has been used in several intros, demos, and executable music productions, including (but not limited to):
 
 - [dope on wax](http://www.pouet.net/prod.php?which=81015) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2019
 - [trashpanda](http://www.pouet.net/prod.php?which=78634) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2018
@@ -31,7 +31,7 @@ WaveSabre has been used in several intros, demos, and executable entries, includ
 - [elysian](http://www.pouet.net/prod.php?which=68375) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2016
 - [backscatter](http://www.pouet.net/prod.php?which=65966) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2015
 
-If you've used WaveSabre in a production and would like it included in this list, feel free to submit a pull request!
+You can find a more exhaustive production list [here](https://github.com/logicomacorp/WaveSabre/wiki/Productions).
 
 ## Team
 
