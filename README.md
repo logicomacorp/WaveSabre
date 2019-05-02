@@ -20,17 +20,18 @@ Contributions are very welcome, however as the public release is still in its in
 
 ## Productions
 
-WaveSabre has been used in several intros and demos by [logicoma](http://www.pouet.net/groups.php?which=12638), including:
+WaveSabre has been used in several intros, demos, and executable entries, including (but not limited to):
 
-- [trashpanda](http://www.pouet.net/prod.php?which=78634), 2018
-- [bros before foes](http://www.pouet.net/prod.php?which=77682) (with [poo-brain](http://www.pouet.net/groups.php?which=12000)), 2018
-- [iota](http://www.pouet.net/prod.php?which=75718), 2018
-- [soundproof motion](http://www.pouet.net/prod.php?which=70460) (with [fairlight](http://www.pouet.net/groups.php?which=44)), 2017
-- [engage](http://www.pouet.net/prod.php?which=69658), 2017
-- [elysian](http://www.pouet.net/prod.php?which=68375), 2016
-- [backscatter](http://www.pouet.net/prod.php?which=65966), 2015
+- [dope on wax](http://www.pouet.net/prod.php?which=81015) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2019
+- [trashpanda](http://www.pouet.net/prod.php?which=78634) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2018
+- [bros before foes](http://www.pouet.net/prod.php?which=77682) by [logicoma](http://www.pouet.net/groups.php?which=12638) and [poo-brain](http://www.pouet.net/groups.php?which=12000), 2018
+- [iota](http://www.pouet.net/prod.php?which=75718) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2018
+- [soundproof motion](http://www.pouet.net/prod.php?which=70460) by [logicoma](http://www.pouet.net/groups.php?which=12638) and [fairlight](http://www.pouet.net/groups.php?which=44), 2017
+- [engage](http://www.pouet.net/prod.php?which=69658) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2017
+- [elysian](http://www.pouet.net/prod.php?which=68375) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2016
+- [backscatter](http://www.pouet.net/prod.php?which=65966) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2015
 
-..as well as several other executable music entries and smaller productions.
+If you've used WaveSabre in a production and would like it included in this list, feel free to submit a pull request!
 
 ## Team
 
