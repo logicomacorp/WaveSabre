@@ -31,7 +31,7 @@ WaveSabre has been used in several intros, demos, and executable music productio
 - [elysian](http://www.pouet.net/prod.php?which=68375) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2016
 - [backscatter](http://www.pouet.net/prod.php?which=65966) by [logicoma](http://www.pouet.net/groups.php?which=12638), 2015
 
-You can find a more exhaustive production list [here](https://github.com/logicomacorp/WaveSabre/wiki/Productions).
+You can find a more exhaustive production list [here](https://demozoo.org/productions/tagged/wavesabre/).
 
 ## Team
 
