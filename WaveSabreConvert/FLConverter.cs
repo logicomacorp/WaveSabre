@@ -281,6 +281,8 @@ namespace WaveSabreConvert
                     if (pl is PatternPlaylistItem)
                     {
                         var pl2 = (PatternPlaylistItem) pl;
+                        if (pl2.Muted) continue;    // muted, skip it
+
                         int position = pl.Position;
                         foreach (var notes in pl2.Pattern.Notes)
                         {
@@ -354,6 +356,8 @@ namespace WaveSabreConvert
                     if (pl is ChannelPlaylistItem)
                     {
                         var pl2 = (ChannelPlaylistItem) pl;
+                        if (pl2.Muted) continue;
+
                         var startOffset = pl2.StartOffset < 0 ? 0 : pl2.StartOffset;
                         var endOffset = pl2.EndOffset < 0 ? pl2.Length : pl2.EndOffset;
 
@@ -365,6 +369,12 @@ namespace WaveSabreConvert
 
                             if (chan.Id == auto.Channel.Id)
                             {
+                                if (!auto.VstParameter)
+                                {
+                                    logger.WriteLine("WARNING: Track {0} contains channel param automation which is not supported", flTrack.Name);
+                                    continue;
+                                }
+
                                 var newAuto = track.Automations.FirstOrDefault(a => a.ParamId == auto.Parameter);
                                 if (newAuto == null)
                                 {
