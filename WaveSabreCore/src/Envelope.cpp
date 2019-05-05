@@ -73,7 +73,7 @@ namespace WaveSabreCore
 
 		case EnvelopeState::Decay:
 			pos += posDelta;
-			if (pos >= Decay) State = EnvelopeState::Sustain;
+			if (pos >= Decay) State = Sustain > 0.0f ? EnvelopeState::Sustain : EnvelopeState::Finished;
 			break;
 
 		case EnvelopeState::Release:
