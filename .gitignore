@@ -36,10 +36,5 @@ Vst3.x/*
 Data/data.aps
 Vsts/*/*.def
 
-\.vs/Tools/v15/Server/sqlite3/db\.lock
-
-\.vs/Tools/v15/Server/sqlite3/storage\.ide
-
-\.vs/Tools/v15/Server/sqlite3/storage\.ide-shm
-
-\.vs/Tools/v15/Server/sqlite3/storage\.ide-wal
+# Ignore VS 2017 IDE fluff
+sqlite3/
