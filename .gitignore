@@ -35,3 +35,11 @@ Vst3.x/*
 !Vst3.x/README
 Data/data.aps
 Vsts/*/*.def
+
+\.vs/Tools/v15/Server/sqlite3/db\.lock
+
+\.vs/Tools/v15/Server/sqlite3/storage\.ide
+
+\.vs/Tools/v15/Server/sqlite3/storage\.ide-shm
+
+\.vs/Tools/v15/Server/sqlite3/storage\.ide-wal
