@@ -185,6 +185,12 @@ namespace WaveSabreConvert
 
             if (midiLaneDupes > 0)
                 logger.WriteLine("Found {0} duplicate midi lanes", midiLaneDupes);
+
+            var dupeCount = DedupeAutomations();
+            if (dupeCount > 0)
+            {
+                logger.WriteLine("Removed {0} automation points", dupeCount);
+            }
         }
 
         // determines if this midi lane is exactly the same as an existing one
@@ -221,6 +227,53 @@ namespace WaveSabreConvert
 
             MidiLanes.Add(midiLane);
             return MidiLanes.IndexOf(midiLane);
+        }
+
+        // looks for automation points where three in a row are the same value
+        // then removes the middle point, increasing the time stamp for the first one
+        private int DedupeAutomations()
+        {
+            var dupeCount = 0;
+
+            foreach (var track in Tracks)
+            {
+                if (track.Automations.Count > 0)
+                {
+                    foreach (var auto in track.Automations)
+                    {
+                        var points = auto.DeltaCodedPoints;
+
+                        bool done = false;
+                        while (!done)
+                        {
+                            var dupeId = GetDupeDeltaPoint(points);
+                            if (dupeId == -1)
+                            {
+                                done = true;
+                            }
+                            else
+                            {
+                                points[dupeId].TimeFromLastPoint += points[dupeId + 1].TimeFromLastPoint;
+                                points.Remove(points[dupeId + 1]);
+                                dupeCount++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return dupeCount;
+        }
+
+        private int GetDupeDeltaPoint(List<DeltaCodedPoint> points)
+        {
+            for (var i = 1; i < points.Count - 1; i++)
+            {
+                if (points[i].Value == points[i - 1].Value && points[i].Value == points[i + 1].Value)
+                    return i;
+            }
+
+            return -1;
         }
 
         // performs delta encoding on midi and automation events
