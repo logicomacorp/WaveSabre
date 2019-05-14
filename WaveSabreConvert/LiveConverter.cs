@@ -26,7 +26,6 @@ namespace WaveSabreConvert
         class Event
         {
             public double Time;
-            public int Samples;
             public Song.EventType Type;
             public byte Note;
             public byte Velocity;
@@ -58,7 +57,7 @@ namespace WaveSabreConvert
             }
 
             project.MasterTrack.Name = project.MasterTrack.Name == "" ? "Master" : project.MasterTrack.Name;
-
+            
             visitedTracks = new List<LiveProject.Track>();
             orderedTracks = new List<LiveProject.Track>();
 
@@ -81,7 +80,7 @@ namespace WaveSabreConvert
                     Song.Device device = null;
 
                     Song.DeviceId deviceId;
-                    if (Enum.TryParse<Song.DeviceId>(projectDevice.PluginDll.Replace(".dll", "").Replace(".64", ""), out deviceId))
+                    if (Enum.TryParse<Song.DeviceId>(projectDevice.PluginDll.Replace(".dll", "").Replace(".64",""), out deviceId))
                     {
                         device = new Song.Device();
                         device.Id = deviceId;
@@ -151,7 +150,6 @@ namespace WaveSabreConvert
                                             {
                                                 var startEvent = new Event();
                                                 startEvent.Time = startTime;
-                                                startEvent.Samples = secondsToSamples(startTime, song.Tempo, song.SampleRate);
                                                 startEvent.Type = Song.EventType.NoteOn;
                                                 startEvent.Note = (byte)keyTrack.MidiKey;
                                                 startEvent.Velocity = (byte)note.Velocity;
@@ -159,7 +157,6 @@ namespace WaveSabreConvert
 
                                                 var endEvent = new Event();
                                                 endEvent.Time = endTime;
-                                                endEvent.Samples = secondsToSamples(endTime, song.Tempo, song.SampleRate);
                                                 endEvent.Type = Song.EventType.NoteOff;
                                                 endEvent.Note = (byte)keyTrack.MidiKey;
                                                 events.Add(endEvent);
@@ -172,17 +169,17 @@ namespace WaveSabreConvert
                     }
                 }
                 events.Sort((a, b) =>
-                {
-                    if (a.Samples > b.Samples) return 1;
-                    if (a.Samples < b.Samples) return -1;
-                    if (a.Type == Song.EventType.NoteOn && b.Type == Song.EventType.NoteOff) return 1;
-                    if (a.Type == Song.EventType.NoteOff && b.Type == Song.EventType.NoteOn) return -1;
-                    return 0;
-                });
+                    {
+                        if (a.Time > b.Time) return 1;
+                        if (a.Time < b.Time) return -1;
+                        if (a.Type == Song.EventType.NoteOn && b.Type == Song.EventType.NoteOff) return 1;
+                        if (a.Type == Song.EventType.NoteOff && b.Type == Song.EventType.NoteOn) return -1;
+                        return 0;
+                    });
                 foreach (var e in events)
                 {
-                    if (!minEventTime.HasValue || e.Samples < minEventTime.Value) minEventTime = e.Samples;
-                    if (!maxEventTime.HasValue || e.Samples > maxEventTime.Value) maxEventTime = e.Samples;
+                    if (!minEventTime.HasValue || e.Time < minEventTime.Value) minEventTime = e.Time;
+                    if (!maxEventTime.HasValue || e.Time > maxEventTime.Value) maxEventTime = e.Time;
                 }
 
                 projectTracksToSongTracks.Add(projectTrack, track);
@@ -219,7 +216,7 @@ namespace WaveSabreConvert
                     var time = e.Time - songStartTime;
                     int timeStamp = Math.Max(secondsToSamples(time, (double)song.Tempo, (double)song.SampleRate), lastTimeStamp);
 
-                    songEvent.TimeStamp = e.Samples;
+                    songEvent.TimeStamp = secondsToSamples(time, (double) song.Tempo, (double) song.SampleRate);
                     songEvent.Type = e.Type;
                     songEvent.Note = e.Note;
                     songEvent.Velocity = e.Velocity;
