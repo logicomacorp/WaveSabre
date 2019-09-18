@@ -11,3 +11,5 @@
 
 *.md text
 *.ref text
+*.h text
+*.cpp text
