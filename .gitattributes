@@ -1,0 +1,13 @@
+*.lib binary
+*.dll binary
+*.png binary
+*.ico binary
+*.xrns binary
+*.xsd binary
+*.als binary
+*.flp binary
+
+* text=auto
+
+*.md text
+*.ref text
