@@ -11,5 +11,6 @@
 
 *.md text
 *.ref text
+*.txt text
 *.h text
 *.cpp text
