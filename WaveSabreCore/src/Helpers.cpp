@@ -4,6 +4,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#if defined(_MSC_VER) && defined(_M_IX86)
+// TODO: make assembly equivalent for x64 (use intrinsic ?)
 static __declspec(naked) double __vectorcall fpuPow(double x, double y)
 {
 	__asm
@@ -117,6 +119,7 @@ static __declspec(naked) double __vectorcall fpuCos(double x)
 		ret
 	}
 }
+#endif // defined(_MSC_VER) && defined(_M_IX86)
 
 namespace WaveSabreCore
 {
@@ -135,7 +138,11 @@ namespace WaveSabreCore
 		for (int i = 0; i < fastCosTabSize + 1; i++)
 		{
 			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
+#if defined(_MSC_VER) && defined(_M_IX86)
 			fastCosTab[i] = fpuCos(phase);
+#else
+			fastCosTab[i] = cos(phase);
+#endif
 		}
 	}
 
@@ -146,12 +153,20 @@ namespace WaveSabreCore
 
 	double Helpers::Pow(double x, double y)
 	{
+#if defined(_MSC_VER) && defined(_M_IX86)
 		return fpuPow(x, y);
+#else
+		return pow(x, y);
+#endif
 	}
 
 	float Helpers::PowF(float x, float y)
 	{
+#if defined(_MSC_VER) && defined(_M_IX86)
 		return fpuPowF(x, y);
+#else
+		return powf(x, y);
+#endif
 	}
 
 	double Helpers::FastCos(double x)
