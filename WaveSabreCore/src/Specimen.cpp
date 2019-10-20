@@ -190,12 +190,12 @@ namespace WaveSabreCore
 
 		// Figure out size of chunk
 		//  The names here are meant to be symmetric with those in SetChunk for clarity
-		auto headerSize = sizeof(ChunkHeader);
-		auto waveFormatSize = sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize;
-		auto compressedDataSize = compressedSize;
-		auto paramSize = (int)ParamIndices::NumParams * sizeof(float);
-		auto chunkSizeSize = sizeof(int);
-		auto size = headerSize + waveFormatSize + compressedSize + paramSize + chunkSizeSize;
+		int headerSize = sizeof(ChunkHeader);
+    int waveFormatSize = (int)sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize;
+    int compressedDataSize = compressedSize;
+    int paramSize = (int)ParamIndices::NumParams * sizeof(float);
+    int chunkSizeSize = sizeof(int);
+    int size = headerSize + waveFormatSize + compressedSize + paramSize + chunkSizeSize;
 
 		// (Re)allocate chunk data
 		if (chunkData) delete [] chunkData;
@@ -391,7 +391,7 @@ namespace WaveSabreCore
 		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
 	}
 
-	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Specimen::driverId) return 1;
 
@@ -417,7 +417,7 @@ namespace WaveSabreCore
 		return 1;
 	}
 
-	BOOL __stdcall Specimen::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Specimen::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (formatDetails->pwfx->wFormatTag == WAVE_FORMAT_GSM610 &&
 			formatDetails->pwfx->nChannels == 1 &&

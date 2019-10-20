@@ -16,7 +16,7 @@ namespace WaveSabreCore
 		for (int i = 0; gmDlsFile == INVALID_HANDLE_VALUE; i++)
 		{
 			OFSTRUCT reOpenBuff;
-			gmDlsFile = (HANDLE)OpenFile(gmDlsPaths[i], &reOpenBuff, OF_READ);
+			gmDlsFile = (HANDLE)OpenFile(gmDlsPaths[i], &reOpenBuff, OF_READ); // TODO find a way to suppress warning C4312 on x64
 		}
 
 		auto gmDlsFileSize = GetFileSize(gmDlsFile, NULL);
