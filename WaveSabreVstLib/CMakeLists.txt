@@ -1,42 +1,42 @@
 add_library(WaveSabreVstLib
-	../Vst3.x/public.sdk/source/vst2.x/audioeffect.cpp
-	../Vst3.x/public.sdk/source/vst2.x/audioeffectx.cpp
-	../Vst3.x/public.sdk/source/vst2.x/vstplugmain.cpp
-	../Vst3.x/vstgui.sf/libpng/png.c
-	../Vst3.x/vstgui.sf/libpng/pngerror.c
-	../Vst3.x/vstgui.sf/libpng/pnggccrd.c
-	../Vst3.x/vstgui.sf/libpng/pngget.c
-	../Vst3.x/vstgui.sf/libpng/pngmem.c
-	../Vst3.x/vstgui.sf/libpng/pngpread.c
-	../Vst3.x/vstgui.sf/libpng/pngread.c
-	../Vst3.x/vstgui.sf/libpng/pngrio.c
-	../Vst3.x/vstgui.sf/libpng/pngrtran.c
-	../Vst3.x/vstgui.sf/libpng/pngrutil.c
-	../Vst3.x/vstgui.sf/libpng/pngset.c
-	../Vst3.x/vstgui.sf/libpng/pngtrans.c
-	../Vst3.x/vstgui.sf/libpng/pngvcrd.c
-	../Vst3.x/vstgui.sf/libpng/pngwio.c
-	../Vst3.x/vstgui.sf/libpng/pngwrite.c
-	../Vst3.x/vstgui.sf/libpng/pngwtran.c
-	../Vst3.x/vstgui.sf/libpng/pngwutil.c
-	../Vst3.x/vstgui.sf/vstgui/aeffguieditor.cpp
-	../Vst3.x/vstgui.sf/vstgui/cfileselector.cpp
-	../Vst3.x/vstgui.sf/vstgui/vstcontrols.cpp
-	../Vst3.x/vstgui.sf/vstgui/vstgui.cpp
-	../Vst3.x/vstgui.sf/vstgui/vstguidebug.cpp
-	../Vst3.x/vstgui.sf/zlib/adler32.c
-	../Vst3.x/vstgui.sf/zlib/compress.c
-	../Vst3.x/vstgui.sf/zlib/crc32.c
-	../Vst3.x/vstgui.sf/zlib/deflate.c
-	../Vst3.x/vstgui.sf/zlib/gzio.c
-	../Vst3.x/vstgui.sf/zlib/infback.c
-	../Vst3.x/vstgui.sf/zlib/inffast.c
-	../Vst3.x/vstgui.sf/zlib/inflate.c
-	../Vst3.x/vstgui.sf/zlib/inftrees.c
-	../Vst3.x/vstgui.sf/zlib/minigzip.c
-	../Vst3.x/vstgui.sf/zlib/trees.c
-	../Vst3.x/vstgui.sf/zlib/uncompr.c
-	../Vst3.x/vstgui.sf/zlib/zutil.c
+	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
+	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
+	${VSTSDK3_DIR}/public.sdk/source/vst2.x/vstplugmain.cpp
+	${VSTSDK3_DIR}/vstgui.sf/libpng/png.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngerror.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pnggccrd.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngget.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngmem.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngpread.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngread.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngrio.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngrtran.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngrutil.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngset.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngtrans.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngvcrd.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngwio.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngwrite.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngwtran.c
+	${VSTSDK3_DIR}/vstgui.sf/libpng/pngwutil.c
+	${VSTSDK3_DIR}/vstgui.sf/vstgui/aeffguieditor.cpp
+	${VSTSDK3_DIR}/vstgui.sf/vstgui/cfileselector.cpp
+	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstcontrols.cpp
+	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
+	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstguidebug.cpp
+	${VSTSDK3_DIR}/vstgui.sf/zlib/adler32.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/compress.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/crc32.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/deflate.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/gzio.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/infback.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/inffast.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/inflate.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/inftrees.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/minigzip.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/trees.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/uncompr.c
+	${VSTSDK3_DIR}/vstgui.sf/zlib/zutil.c
 	include/WaveSabreVstLib.h
 	src/ImageManager.cpp
 	src/NoTextCOptionMenu.cpp
@@ -46,10 +46,10 @@ add_library(WaveSabreVstLib
 target_include_directories(WaveSabreVstLib PUBLIC
 	include
 	../WaveSabreCore/include
-	../Vst3.x/vstgui.sf/zlib
-	../Vst3.x/vstgui.sf/libpng
-	../Vst3.x/public.sdk/source/vst2.x
-	../Vst3.x)
+	${VSTSDK3_DIR}/vstgui.sf/zlib
+	${VSTSDK3_DIR}/vstgui.sf/libpng
+	${VSTSDK3_DIR}/public.sdk/source/vst2.x
+	${VSTSDK3_DIR})
 
 target_compile_definitions(WaveSabreVstLib PUBLIC USE_LIBPNG)
 
