@@ -8,6 +8,8 @@ if(MSVC)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
+option(VSTSDK3_DIR "VSTSDK location" "./Vst3.x/")
+
 # shared code
 add_subdirectory(WaveSabreCore)
 add_subdirectory(WaveSabrePlayerLib)
