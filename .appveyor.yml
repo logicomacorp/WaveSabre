@@ -13,9 +13,8 @@ install:
       }
 
 build_script:
-  - ps: |
-      New-Item -ItemType Directory -Path build | Out-Null
-      cd build
-      cmake ..
-      msbuild /v:minimal /nologo WaveSabre.sln
-      cd ..
+  - mkdir build
+  - cd build
+  - cmake ..
+  - msbuild /v:minimal /nologo WaveSabre.sln
+  - cd ..
