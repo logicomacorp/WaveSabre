@@ -51,7 +51,7 @@ namespace WaveSabreCore
 
 			case BiquadFilterType::Peak:
 				{
-					float A = Helpers::PowF(10.0f, gain / 40.0f);
+					float A = Helpers::Exp10F(gain / 40.0f);
 					a0 = 1.0f + alpha / A;
 					a1 = -2.0f * (float)Helpers::FastCos(w0);
 					a2 = 1.0f - alpha / A;
