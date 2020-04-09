@@ -6,17 +6,15 @@
 
 #if defined(_MSC_VER) && defined(_M_IX86)
 // TODO: make assembly equivalent for x64 (use intrinsic ?)
-static __declspec(naked) double __vectorcall fpuPow(double x, double y)
+static __declspec(naked) double __vectorcall fpuExp2(double x)
 {
 	__asm
 	{
 		sub esp, 8
 
-		movsd mmword ptr [esp], xmm1
-		fld qword ptr [esp]
 		movsd mmword ptr [esp], xmm0
 		fld qword ptr [esp]
-		fyl2x
+
 		fld st(0)
 		frndint
 		fsubr st(1), st(0)
@@ -37,17 +35,15 @@ static __declspec(naked) double __vectorcall fpuPow(double x, double y)
 	}
 }
 
-static __declspec(naked) float __vectorcall fpuPowF(float x, float y)
+static __declspec(naked) float __vectorcall fpuExp2F(float x)
 {
 	__asm
 	{
 		sub esp, 8
 
-		movss mmword ptr [esp], xmm1
-		fld dword ptr [esp]
 		movss mmword ptr [esp], xmm0
 		fld dword ptr [esp]
-		fyl2x
+
 		fld st(0)
 		frndint
 		fsubr st(1), st(0)
@@ -123,7 +119,7 @@ namespace WaveSabreCore
 		if (x == 0.0)
 			return 1.0;
 
-		return fpuPow(2.0, x);
+		return fpuExp2(x);
 #else
 		return pow(2.0, x);
 #endif
@@ -135,7 +131,7 @@ namespace WaveSabreCore
 		if (x == 0.0f)
 			return 1.0f;
 
-		return fpuPowF(2.0f, x);
+		return fpuExp2F(x);
 #else
 		return powf(2.0f, x);
 #endif
