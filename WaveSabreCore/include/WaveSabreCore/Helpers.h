@@ -21,18 +21,8 @@ namespace WaveSabreCore
 
 		static float RandFloat();
 
-		static double Pow(double x, double y);
-		static float PowF(float x, float y);
-
-		static inline double Exp2(double x)
-		{
-			return Pow(2.0, x);
-		}
-
-		static inline float Exp2F(float x)
-		{
-			return PowF(2.0f, x);
-		}
+		static double Exp2(double x);
+		static float Exp2F(float x);
 
 		static inline float Exp10F(float x)
 		{

@@ -151,21 +151,21 @@ namespace WaveSabreCore
 		return (float)((RandomSeed *= 0x15a4e35) % 255) / 255.0f;
 	}
 
-	double Helpers::Pow(double x, double y)
+	double Helpers::Exp2(double x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
-		return fpuPow(x, y);
+		return fpuPow(2.0, x);
 #else
-		return pow(x, y);
+		return pow(2.0, x);
 #endif
 	}
 
-	float Helpers::PowF(float x, float y)
+	float Helpers::Exp2F(float x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
-		return fpuPowF(x, y);
+		return fpuPowF(2.0f, x);
 #else
-		return powf(x, y);
+		return powf(2.0f, x);
 #endif
 	}
 
