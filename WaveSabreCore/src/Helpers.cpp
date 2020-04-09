@@ -12,22 +12,6 @@ static __declspec(naked) double __vectorcall fpuPow(double x, double y)
 	{
 		sub esp, 8
 
-		xorpd xmm2, xmm2
-
-		comisd xmm1, xmm2
-		jne base_test
-
-		fld1
-		jmp done
-
-base_test:
-		comisd xmm0, xmm2
-		jne calc_pow
-
-		fldz
-		jmp done
-
-calc_pow:
 		movsd mmword ptr [esp], xmm1
 		fld qword ptr [esp]
 		movsd mmword ptr [esp], xmm0
@@ -44,7 +28,6 @@ calc_pow:
 		fscale
 		fstp st(1)
 
-done:
 		fstp qword ptr [esp]
 		movsd xmm0, mmword ptr [esp]
 
@@ -60,22 +43,6 @@ static __declspec(naked) float __vectorcall fpuPowF(float x, float y)
 	{
 		sub esp, 8
 
-		xorps xmm2, xmm2
-
-		comiss xmm1, xmm2
-		jne base_test
-
-		fld1
-		jmp done
-
-base_test:
-		comiss xmm0, xmm2
-		jne calc_pow
-
-		fldz
-		jmp done
-
-calc_pow:
 		movss mmword ptr [esp], xmm1
 		fld dword ptr [esp]
 		movss mmword ptr [esp], xmm0
@@ -92,7 +59,6 @@ calc_pow:
 		fscale
 		fstp st(1)
 
-done:
 		fstp dword ptr [esp]
 		movss xmm0, mmword ptr [esp]
 
@@ -154,6 +120,9 @@ namespace WaveSabreCore
 	double Helpers::Exp2(double x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
+		if (x == 0.0)
+			return 1.0;
+
 		return fpuPow(2.0, x);
 #else
 		return pow(2.0, x);
@@ -163,6 +132,9 @@ namespace WaveSabreCore
 	float Helpers::Exp2F(float x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
+		if (x == 0.0f)
+			return 1.0f;
+
 		return fpuPowF(2.0f, x);
 #else
 		return powf(2.0f, x);
