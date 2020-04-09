@@ -22,7 +22,7 @@ namespace WaveSabreCore
 	void Crusher::Run(double songPosition, float **inputs, float **outputs, int numSamples)
 	{
 		float step = 1.0f / Helpers::PowF(2.0f, (1.0f - vertical) * 15.0f + 1.0f);
-		float freq = Helpers::PowF(1.0f - horizontal, 2.0f);
+		float freq = Helpers::Pow2F(1.0f - horizontal);
 		for (int i = 0; i < 2; i++)
 		{
 			for (int j = 0; j < numSamples; j++)

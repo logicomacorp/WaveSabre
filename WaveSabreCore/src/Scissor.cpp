@@ -25,7 +25,7 @@ namespace WaveSabreCore
 		}
 		else
 		{
-			driveScalar = 1.0f + Helpers::PowF((drive - .2f) * 5.0f, 2.0f) * 5.0f;
+			driveScalar = 1.0f + Helpers::Pow2F((drive - .2f) * 5.0f) * 5.0f;
 		}
 
 		for (int i = 0; i < 2; i++)
