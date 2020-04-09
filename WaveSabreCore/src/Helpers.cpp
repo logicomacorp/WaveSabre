@@ -227,12 +227,12 @@ namespace WaveSabreCore
 
 	double Helpers::NoteToFreq(double note)
 	{
-		return 440.0 * Pow(2.0, (note - 69.0) / 12.0);
+		return 440.0 * Exp2((note - 69.0) / 12.0);
 	}
 
 	float Helpers::DbToScalar(float db)
 	{
-		return PowF(2.0f, db / 6.0f);
+		return Exp2F(db / 6.0f);
 	}
 
 	float Helpers::EnvValueToScalar(float value)
