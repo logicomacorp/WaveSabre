@@ -21,6 +21,21 @@ namespace WaveSabreCore
 		static double Pow(double x, double y);
 		static float PowF(float x, float y);
 
+		static inline double Pow2(double x)
+		{
+			return x * x;
+		}
+
+		static inline double Pow4(double x)
+		{
+			return Pow2(Pow2(x));
+		}
+
+		static inline float Pow2F(float x)
+		{
+			return x * x;
+		}
+
 		static double FastCos(double x);
 		static double FastSin(double x);
 

@@ -342,7 +342,7 @@ namespace WaveSabreCore
 
 	double Helpers::ParamToVibratoFreq(float param)
 	{
-		return (Pow((double)param, 2.0) + .1) * 70.0;
+		return (Pow2((double)param) + .1) * 70.0;
 	}
 
 	float Helpers::VibratoFreqToParam(double vf)
