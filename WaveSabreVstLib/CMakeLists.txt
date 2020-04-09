@@ -56,7 +56,7 @@ target_compile_definitions(WaveSabreVstLib PUBLIC USE_LIBPNG)
 if(MSVC)
 	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS)
 	target_compile_options(WaveSabreVstLib PUBLIC /EHsc)
-	set_source_files_properties(../Vst3.x/vstgui.sf/vstgui/vstgui.cpp
-		../Vst3.x/vstgui.sf/zlib/minigzip.c
+	set_source_files_properties(${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
+		${VSTSDK3_DIR}/vstgui.sf/zlib/minigzip.c
 		PROPERTIES COMPILE_OPTIONS /wd4996)
 endif()
