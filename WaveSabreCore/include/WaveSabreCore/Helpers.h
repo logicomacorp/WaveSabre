@@ -5,6 +5,9 @@
 #include "Twister.h"
 #include "SynthDevice.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace WaveSabreCore
 {
 	class Helpers
@@ -33,7 +36,8 @@ namespace WaveSabreCore
 
 		static inline float Exp10F(float x)
 		{
-			return PowF(10.0, x);
+			const float scale = (float)(M_LN10 / M_LN2);
+			return Exp2F(x * scale);
 		}
 
 		static inline double Pow2(double x)
