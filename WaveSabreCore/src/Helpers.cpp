@@ -116,9 +116,6 @@ namespace WaveSabreCore
 	double Helpers::Exp2(double x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
-		if (x == 0.0)
-			return 1.0;
-
 		return fpuExp2(x);
 #else
 		return pow(2.0, x);
@@ -128,9 +125,6 @@ namespace WaveSabreCore
 	float Helpers::Exp2F(float x)
 	{
 #if defined(_MSC_VER) && defined(_M_IX86)
-		if (x == 0.0f)
-			return 1.0f;
-
 		return fpuExp2F(x);
 #else
 		return powf(2.0f, x);
