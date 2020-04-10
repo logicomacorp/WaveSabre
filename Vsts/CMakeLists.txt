@@ -1,4 +1,4 @@
-option(VSTDIR "VST system directory")
+set(VSTDIR "" CACHE PATH "VST system directory")
 
 file(GLOB children RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
 foreach(child ${children})
