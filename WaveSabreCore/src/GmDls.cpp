@@ -16,7 +16,7 @@ namespace WaveSabreCore
 		for (int i = 0; gmDlsFile == INVALID_HANDLE_VALUE; i++)
 		{
 			OFSTRUCT reOpenBuff;
-			gmDlsFile = (HANDLE)OpenFile(gmDlsPaths[i], &reOpenBuff, OF_READ);
+			gmDlsFile = (HANDLE)(UINT_PTR)OpenFile(gmDlsPaths[i], &reOpenBuff, OF_READ);
 		}
 
 		auto gmDlsFileSize = GetFileSize(gmDlsFile, NULL);
