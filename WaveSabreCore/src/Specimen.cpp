@@ -391,7 +391,7 @@ namespace WaveSabreCore
 		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
 	}
 
-	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Specimen::driverId) return 1;
 
@@ -417,7 +417,7 @@ namespace WaveSabreCore
 		return 1;
 	}
 
-	BOOL __stdcall Specimen::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Specimen::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (formatDetails->pwfx->wFormatTag == WAVE_FORMAT_GSM610 &&
 			formatDetails->pwfx->nChannels == 1 &&

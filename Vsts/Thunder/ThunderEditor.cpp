@@ -108,7 +108,7 @@ void ThunderEditor::setParameter(VstInt32 index, float value)
 
 					if (acmFormatChoose(&formatChoose)) throw exception("acmFormatChoose failed");
 
-					acmDriverEnum(driverEnumCallback, (DWORD)waveFormat, NULL);
+					acmDriverEnum(driverEnumCallback, (DWORD_PTR)waveFormat, NULL);
 					HACMDRIVER driver = NULL;
 					if (acmDriverOpen(&driver, driverId, 0)) throw exception("acmDriverOpen failed");
 
@@ -147,7 +147,7 @@ void ThunderEditor::setParameter(VstInt32 index, float value)
 	}
 }
 
-BOOL __stdcall ThunderEditor::driverEnumCallback(HACMDRIVERID driverId, DWORD dwInstance, DWORD fdwSupport)
+BOOL __stdcall ThunderEditor::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 {
 	ACMDRIVERDETAILS driverDetails;
 	driverDetails.cbStruct = sizeof(driverDetails);
