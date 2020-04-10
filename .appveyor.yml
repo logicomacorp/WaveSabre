@@ -1,6 +1,10 @@
 version: '{build}'
 image: Visual Studio 2013
 
+platform:
+  - Win32
+  - x64
+
 cache:
   - C:\tmp\VST3 SDK
 
@@ -14,7 +18,7 @@ install:
 build_script:
   - mkdir build
   - cd build
-  - cmake -DVSTSDK3_DIR="C:/tmp/VST3 SDK" ..
+  - cmake -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% -DVSTSDK3_DIR="C:/tmp/VST3 SDK" ..
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
