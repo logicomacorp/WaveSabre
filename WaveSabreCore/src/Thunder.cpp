@@ -147,7 +147,7 @@ namespace WaveSabreCore
 		samplePos = 0;
 	}
 
-	BOOL __stdcall Thunder::driverEnumCallback(HACMDRIVERID driverId, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Thunder::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Thunder::driverId) return 1;
 
@@ -173,7 +173,7 @@ namespace WaveSabreCore
 		return 1;
 	}
 
-	BOOL __stdcall Thunder::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD dwInstance, DWORD fdwSupport)
+	BOOL __stdcall Thunder::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (formatDetails->pwfx->wFormatTag == WAVE_FORMAT_GSM610 &&
 			formatDetails->pwfx->nChannels == 1 &&
