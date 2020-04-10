@@ -195,7 +195,7 @@ namespace WaveSabreCore
 		auto compressedDataSize = compressedSize;
 		auto paramSize = (int)ParamIndices::NumParams * sizeof(float);
 		auto chunkSizeSize = sizeof(int);
-		auto size = headerSize + waveFormatSize + compressedSize + paramSize + chunkSizeSize;
+		int size = (int)(headerSize + waveFormatSize + compressedSize + paramSize + chunkSizeSize);
 
 		// (Re)allocate chunk data
 		if (chunkData) delete [] chunkData;
