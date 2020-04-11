@@ -111,6 +111,7 @@ namespace WaveSabrePlayerLib
 
 		for (int i = 0; i < numRenderThreads; i++)
 			CloseHandle(renderThreadStartEvents[i]);
+		delete [] renderThreadStartEvents;
 		CloseHandle(renderDoneEvent);
 	}
 
