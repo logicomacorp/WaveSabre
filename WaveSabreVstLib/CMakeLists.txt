@@ -1,4 +1,4 @@
-add_library(WaveSabreVstLib
+add_library(WaveSabreVstLib STATIC
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/vstplugmain.cpp
