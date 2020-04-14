@@ -5,8 +5,7 @@ if(MSVC)
 	target_compile_definitions(WaveSabreStandAlonePlayer PRIVATE _CRT_SECURE_NO_WARNINGS)
 
 	if(${CMAKE_VS_PLATFORM_NAME} STREQUAL "Win32")
-		target_link_libraries(WaveSabreStandAlonePlayer
-			$<$<CONFIG:MinSizeRel>:${CMAKE_CURRENT_SOURCE_DIR}/msvcrt_old.lib>)
+		target_link_libraries(WaveSabreStandAlonePlayer $<$<CONFIG:MinSizeRel>:msvcrt>)
 		set_property(TARGET WaveSabreStandAlonePlayer APPEND_STRING PROPERTY LINK_FLAGS_MINSIZEREL
 			" /NODEFAULTLIB")
 	endif()

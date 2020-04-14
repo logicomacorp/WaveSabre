@@ -11,6 +11,7 @@ endif()
 set(VSTSDK3_DIR "./Vst3.x/" CACHE PATH "VSTSDK location")
 
 # shared code
+add_subdirectory(MSVCRT)
 add_subdirectory(WaveSabreCore)
 add_subdirectory(WaveSabrePlayerLib)
 
