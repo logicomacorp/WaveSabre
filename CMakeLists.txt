@@ -13,9 +13,13 @@ set(VSTSDK3_DIR "./Vst3.x/" CACHE PATH "VSTSDK location")
 # shared code
 add_subdirectory(WaveSabreCore)
 add_subdirectory(WaveSabrePlayerLib)
-add_subdirectory(WaveSabreVstLib)
 
 # binaries
 add_subdirectory(Tests/PlayerTest)
 add_subdirectory(WaveSabreStandAlonePlayer)
-add_subdirectory(Vsts)
+
+# VSTs
+if(VSTSDK3_DIR)
+	add_subdirectory(WaveSabreVstLib)
+	add_subdirectory(Vsts)
+endif()
