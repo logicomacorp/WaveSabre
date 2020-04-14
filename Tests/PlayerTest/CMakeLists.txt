@@ -3,8 +3,7 @@ target_link_libraries(PlayerTest WaveSabrePlayerLib)
 
 if(MSVC)
 	if(${CMAKE_VS_PLATFORM_NAME} STREQUAL "Win32")
-		target_link_libraries(PlayerTest
-			$<$<CONFIG:MinSizeRel>:${CMAKE_CURRENT_SOURCE_DIR}/msvcrt_old.lib>)
+		target_link_libraries(PlayerTest $<$<CONFIG:MinSizeRel>:msvcrt>)
 		set_property(TARGET PlayerTest APPEND_STRING PROPERTY LINK_FLAGS_MINSIZEREL
 			" /NODEFAULTLIB")
 	endif()
