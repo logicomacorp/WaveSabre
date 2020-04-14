@@ -16,4 +16,5 @@ build_script:
   - cd build
   - cmake -DVSTSDK3_DIR="C:/tmp/VST3 SDK" ..
   - msbuild /v:minimal /nologo WaveSabre.sln
+  - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
