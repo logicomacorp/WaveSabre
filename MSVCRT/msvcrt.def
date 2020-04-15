@@ -149,7 +149,6 @@ EXPORTS
 	_cprintf
 	_cputs
 	_creat
-	_CRT_INIT@12
 	_cscanf
 	_ctype
 	_cwait
@@ -245,7 +244,6 @@ EXPORTS
 	_hypot
 	_i64toa
 	_i64tow
-	_IMPORT_DESCRIPTOR_MSVCRT
 	_initterm
 	_inp
 	_inpd
@@ -367,7 +365,6 @@ EXPORTS
 	_msize
 	_newmode
 	_nextafter
-	_NULL_IMPORT_DESCRIPTOR
 	_onexit
 	_open
 	_open_osfhandle
@@ -389,7 +386,6 @@ EXPORTS
 	_putws
 	_pwctype_dll
 	_read
-	_real@8@00000000000000000000
 	_rmdir
 	_rmtmp
 	_rotl
@@ -608,7 +604,6 @@ EXPORTS
 	??_C@_0EM@BBBH@XMMI2_FP_Emulation?5?$CI?$CJ?5INTERNAL?5X@
 	??_C@_0EP@GOIF@XMMI2_FP_Emulation?5?$CI?$CJ?5INTERNAL?5X@
 	??_C@_0FI@LGJH@XMMI2_FP_Emulation?5?$CI?$CJ?5INTERNAL?5X@
-	??_Gtype_info@@UAEPAXI@Z
 	??_L@YGXPAXIHP6EX0@Z1@Z
 	??_M@YGXPAXIHP6EX0@Z@Z
 	??_N@YGXPAXIHP6EX0@Z1@Z
@@ -761,7 +756,6 @@ EXPORTS
 	memset
 	mktime
 	modf
-	MSVCRT_NULL_THUNK_DATA
 	perror
 	pow
 	printf
