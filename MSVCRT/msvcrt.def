@@ -592,6 +592,8 @@ EXPORTS
 	_y0
 	_y1
 	_yn
+	??2@YAPEAX_K@Z
+	??3@YAXPEAX@Z
 	?__ArrayUnwind@@YGXPAXIHP6EX0@Z@Z
 	?_query_new_handler@@YAP6AHI@ZXZ
 	?_query_new_mode@@YAHXZ
@@ -758,6 +760,7 @@ EXPORTS
 	modf
 	perror
 	pow
+	powf
 	printf
 	putc
 	putchar
