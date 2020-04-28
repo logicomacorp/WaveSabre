@@ -10,7 +10,9 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	{
 	case SongRenderer::DeviceId::Falcon: return new WaveSabreCore::Falcon();
 	case SongRenderer::DeviceId::Slaughter: return new WaveSabreCore::Slaughter();
+#ifdef BUILD_DEPRECATED
 	case SongRenderer::DeviceId::Thunder: return new WaveSabreCore::Thunder();
+#endif
 	case SongRenderer::DeviceId::Scissor: return new WaveSabreCore::Scissor();
 	case SongRenderer::DeviceId::Leveller: return new WaveSabreCore::Leveller();
 	case SongRenderer::DeviceId::Crusher: return new WaveSabreCore::Crusher();

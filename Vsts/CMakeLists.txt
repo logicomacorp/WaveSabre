@@ -1,6 +1,11 @@
 set(VSTDIR "" CACHE PATH "VST system directory")
 
 file(GLOB children RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/*)
+
+if(NOT BUILD_DEPRECATED)
+	list(REMOVE_ITEM children "Thunder")
+endif()
+
 foreach(child ${children})
 	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${child})
 		file(GLOB sources ${CMAKE_CURRENT_SOURCE_DIR}/${child}/*.h)

@@ -1,4 +1,4 @@
-add_library(WaveSabreCore
+set(WaveSabreCore_SOURCES
 	include/WaveSabreCore/Adultery.h
 	include/WaveSabreCore/AllPass.h
 	include/WaveSabreCore/AllPassDelay.h
@@ -24,7 +24,6 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Specimen.h
 	include/WaveSabreCore/StateVariableFilter.h
 	include/WaveSabreCore/SynthDevice.h
-	include/WaveSabreCore/Thunder.h
 	include/WaveSabreCore/Twister.h
 	src/Adultery.cpp
 	src/AllPass.cpp
@@ -51,8 +50,15 @@ add_library(WaveSabreCore
 	src/Specimen.cpp
 	src/StateVariableFilter.cpp
 	src/SynthDevice.cpp
-	src/Thunder.cpp
 	src/Twister.cpp)
+
+if(BUILD_DEPRECATED)
+	list(APPEND WaveSabreCore_SOURCES
+		include/WaveSabreCore/Thunder.h
+		src/Thunder.cpp)
+endif()
+
+add_library(WaveSabreCore ${WaveSabreCore_SOURCES})
 
 target_link_libraries(WaveSabreCore Msacm32.lib)
 target_include_directories(WaveSabreCore PUBLIC include)
