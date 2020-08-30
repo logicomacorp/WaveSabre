@@ -145,7 +145,7 @@ namespace WaveSabreCore
 		this->falcon = falcon;
 	}
 
-	SynthDevice *Falcon::FalconVoice::SynthDevice() const
+	SynthDevice *Falcon::FalconVoice::GetSynthDevice() const
 	{
 		return falcon;
 	}

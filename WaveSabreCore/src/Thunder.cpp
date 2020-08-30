@@ -120,7 +120,7 @@ namespace WaveSabreCore
 		this->thunder = thunder;
 	}
 
-	SynthDevice *Thunder::ThunderVoice::SynthDevice() const
+	SynthDevice *Thunder::ThunderVoice::GetSynthDevice() const
 	{
 		return thunder;
 	}

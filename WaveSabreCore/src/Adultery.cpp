@@ -253,7 +253,7 @@ namespace WaveSabreCore
 		this->adultery = adultery;
 	}
 
-	SynthDevice *Adultery::AdulteryVoice::SynthDevice() const
+	SynthDevice *Adultery::AdulteryVoice::GetSynthDevice() const
 	{
 		return adultery;
 	}

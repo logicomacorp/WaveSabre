@@ -80,7 +80,7 @@ namespace WaveSabreCore
 		{
 		public:
 			SlaughterVoice(Slaughter *slaughter);
-			virtual WaveSabreCore::SynthDevice *SynthDevice() const;
+			virtual WaveSabreCore::SynthDevice *GetSynthDevice() const;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples);
 
