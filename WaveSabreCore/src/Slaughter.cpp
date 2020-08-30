@@ -176,7 +176,7 @@ namespace WaveSabreCore
 		osc1.Integral = osc2.Integral = osc3.Integral = 0.0;
 	}
 
-	SynthDevice *Slaughter::SlaughterVoice::SynthDevice() const
+	SynthDevice *Slaughter::SlaughterVoice::GetSynthDevice() const
 	{
 		return slaughter;
 	}

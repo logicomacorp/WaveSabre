@@ -48,7 +48,7 @@ namespace WaveSabreCore
 			Voice();
 			virtual ~Voice();
 
-			virtual SynthDevice *SynthDevice() const = 0;
+			virtual SynthDevice *GetSynthDevice() const = 0;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples) = 0;
 

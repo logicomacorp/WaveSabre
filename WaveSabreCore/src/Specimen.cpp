@@ -289,7 +289,7 @@ namespace WaveSabreCore
 		this->specimen = specimen;
 	}
 
-	SynthDevice *Specimen::SpecimenVoice::SynthDevice() const
+	SynthDevice *Specimen::SpecimenVoice::GetSynthDevice() const
 	{
 		return specimen;
 	}

@@ -31,7 +31,7 @@ namespace WaveSabreCore
 		{
 		public:
 			ThunderVoice(Thunder *thunder);
-			virtual WaveSabreCore::SynthDevice *SynthDevice() const;
+			virtual WaveSabreCore::SynthDevice *GetSynthDevice() const;
 
 			virtual void Run(double songPosition, float **outputs, int numSamples);
 
