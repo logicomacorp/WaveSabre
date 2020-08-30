@@ -1,5 +1,7 @@
 #include <WaveSabrePlayerLib/PreRenderPlayer.h>
 
+#include <string.h>
+
 namespace WaveSabrePlayerLib
 {
 	PreRenderPlayer::PreRenderPlayer(const SongRenderer::Song *song, int numRenderThreads, ProgressCallback callback, void *data, int playbackBufferSizeMs)
@@ -37,25 +39,33 @@ namespace WaveSabrePlayerLib
 
 		this->playbackBufferSizeMs = playbackBufferSizeMs;
 
+#if defined(WIN32) || defined(_WIN32)
 		renderThread = nullptr;
+#endif
 	}
 
 	PreRenderPlayer::~PreRenderPlayer()
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (renderThread)
 			delete renderThread;
+#endif
 
 		delete [] renderBuffer;
 	}
 
 	void PreRenderPlayer::Play()
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (renderThread)
 			delete renderThread;
+#endif
 
 		playbackBufferIndex = 0;
 
+#if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
+#endif
 	}
 
 	int PreRenderPlayer::GetTempo() const
@@ -75,10 +85,14 @@ namespace WaveSabrePlayerLib
 
 	double PreRenderPlayer::GetSongPos() const
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (!renderThread)
 			return 0.0;
 
 		return max(((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0, 0.0);
+#else
+		return 0.0/0.0;
+#endif
 	}
 
 	void PreRenderPlayer::renderCallback(SongRenderer::Sample *buffer, int numSamples, void *data)
@@ -92,7 +106,13 @@ namespace WaveSabrePlayerLib
 			return;
 		}
 
+		int samplesToTake;
+#if defined(WIN32) || defined(_WIN32)
 		int samplesToTake = min(numSamples, samplesLeft);
+#else
+		// sigh.
+		samplesToTake = (numSamples > samplesLeft) ? samplesLeft : numSamples;
+#endif
 		if (samplesToTake)
 		{
 			memcpy(buffer, player->renderBuffer + player->playbackBufferIndex, samplesToTake * sizeof(SongRenderer::Sample));

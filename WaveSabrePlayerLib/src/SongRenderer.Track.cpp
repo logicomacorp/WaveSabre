@@ -1,5 +1,7 @@
 #include <WaveSabrePlayerLib/SongRenderer.h>
 
+#include <string.h>
+
 using namespace WaveSabreCore;
 
 namespace WaveSabrePlayerLib
@@ -58,7 +60,7 @@ namespace WaveSabrePlayerLib
 
 		if (NumReceives)
 			delete [] Receives;
-		
+
 		if (numDevices)
 		{
 			delete[] devicesIndicies;

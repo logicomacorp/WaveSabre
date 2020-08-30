@@ -8,19 +8,27 @@ if(MSVC)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
-set(VSTSDK3_DIR "./Vst3.x/" CACHE PATH "VSTSDK location")
+if(WIN32)
+	set(VSTSDK3_DIR "./Vst3.x/" CACHE PATH "VSTSDK location")
+endif()
 
 # shared code
-add_subdirectory(MSVCRT)
+if(WIN32)
+	add_subdirectory(MSVCRT)
+endif()
 add_subdirectory(WaveSabreCore)
 add_subdirectory(WaveSabrePlayerLib)
 
 # binaries
+if(WIN32)
 add_subdirectory(Tests/PlayerTest)
+endif()
 add_subdirectory(WaveSabreStandAlonePlayer)
 
 # VSTs
-if(VSTSDK3_DIR)
-	add_subdirectory(WaveSabreVstLib)
-	add_subdirectory(Vsts)
+if(WIN32)
+	if(VSTSDK3_DIR)
+		add_subdirectory(WaveSabreVstLib)
+		add_subdirectory(Vsts)
+	endif()
 endif()

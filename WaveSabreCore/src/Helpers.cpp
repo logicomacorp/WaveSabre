@@ -6,6 +6,7 @@
 
 #if defined(_MSC_VER) && defined(_M_IX86)
 // TODO: make assembly equivalent for x64 (use intrinsic ?)
+// TODO: also, GCC/clang equivalents please   -poro
 static __declspec(naked) double __vectorcall fpuPow(double x, double y)
 {
 	__asm
@@ -365,7 +366,7 @@ namespace WaveSabreCore
 	{
 		return (Spread)(int)(param * 2.0f);
 	}
-	
+
 	float Helpers::SpreadToParam(Spread spread)
 	{
 		return (float)spread / 2.0f;

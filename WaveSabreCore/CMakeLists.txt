@@ -1,5 +1,4 @@
 add_library(WaveSabreCore
-	include/WaveSabreCore/Adultery.h
 	include/WaveSabreCore/AllPass.h
 	include/WaveSabreCore/AllPassDelay.h
 	include/WaveSabreCore/BiquadFilter.h
@@ -12,7 +11,6 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Echo.h
 	include/WaveSabreCore/Envelope.h
 	include/WaveSabreCore/Falcon.h
-	include/WaveSabreCore/GmDls.h
 	include/WaveSabreCore/Helpers.h
 	include/WaveSabreCore/Leveller.h
 	include/WaveSabreCore/MxcsrFlagGuard.h
@@ -21,12 +19,9 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Scissor.h
 	include/WaveSabreCore/Slaughter.h
 	include/WaveSabreCore/Smasher.h
-	include/WaveSabreCore/Specimen.h
 	include/WaveSabreCore/StateVariableFilter.h
 	include/WaveSabreCore/SynthDevice.h
-	include/WaveSabreCore/Thunder.h
 	include/WaveSabreCore/Twister.h
-	src/Adultery.cpp
 	src/AllPass.cpp
 	src/AllPassDelay.cpp
 	src/BiquadFilter.cpp
@@ -39,7 +34,6 @@ add_library(WaveSabreCore
 	src/Echo.cpp
 	src/Envelope.cpp
 	src/Falcon.cpp
-	src/GmDls.cpp
 	src/Helpers.cpp
 	src/Leveller.cpp
 	src/MxcsrFlagGuard.cpp
@@ -48,13 +42,24 @@ add_library(WaveSabreCore
 	src/Scissor.cpp
 	src/Slaughter.cpp
 	src/Smasher.cpp
-	src/Specimen.cpp
 	src/StateVariableFilter.cpp
 	src/SynthDevice.cpp
-	src/Thunder.cpp
 	src/Twister.cpp)
 
-target_link_libraries(WaveSabreCore Msacm32.lib)
+if(WIN32)
+	add_library(WaveSabreCore
+		include/WaveSabreCore/AdulteryWin32.h
+		include/WaveSabreCore/GmDls.h
+		include/WaveSabreCore/SpecimenWin32.h
+		include/WaveSabreCore/ThunderWin32.h
+		src/AdulteryWin32.cpp
+		src/GmDls.cpp
+		src/SpecimenWin32.cpp
+		src/ThunderWin32.cpp)
+
+	target_link_libraries(WaveSabreCore Msacm32.lib)
+endif()
+
 target_include_directories(WaveSabreCore PUBLIC include)
 
 if(MSVC)
@@ -69,4 +74,8 @@ if(MSVC)
 		target_compile_options(WaveSabreCore PUBLIC
 			$<$<CONFIG:MinSizeRel>:/Zc:sizedDealloc->)
 	endif()
+else()
+	# assuming GCC or clang for now
+
+	set(CMAKE_CXX_FLAGS "-fpermissive")
 endif()

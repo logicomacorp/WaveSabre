@@ -12,4 +12,8 @@ if(MSVC)
 		target_compile_definitions(WaveSabreStandAlonePlayer PRIVATE
 			$<$<CONFIG:MinSizeRel>:_NO_CRT_STDIO_INLINE>)
 	endif()
+else()
+	# assuming GCC or clang for now
+
+	set(CMAKE_CXX_FLAGS "-fpermissive")
 endif()

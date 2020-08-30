@@ -124,7 +124,7 @@ namespace WaveSabreCore
 
 		case ParamIndices::HighCutFreq: return Helpers::FrequencyToParam(highCutFreq);
 		case ParamIndices::HighCutQ: return Helpers::QToParam(highCutQ);
-		
+
 		case ParamIndices::Master: return master;
 		}
 	}

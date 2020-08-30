@@ -1,4 +1,4 @@
-#include <WaveSabreCore/Specimen.h>
+#include <WaveSabreCore/SpecimenWin32.h>
 #include <WaveSabreCore/Helpers.h>
 
 #include <math.h>
@@ -269,7 +269,7 @@ namespace WaveSabreCore
 		acmStreamPrepareHeader(stream, &streamHeader, 0);
 
 		acmStreamConvert(stream, &streamHeader, 0);
-		
+
 		acmStreamClose(stream, 0);
 		acmDriverClose(driver, 0);
 
@@ -374,7 +374,7 @@ namespace WaveSabreCore
 
 		this->velocity = (float)velocity / 128.0f;
 	}
-	
+
 	void Specimen::SpecimenVoice::NoteOff()
 	{
 		ampEnv.Off();

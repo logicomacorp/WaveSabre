@@ -223,7 +223,7 @@ namespace WaveSabreCore
 	{
 		return voiceMode;
 	}
-	
+
 	SynthDevice::Voice::Voice()
 	{
 		IsOn = false;
@@ -248,7 +248,7 @@ namespace WaveSabreCore
 	{
 		slideActive = true;
 		destinationNote = note;
-		
+
 		double slideTime = 10.f * Helpers::Pow(this->GetSynthDevice()->Slide,4.0);
 		slideDelta = ((double)note - currentNote) / (Helpers::CurrentSampleRate * slideTime);
 		slideSamples = (int)(Helpers::CurrentSampleRate * slideTime);

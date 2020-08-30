@@ -1,7 +1,9 @@
 #ifndef __WAVESABREPLAYERLIB_SONGRENDERER_H__
 #define __WAVESABREPLAYERLIB_SONGRENDERER_H__
 
+#if defined(WIN32) || defined(_WIN32)
 #include "CriticalSection.h"
+#endif
 
 #include <WaveSabreCore.h>
 
@@ -89,7 +91,7 @@ namespace WaveSabrePlayerLib
 
 			Track(SongRenderer *songRenderer, DeviceFactory factory);
 			~Track();
-			
+
 			void Run(int numSamples);
 
 		private:
@@ -156,7 +158,9 @@ namespace WaveSabrePlayerLib
 			int renderThreadIndex;
 		} RenderThreadData;
 
+#if defined(WIN32) || defined(_WIN32)
 		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
+#endif
 
 		bool renderThreadWork(int renderThreadIndex);
 
@@ -172,7 +176,7 @@ namespace WaveSabrePlayerLib
 		int bpm;
 		int sampleRate;
 		double length;
-	
+
 		int numDevices;
 		WaveSabreCore::Device **devices;
 
@@ -184,13 +188,17 @@ namespace WaveSabrePlayerLib
 		TrackRenderState *trackRenderStates;
 
 		int numRenderThreads;
+#if defined(WIN32) || defined(_WIN32)
 		HANDLE *additionalRenderThreads;
+#endif
 
 		bool renderThreadShutdown;
 		int renderThreadNumFloatSamples;
 		unsigned int renderThreadsRunning;
+#if defined(WIN32) || defined(_WIN32)
 		HANDLE *renderThreadStartEvents;
 		HANDLE renderDoneEvent;
+#endif
 	};
 }
 

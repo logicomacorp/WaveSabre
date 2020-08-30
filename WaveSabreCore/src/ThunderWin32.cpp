@@ -1,4 +1,4 @@
-#include <WaveSabreCore/Thunder.h>
+#include <WaveSabreCore/ThunderWin32.h>
 #include <WaveSabreCore/Helpers.h>
 
 #include <math.h>
@@ -103,7 +103,7 @@ namespace WaveSabreCore
 		acmStreamPrepareHeader(stream, &streamHeader, 0);
 
 		acmStreamConvert(stream, &streamHeader, 0);
-		
+
 		acmStreamClose(stream, 0);
 		acmDriverClose(driver, 0);
 

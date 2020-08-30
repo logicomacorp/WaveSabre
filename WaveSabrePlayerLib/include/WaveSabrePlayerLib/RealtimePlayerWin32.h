@@ -3,6 +3,7 @@
 
 #include "IPlayer.h"
 #include "SongRenderer.h"
+
 #include "DirectSoundRenderThread.h"
 
 namespace WaveSabrePlayerLib
@@ -14,7 +15,7 @@ namespace WaveSabrePlayerLib
 		virtual ~RealtimePlayer();
 
 		virtual void Play();
-		
+
 		virtual int GetTempo() const;
 		virtual int GetSampleRate() const;
 		virtual double GetLength() const;

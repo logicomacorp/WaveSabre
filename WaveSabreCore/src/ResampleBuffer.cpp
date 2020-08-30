@@ -50,7 +50,7 @@ namespace WaveSabreCore
 	{
 		int samplePos = (currentPosition + (int)position) % length; // actual sample position determined
 		float fraction = position - floorf(position);  // fractional
-		
+
 		float s0 = buffer[samplePos];
 		float s1 = (samplePos > 0) ? buffer[samplePos - 1] : buffer[length - 1];
 		return s0 + fraction * (s1 - s0);

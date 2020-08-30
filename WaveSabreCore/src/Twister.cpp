@@ -14,9 +14,9 @@ namespace WaveSabreCore
 		spread = Spread::Mono;
 		vibratoFreq = Helpers::ParamToVibratoFreq(0.0f);
 		vibratoAmount = 0.0f;
-		
+
 		vibratoPhase = 0.0;
-		
+
 		lowCutFreq = 20.0f;
 		highCutFreq = 20000.0f- 20.0f;
 
@@ -166,8 +166,8 @@ namespace WaveSabreCore
 	{
 		switch ((ParamIndices)index)
 		{
-		case ParamIndices::Type: 
-		default: 
+		case ParamIndices::Type:
+		default:
 			return type / 3.0f;
 
 		case ParamIndices::Amount: return amount;

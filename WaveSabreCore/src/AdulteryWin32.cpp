@@ -1,4 +1,4 @@
-#include <WaveSabreCore/Adultery.h>
+#include <WaveSabreCore/AdulteryWin32.h>
 #include <WaveSabreCore/Helpers.h>
 #include <WaveSabreCore/GmDls.h>
 
@@ -240,7 +240,7 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesUnisono: return Helpers::UnisonoToParam(VoicesUnisono);
 		case ParamIndices::VoicesDetune: return VoicesDetune;
 		case ParamIndices::VoicesPan: return VoicesPan;
-		
+
 		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
 		case ParamIndices::SlideTime: return Slide;
 
@@ -319,7 +319,7 @@ namespace WaveSabreCore
 		modEnv.Sustain = adultery->modSustain;
 		modEnv.Release = adultery->modRelease;
 		modEnv.Trigger();
-		
+
 		samplePlayer.SampleData = adultery->sampleData;
 		samplePlayer.SampleLength = adultery->sampleLength;
 		samplePlayer.SampleLoopStart = adultery->sampleLoopStart;

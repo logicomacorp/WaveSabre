@@ -1,5 +1,8 @@
 #include <WaveSabrePlayerLib/SongRenderer.h>
 
+#include <stddef.h>
+#include <stdint.h>
+
 using namespace WaveSabreCore;
 
 namespace WaveSabrePlayerLib
@@ -37,7 +40,7 @@ namespace WaveSabrePlayerLib
 			for (int m = 0; m < numEvents; m++)
 			{
 				midiLanes[i]->events[m].TimeStamp = readInt();
-				byte note = readByte();
+				uint8_t note = readByte();
 				if ((note & 0x80) == 0x00)
 				{
 					midiLanes[i]->events[m].Type = (EventType)0;
@@ -65,13 +68,16 @@ namespace WaveSabrePlayerLib
 		this->numRenderThreads = numRenderThreads;
 
 		renderThreadShutdown = false;
+#if defined(WIN32) || defined(_WIN32)
 		renderThreadStartEvents = new HANDLE[numRenderThreads];
 		for (int i = 0; i < numRenderThreads; i++)
 			renderThreadStartEvents[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
 		renderDoneEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+#endif
 
 		if (numRenderThreads > 1)
 		{
+#if defined(WIN32) || defined(_WIN32)
 			additionalRenderThreads = new HANDLE[numRenderThreads - 1];
 			for (int i = 0; i < numRenderThreads - 1; i++)
 			{
@@ -81,6 +87,7 @@ namespace WaveSabrePlayerLib
 				additionalRenderThreads[i] = CreateThread(0, 0, renderThreadProc, (LPVOID)renderThreadData, 0, 0);
 				SetThreadPriority(additionalRenderThreads[i], THREAD_PRIORITY_HIGHEST);
 			}
+#endif
 		}
 	}
 
@@ -91,12 +98,14 @@ namespace WaveSabrePlayerLib
 
 		if (numRenderThreads > 1)
 		{
+#if defined(WIN32) || defined(_WIN32)
 			for (int i = 0; i < numRenderThreads; i++)
 				SetEvent(renderThreadStartEvents[i]);
 			WaitForMultipleObjects(numRenderThreads - 1, additionalRenderThreads, TRUE, INFINITE);
 			for (int i = 0; i < numRenderThreads - 1; i++)
 				CloseHandle(additionalRenderThreads[i]);
 			delete [] additionalRenderThreads;
+#endif
 		}
 
 		for (int i = 0; i < numDevices; i++) delete devices[i];
@@ -109,11 +118,13 @@ namespace WaveSabrePlayerLib
 		delete [] tracks;
 		delete [] trackRenderStates;
 
+#if defined(WIN32) || defined(_WIN32)
 		for (int i = 0; i < numRenderThreads; i++)
 			CloseHandle(renderThreadStartEvents[i]);
 		CloseHandle(renderDoneEvent);
 
 		delete [] renderThreadStartEvents;
+#endif
 	}
 
 	void SongRenderer::RenderSamples(Sample *buffer, int numSamples)
@@ -127,6 +138,7 @@ namespace WaveSabrePlayerLib
 
 		// Dispatch work
 		renderThreadsRunning = numRenderThreads;
+#if defined(WIN32) || defined(_WIN32)
 		for (int i = 0; i < numRenderThreads; i++)
 			SetEvent(renderThreadStartEvents[i]);
 
@@ -134,6 +146,7 @@ namespace WaveSabrePlayerLib
 
 		// Wait for render threads to complete their work
 		WaitForSingleObject(renderDoneEvent, INFINITE);
+#endif
 
 		// Copy final output
 		float **masterTrackBuffers = tracks[numTracks - 1]->Buffers;
@@ -146,6 +159,7 @@ namespace WaveSabrePlayerLib
 		}
 	}
 
+#if defined(WIN32) || defined(_WIN32)
 	DWORD WINAPI SongRenderer::renderThreadProc(LPVOID lpParameter)
 	{
 		auto renderThreadData = (RenderThreadData *)lpParameter;
@@ -160,10 +174,13 @@ namespace WaveSabrePlayerLib
 
 		return 0;
 	}
+#endif
 
 	bool SongRenderer::renderThreadWork(int renderThreadIndex)
 	{
+#if defined(WIN32) || defined(_WIN32)
 		WaitForSingleObject(renderThreadStartEvents[renderThreadIndex], INFINITE);
+#endif
 
 		if (renderThreadShutdown)
 			return false;
@@ -195,6 +212,7 @@ namespace WaveSabrePlayerLib
 
 				// We have a free track that we can work on, yay!
 				//  Let's try to mark it so that no other thread takes it
+#if defined(WIN32) || defined(_WIN32)
 				if ((TrackRenderState)InterlockedCompareExchange((unsigned int *)&trackRenderStates[i], (unsigned int)TrackRenderState::Rendering, (unsigned int)TrackRenderState::Idle) == TrackRenderState::Idle)
 				{
 					// We marked it successfully, so now we'll do the work
@@ -203,11 +221,14 @@ namespace WaveSabrePlayerLib
 					trackRenderStates[i] = TrackRenderState::Finished;
 					break;
 				}
+#endif
 			}
 		}
 
+#if defined(WIN32) || defined(_WIN32)
 		if (!InterlockedDecrement(&renderThreadsRunning))
 			SetEvent(renderDoneEvent);
+#endif
 
 		return true;
 	}

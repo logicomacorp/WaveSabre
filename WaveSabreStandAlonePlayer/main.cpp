@@ -2,6 +2,7 @@
 #include <WaveSabrePlayerLib.h>
 using namespace WaveSabrePlayerLib;
 
+#include <stdlib.h>
 #include <string.h>
 
 WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
@@ -10,7 +11,9 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	{
 	case SongRenderer::DeviceId::Falcon: return new WaveSabreCore::Falcon();
 	case SongRenderer::DeviceId::Slaughter: return new WaveSabreCore::Slaughter();
+#if defined(WIN32) || defined(_WIN32)
 	case SongRenderer::DeviceId::Thunder: return new WaveSabreCore::Thunder();
+#endif
 	case SongRenderer::DeviceId::Scissor: return new WaveSabreCore::Scissor();
 	case SongRenderer::DeviceId::Leveller: return new WaveSabreCore::Leveller();
 	case SongRenderer::DeviceId::Crusher: return new WaveSabreCore::Crusher();
@@ -19,8 +22,10 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	case SongRenderer::DeviceId::Chamber: return new WaveSabreCore::Chamber();
 	case SongRenderer::DeviceId::Twister: return new WaveSabreCore::Twister();
 	case SongRenderer::DeviceId::Cathedral: return new WaveSabreCore::Cathedral();
+#if defined(WIN32) || defined(_WIN32)
 	case SongRenderer::DeviceId::Adultery: return new WaveSabreCore::Adultery();
 	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
+#endif
 	}
 	return nullptr;
 }
@@ -38,6 +43,13 @@ int main(int argc, char **argv)
 {
 	bool writeWav = argc >= 3 && !strcmp(argv[2], "-w");
 	bool preRender = argc == 3 && !strcmp(argv[2], "-p");
+#if !defined(WIN32) && !defined(_WIN32)
+	if (!preRender) {
+		printf("W: realtime playback not yet supported on non-Windows "
+		       "platforms. Writing WAV instead...\n");
+		preRender = true;
+	}
+#endif
 
 	const int numRenderThreads = 3;
 
@@ -93,13 +105,16 @@ int main(int argc, char **argv)
 
 			printf("\n\n");
 		}
+#if defined(WIN32) || defined(_WIN32)
 		else
 		{
 			player = new RealtimePlayer(&song, numRenderThreads);
 		}
+#endif
 
 		printf("Realtime player activated. Press ESC to quit.\n");
 		player->Play();
+#if defined(WIN32) || defined(_WIN32)
 		while (!GetAsyncKeyState(VK_ESCAPE))
 		{
 			auto songPos = player->GetSongPos();
@@ -111,6 +126,10 @@ int main(int argc, char **argv)
 
 			Sleep(10);
 		}
+#else
+		// good enough for now
+		fgetc(stdin);
+#endif
 		printf("\n");
 
 		delete player;
