@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	size_t result;
 
 	pFile = fopen(argv[1], "rb");
-	if (pFile == NULL) { fputs("File error", NULL); exit(1); }
+	if (pFile == NULL) { printf("File error\n"); exit(1); }
 
 	// obtain file size:
 	fseek(pFile, 0, SEEK_END);
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 
 	// copy the file into the buffer:
 	result = fread(buffer, 1, lSize, pFile);
-	if (result != lSize) { fputs("Reading error", NULL); exit(3); }
+	if (result != lSize) { printf("Reading error\n"); exit(3); }
 
 	// terminate
 	fclose(pFile);
