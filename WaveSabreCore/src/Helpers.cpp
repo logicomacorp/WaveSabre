@@ -4,11 +4,27 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#if defined(_MSC_VER) && defined(_M_IX86)
 // TODO: make assembly equivalent for x64 (use intrinsic ?)
-// TODO: also, GCC/clang equivalents please   -poro
-static __declspec(naked) double __vectorcall fpuPow(double x, double y)
+#if defined(_MSC_VER) && defined(_M_IX86)
+	#define ASM_MATH_AVAILABLE (1)
+	#define ASMVECTORCALL __declspec(naked) __vectorcall
+#elif defined(__GNUC__)
+	#define ASM_MATH_AVAILABLE (1)
+	#if defined(__x86_64) || defined(__i386__)
+		#define ASMVECTORCALL inline __attribute__((__always_inline__))
+	#else
+		#define ASMVECTORCALL inline
+	#endif
+#else /* nor MSVC nor GCC/clang */
+	#define ASM_MATH_AVAILABLE (0)
+#endif
+
+// XXX: this pow() implementation seems to suck for y > 4, regardless of float/double
+
+#if ASM_MATH_AVAILABLE == 1
+static ASMVECTORCALL double fpuPow(double x, double y)
 {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		sub esp, 8
@@ -53,10 +69,38 @@ done:
 
 		ret
 	}
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+	// not writing the *entire* function body in assembly actually helps
+	// gcc and clang with inlining and LTO
+	if (y == 0.0) return 1;
+	if (x == 0.0) return 0;
+
+	asm volatile("fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsubr %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+			:"+t"(x) // output regs ('+': inout)
+			:"u"(y) // input regs
+			: // destroyed regs
+		);
+	return x;
+	#else /* not x86 */
+	return pow(x, y); // __builtin_pow only accepts an integer exponent :/
+	#endif /* GNUC, platform */
+#endif /* MSVC/GNUC */
 }
 
-static __declspec(naked) float __vectorcall fpuPowF(float x, float y)
+static ASMVECTORCALL float fpuPowF(float x, float y)
 {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		sub esp, 8
@@ -101,10 +145,38 @@ done:
 
 		ret
 	}
+#elif defined(__GNUC__)
+	#if defined (__x86_64__) || defined(__i386__)
+	// not writing the *entire* function body in assembly actually helps
+	// gcc and clang with inlining and LTO
+	if (y == 0) return 1;
+	if (x == 0) return 0;
+
+	asm volatile("fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsubr %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+			:"+t"(x) // output regs ('+': inout)
+			:"u"(y) // input regs
+			: // destroyed regs
+		);
+	return x;
+	#else /* not x86_64 */
+	return powf(x, y); // __builtin_pow only accepts an integer exponent :/
+	#endif /* GNUC, platform */
+#endif /* MSVC/GNUC */
 }
 
-static __declspec(naked) double __vectorcall fpuCos(double x)
+static ASMVECTORCALL double fpuCos(double x)
 {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
 	{
 		sub esp, 8
@@ -119,8 +191,18 @@ static __declspec(naked) double __vectorcall fpuCos(double x)
 
 		ret
 	}
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+	// not writing the *entire* function body in assembly actually helps
+	// gcc and clang with inlining and LTO
+	asm volatile("fcos\n":"+t"(x)::);
+	return x;
+	#else /* x86_64 */
+	return __builtin_cos(x);
+	#endif /* GNUC, platform */
+#endif /* MSVC/GNUC */
 }
-#endif // defined(_MSC_VER) && defined(_M_IX86)
+#endif // ASM_MATH_AVAILABLE == 1
 
 namespace WaveSabreCore
 {
@@ -139,7 +221,7 @@ namespace WaveSabreCore
 		for (int i = 0; i < fastCosTabSize + 1; i++)
 		{
 			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 			fastCosTab[i] = fpuCos(phase);
 #else
 			fastCosTab[i] = cos(phase);
@@ -154,7 +236,7 @@ namespace WaveSabreCore
 
 	double Helpers::Pow(double x, double y)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 		return fpuPow(x, y);
 #else
 		return pow(x, y);
@@ -163,7 +245,7 @@ namespace WaveSabreCore
 
 	float Helpers::PowF(float x, float y)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 		return fpuPowF(x, y);
 #else
 		return powf(x, y);

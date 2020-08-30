@@ -77,5 +77,7 @@ if(MSVC)
 else()
 	# assuming GCC or clang for now
 
-	set(CMAKE_CXX_FLAGS "-fpermissive")
+	set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION True) # enable LTO
+	# -fpermissive + stuff to make the code smaller
+	set(CMAKE_CXX_FLAGS "-fpermissive -g -O2 -ffast-math -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections")
 endif()
