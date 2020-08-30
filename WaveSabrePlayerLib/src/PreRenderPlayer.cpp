@@ -1,5 +1,9 @@
 #include <WaveSabrePlayerLib/PreRenderPlayer.h>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WaveSabrePlayerLib/DirectSoundRenderThread.h>
+#endif
+
 #include <string.h>
 
 namespace WaveSabrePlayerLib
@@ -39,27 +43,21 @@ namespace WaveSabrePlayerLib
 
 		this->playbackBufferSizeMs = playbackBufferSizeMs;
 
-#if defined(WIN32) || defined(_WIN32)
 		renderThread = nullptr;
-#endif
 	}
 
 	PreRenderPlayer::~PreRenderPlayer()
 	{
-#if defined(WIN32) || defined(_WIN32)
 		if (renderThread)
 			delete renderThread;
-#endif
 
 		delete [] renderBuffer;
 	}
 
 	void PreRenderPlayer::Play()
 	{
-#if defined(WIN32) || defined(_WIN32)
 		if (renderThread)
 			delete renderThread;
-#endif
 
 		playbackBufferIndex = 0;
 
@@ -85,13 +83,14 @@ namespace WaveSabrePlayerLib
 
 	double PreRenderPlayer::GetSongPos() const
 	{
-#if defined(WIN32) || defined(_WIN32)
 		if (!renderThread)
 			return 0.0;
 
-		return max(((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0, 0.0);
+		double v = ((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0;
+#if defined(WIN32) || defined(_WIN32)
+		return max(v, 0.0);
 #else
-		return 0.0/0.0;
+		return (v > 0.0) ? v : 0.0;
 #endif
 	}
 

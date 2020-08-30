@@ -80,14 +80,18 @@ int main(int argc, char **argv)
 	bool writeWav = argc >= 3 && !strcmp(argv[2], "-w");
 	bool preRender = argc == 3 && !strcmp(argv[2], "-p");
 #if !defined(WIN32) && !defined(_WIN32)
-	if (!preRender) {
-		printf("W: realtime playback not yet supported on non-Windows "
-		       "platforms. Writing WAV instead...\n");
-		preRender = true;
+	if (!writeWav) {
+		printf("W: playback not yet supported on non-Windows platforms."
+		       "Writing WAV instead...\n");
+		writeWav = true;
 	}
 #endif
 
+#if defined(WIN32) || defined(_WIN32)
 	const int numRenderThreads = 3;
+#else
+	const int numRenderThreads = 1; // TODO
+#endif
 
 	FILE * pFile;
 	long lSize;
@@ -130,6 +134,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+#if defined(WIN32) || defined(_WIN32)
 		IPlayer *player;
 
 		if (preRender)
@@ -141,16 +146,14 @@ int main(int argc, char **argv)
 
 			printf("\n\n");
 		}
-#if defined(WIN32) || defined(_WIN32)
 		else
 		{
 			player = new RealtimePlayer(&song, numRenderThreads);
 		}
-#endif
 
 		printf("Realtime player activated. Press ESC to quit.\n");
+
 		player->Play();
-#if defined(WIN32) || defined(_WIN32)
 		while (!GetAsyncKeyState(VK_ESCAPE))
 		{
 			auto songPos = player->GetSongPos();
@@ -162,13 +165,12 @@ int main(int argc, char **argv)
 
 			Sleep(10);
 		}
-#else
-		// good enough for now
-		fgetc(stdin);
-#endif
 		printf("\n");
 
 		delete player;
+#else
+		printf("???\n");
+#endif
 	}
 
 	free(buffer);

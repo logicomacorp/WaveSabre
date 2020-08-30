@@ -2,11 +2,8 @@
 #define __WAVESABREPLAYERLIB_PRERENDERPLAYER_H__
 
 #include "IPlayer.h"
+#include "IRenderThread.h"
 #include "SongRenderer.h"
-
-#if defined(WIN32) || defined(_WIN32)
-#include "DirectSoundRenderThread.h"
-#endif
 
 namespace WaveSabrePlayerLib
 {
@@ -38,9 +35,7 @@ namespace WaveSabrePlayerLib
 		int playbackBufferSizeMs;
 		int playbackBufferIndex;
 
-#if defined(WIN32) || defined(_WIN32)
-		DirectSoundRenderThread *renderThread;
-#endif
+		IRenderThread *renderThread;
 	};
 }
 

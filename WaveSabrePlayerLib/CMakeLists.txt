@@ -1,10 +1,14 @@
 add_library(WaveSabrePlayerLib
+	include/WaveSabrePlayerLib/IRenderThread.h
 	include/WaveSabrePlayerLib/PreRenderPlayer.h
 	include/WaveSabrePlayerLib/WavWriter.h
 	include/WaveSabrePlayerLib/IPlayer.h
+	include/WaveSabrePlayerLib/RealtimePlayer.h
 	include/WaveSabrePlayerLib/SongRenderer.h
 	src/IPlayer.cpp
+	src/IRenderThread.cpp
 	src/PreRenderPlayer.cpp
+	src/RealtimePlayer.cpp
 	src/SongRenderer.cpp
 	src/SongRenderer.Track.cpp
 	src/WavWriter.cpp)
@@ -16,10 +20,8 @@ if(WIN32)
 	add_library(WaveSabrePlayerLib
 		include/WaveSabrePlayerLib/CriticalSection.h
 		include/WaveSabrePlayerLib/DirectSoundRenderThread.h
-		include/WaveSabrePlayerLib/RealtimePlayerWin32.h
 		src/CriticalSection.cpp
-		src/DirectSoundRenderThread.cpp
-		src/RealtimePlayerWin32.cpp)
+		src/DirectSoundRenderThread.cpp)
 
 	target_link_libraries(WaveSabrePlayerLib
 		winmm.lib
