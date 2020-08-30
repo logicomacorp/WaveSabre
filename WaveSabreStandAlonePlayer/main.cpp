@@ -163,6 +163,7 @@ int main(int argc, char **argv)
 			int hundredths = (int)(songPos * 100.0) % 100;
 			printf("\r %.1i:%.2i.%.2i", minutes, seconds, hundredths);
 
+			player->DoForegroundWork();
 			Sleep(10);
 		}
 		printf("\n");

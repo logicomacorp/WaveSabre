@@ -26,6 +26,11 @@ namespace WaveSabrePlayerLib
 		WaitForSingleObject(thread, INFINITE);
 	}
 
+	void DirectSoundRenderThread::DoForegroundWork()
+	{
+		// nop.
+	}
+
 	int DirectSoundRenderThread::GetPlayPositionMs()
 	{
 		if (!buffer)

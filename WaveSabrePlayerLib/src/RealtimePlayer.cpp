@@ -23,6 +23,12 @@ namespace WaveSabrePlayerLib
 			delete songRenderer;
 	}
 
+	void RealtimePlayer::DoForegroundWork()
+	{
+		if (renderThread)
+			renderThread->DoForegroundWork();
+	}
+
 	void RealtimePlayer::Play()
 	{
 		if (renderThread)

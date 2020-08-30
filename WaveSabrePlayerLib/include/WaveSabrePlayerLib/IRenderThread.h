@@ -13,6 +13,8 @@ namespace WaveSabrePlayerLib
 		virtual ~IRenderThread();
 
 		virtual int GetPlayPositionMs() = 0;
+
+		virtual void DoForegroundWork() = 0;
 	};
 }
 

@@ -16,6 +16,7 @@ namespace WaveSabrePlayerLib
 		virtual ~PreRenderPlayer();
 
 		virtual void Play();
+		virtual void DoForegroundWork();
 
 		virtual int GetTempo() const;
 		virtual int GetSampleRate() const;

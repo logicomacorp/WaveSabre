@@ -54,6 +54,12 @@ namespace WaveSabrePlayerLib
 		delete [] renderBuffer;
 	}
 
+	void PreRenderPlayer::DoForegroundWork()
+	{
+		if (renderThread)
+			renderThread->DoForegroundWork();
+	}
+
 	void PreRenderPlayer::Play()
 	{
 		if (renderThread)

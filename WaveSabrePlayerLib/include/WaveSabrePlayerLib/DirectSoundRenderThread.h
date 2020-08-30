@@ -18,6 +18,8 @@ namespace WaveSabrePlayerLib
 
 		virtual int GetPlayPositionMs();
 
+		virtual void DoForegroundWork();
+
 	private:
 		static DWORD WINAPI threadProc(LPVOID lpParameter);
 

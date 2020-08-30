@@ -9,6 +9,7 @@ namespace WaveSabrePlayerLib
 		virtual ~IPlayer();
 
 		virtual void Play() = 0;
+		virtual void DoForegroundWork() = 0;
 
 		virtual int GetTempo() const = 0;
 		virtual int GetSampleRate() const = 0;
