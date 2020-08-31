@@ -72,7 +72,7 @@ namespace WaveSabrePlayerLib
 #if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
 #elif HAVE_APLAY
-		renderThread = new AplayRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
+		renderThread = new AplayRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs, true);
 #endif
 	}
 

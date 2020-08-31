@@ -34,6 +34,7 @@ namespace WaveSabrePlayerLib
 		, sampleRate(sampleRate)
 		, bufferSizeMs(bufferSizeMs)
 		, samplesWritten(0)
+		, bufferBytesLeft(0)
 		, writeBytesMax(PIPE_BUF)
 #if HAVE_PTHREAD
 		, writerStarted(false)
@@ -78,6 +79,7 @@ namespace WaveSabrePlayerLib
 
 #if HAVE_PTHREAD
 		if (pthread) {
+			//printf("create pthread!\n");
 			rv = pthread_create(&writer, NULL, AplayWriterProc, this);
 			assert(rv == 0 && "Couldn't create background writer thread");
 
@@ -128,7 +130,13 @@ namespace WaveSabrePlayerLib
 
 	void AplayRenderThread::DoForegroundWork()
 	{
-		GetBufferTick(false);
+		//printf("\nfgw\n");
+#if HAVE_PTHREAD
+		if (!writerStarted)
+#else
+		if (true)
+#endif
+			GetBufferTick(false);
 	}
 
 	int AplayRenderThread::GetPlayPositionMs()
@@ -143,24 +151,24 @@ namespace WaveSabrePlayerLib
 		dup2(readend, STDIN_FILENO);
 
 		// format aplay args
-		char* progpath = "/usr/bin/aplay";
-		char* arg0 = progpath;
-		char arg1[strlen("-r48000")+1];
 		char arg2[strlen("-fS16_LE")+1];
+		char arg3[strlen("-r44100")+1];
 
-		snprintf(arg1, sizeof(arg1), "-r%d", rate);
 		snprintf(arg2, sizeof(arg2), "-fS%d_%sE",
 				(int)sizeof(SongRenderer::Sample)*CHAR_BIT,
 				(is_le() ? "L" : "B"));
+		snprintf(arg3, sizeof(arg3), "-r%d", rate);
 
 		// now we're ready to start aplay!
-		char *const args[] = {arg0, arg1, arg2, NULL};
+		//printf("executing /usr/bin/aplay -traw -c2 %s %s\n", arg2, arg3);
+		char *const args[] = {"/usr/bin/aplay", "-traw", "-c2", arg2, arg3, NULL};
 		int rv = execve("/usr/bin/aplay", args, environ);
 		assert(rv >= 0 && "Failed to run aplay!");
 	}
 
 	void AplayRenderThread::GetBufferTick(bool block)
 	{
+		//printf("tick! buffer cap 0x%zx\n", bufferSizeBytes);
 		while (true) {
 			struct pollfd pfd;
 			pfd.fd = this->aupipe;
@@ -180,6 +188,7 @@ namespace WaveSabrePlayerLib
 				callback(sampleBuffer, bufferSizeBytes/sizeof(SongRenderer::Sample), callbackData);
 				bufferToWrite = sampleBuffer;
 				bufferBytesLeft = bufferSizeBytes;
+				//printf("new buffer! 0x%zX bytes\n", bufferSizeBytes);
 			}
 
 			size_t toWrite = bufferBytesLeft;
@@ -197,14 +206,21 @@ namespace WaveSabrePlayerLib
 						toWrite >>= 1; // AIMD
 						continue;
 					} else {
-						assert(0 && "Couldn't write to the aplay pipe.");
+						printf("Couldn't write to the aplay pipe: %s.\n", strerror(err));
+						assert(0);
 					}
-				} else if (toWrite > (size_t)ret) {
+
+					break;
+				}
+
+				if (toWrite > (size_t)ret) {
 					haderr = true; // inhibit AI
 					toWrite >>= 1; // MD
 				}
 
 				bufferBytesLeft -= (size_t)ret;
+				//printf("written buffer %p size 0x%zx, wrote 0x%zx bytes, left: 0x%zx\n",
+				//		bufferToWrite, toWrite, (size_t)ret, bufferBytesLeft);
 				bufferToWrite   += ret / sizeof(SongRenderer::Sample);
 				samplesWritten  += ret / sizeof(SongRenderer::Sample);
 
@@ -224,6 +240,7 @@ namespace WaveSabrePlayerLib
 #if HAVE_PTHREAD
 	void* AplayRenderThread::AplayWriterProc(void* ud)
 	{
+		//printf("writer proc!\n");
 		auto self = (AplayRenderThread*)ud;
 
 		while (self->aupipe >= 0) {
