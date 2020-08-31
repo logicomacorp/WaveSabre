@@ -1,11 +1,14 @@
 #include <WaveSabreCore.h>
-//#include <WaveSabreCore/Helpers.h>
+#include <WaveSabreCore/Helpers.h>
 #include <WaveSabrePlayerLib.h>
 using namespace WaveSabrePlayerLib;
 
 #include <stdlib.h>
 #include <string.h>
 //#include <math.h>
+#if !defined(WIN32) && !defined(_WIN32)
+#include <unistd.h>
+#endif
 
 #if defined(_MSC_VER)
 // MSVC WHYYYYYY
@@ -90,11 +93,12 @@ int main(int argc, char **argv)
 	bool writeWav = argc >= 3 && !strcmp(argv[2], "-w");
 	bool preRender = argc == 3 && !strcmp(argv[2], "-p");
 #if !defined(WIN32) && !defined(_WIN32)
-	if (!writeWav) {
+	/*if (!writeWav) {
 		printf("W: playback not yet supported on non-Windows platforms."
 		       "Writing WAV instead...\n");
 		writeWav = true;
-	}
+	}*/
+	preRender = 1;
 #endif
 
 #if defined(WIN32) || defined(_WIN32)
@@ -145,7 +149,6 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-#if defined(WIN32) || defined(_WIN32)
 		IPlayer *player;
 
 		if (preRender)
@@ -162,10 +165,18 @@ int main(int argc, char **argv)
 			player = new RealtimePlayer(&song, numRenderThreads);
 		}
 
+#if defined(WIN32) || defined(_WIN32)
 		printf("Realtime player activated. Press ESC to quit.\n");
+#else
+		printf("Realtime player activated. Press ^C to quit.\n");
+#endif
 
 		player->Play();
+#if defined(WIN32) || defined(_WIN32)
 		while (!GetAsyncKeyState(VK_ESCAPE))
+#else
+		while (true)
+#endif
 		{
 			auto songPos = player->GetSongPos();
 			if (songPos >= player->GetLength()) break;
@@ -175,14 +186,15 @@ int main(int argc, char **argv)
 			printf("\r %.1i:%.2i.%.2i", minutes, seconds, hundredths);
 
 			player->DoForegroundWork();
+#if defined(WIN32) || defined(_WIN32)
 			Sleep(10);
+#else
+			sleep( 1);
+#endif
 		}
 		printf("\n");
 
 		delete player;
-#else
-		printf("???\n");
-#endif
 	}
 
 	free(buffer);
