@@ -11,11 +11,11 @@
 	#define ASMVECTORCALL __vectorcall
 #elif defined(__GNUC__)
 	#define ASM_MATH_AVAILABLE (1)
-	#if defined(__x86_64) || defined(__i386__)
-		#define ASMNAKED inline __attribute__((__always_inline__))
-	#else
+	//#if defined(__x86_64) || defined(__i386__)
+	//	#define ASMNAKED inline __attribute__((__always_inline__/*__no_inline__,__naked__*/))
+	//#else
 		#define ASMNAKED inline
-	#endif
+	//#endif
 	#define ASMVECTORCALL
 #else /* nor MSVC nor GCC/clang */
 	#define ASM_MATH_AVAILABLE (0)
@@ -72,20 +72,62 @@ done:
 		ret
 	}
 #elif defined(__GNUC__)
-	#if defined(__x86_64__) || defined(__i386__)
+	//#if defined(__x86_64__) || defined(__i386__)
+	/*asm volatile("push %%rax\n" // subq $8, %rsp
+			     "xorpd %%xmm2, %%xmm2\n"
+				 "comisd %%xmm2, %%xmm1\n"
+				 "jne 1f\n"
+
+				 "fld1\n"
+				 "jmp 3f\n"
+
+				 "1:\n"
+				 "comisd %%xmm2, %%xmm0\n"
+				 "jne 2f\n"
+
+				 "fldz\n"
+				 "jmp 3f\n"
+
+				 "2:\n"
+				 "movsd %%xmm1, (%%rsp)\n"
+				 "fldl (%%rsp)\n"
+				 "movsd %%xmm0, (%%rsp)\n"
+				 "fldl (%%rsp)\n"
+
+				 "fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsubr %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+
+				 "3:\n"
+				 "fstpl (%%rsp)\n"
+				 "movsd (%%rsp), %%xmm0\n"
+				 "pop %%rax\n" // addq $8, %%rsp
+				 "ret\n"
+				 :// no output
+				 :// no input
+				 :"xmm2" // clobbered
+				 );*/
 	// not writing the *entire* function body in assembly actually helps
 	// gcc and clang with inlining and LTO
-	if (y == 0.0) return 1;
-	if (x == 0.0) return 0;
+	/*if (y == 0.0) return 1.0;
+	if (x == 0.0) return 0.0;
 
-	if (y >= 1.99 && y <= 2.01) return x*x;
-	if (y >= 3.99 && y <= 4.01) {
+	if (y >= 1.9999 && y <= 2.0001) return x*x;
+	if (y >= 3.9999 && y <= 4.0001) {
 		x = x*x;
 		return x*x;
 	}
 
-	return pow(x,y);
-	/*asm volatile("fyl2x\n"
+	//return pow(x,y);
+	asm volatile("fyl2x\n"
 				 "fld %%st(0)\n"
 				 "frndint\n"
 				 "fsubr %%st(0), %%st(1)\n"
@@ -101,9 +143,9 @@ done:
 			: // destroyed regs
 		);
 	return x;*/
-	#else /* not x86 */
+	//#else /* not x86 */
 	return pow(x, y); // __builtin_pow only accepts an integer exponent :/
-	#endif /* GNUC, platform */
+	//#endif /* GNUC, platform */
 #endif /* MSVC/GNUC */
 }
 
@@ -155,21 +197,62 @@ done:
 		ret
 	}
 #elif defined(__GNUC__)
-	#if defined (__x86_64__) || defined(__i386__)
+	//#if defined (__x86_64__) || defined(__i386__)
+	/*asm volatile("push %%rax\n" // subq $8, %rsp
+			     "xorps %%xmm2, %%xmm2\n"
+				 "comiss %%xmm2, %%xmm1\n"
+				 "jne 1f\n"
+
+				 "fld1\n"
+				 "jmp 3f\n"
+
+				 "1:\n"
+				 "comiss %%xmm2, %%xmm0\n"
+				 "jne 2f\n"
+
+				 "fldz\n"
+				 "jmp 3f\n"
+
+				 "2:\n"
+				 "movss %%xmm1, (%%rsp)\n"
+				 "flds (%%rsp)\n"
+				 "movss %%xmm0, (%%rsp)\n"
+				 "flds (%%rsp)\n"
+
+				 "fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsubr %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+
+				 "3:\n"
+				 "fstps (%%rsp)\n"
+				 "movss (%%rsp), %%xmm0\n"
+				 "pop %%rax\n" // addq $8, %%rsp
+				 "ret\n"
+				 :// no output
+				 :// no input
+				 :"xmm2" // clobbered
+				 );*/
 	// not writing the *entire* function body in assembly actually helps
 	// gcc and clang with inlining and LTO
-	if (y == 0) return 1;
-	if (x == 0) return 0;
+	/*if (y == 0.0f) return 1.0f;
+	if (x == 0.0f) return 0.0f;
 
-	if (y >= 1.99f && y <= 2.01f) return x*x;
-	if (y >= 3.99f && y <= 4.01f) {
+	if (y >= 1.9999f && y <= 2.0001f) return x*x;
+	if (y >= 3.9999f && y <= 4.0001f) {
 		x = x*x;
 		return x*x;
 	}
 
-	return powf(x,y);
-
-	/*asm volatile("fyl2x\n"
+	//return powf(x,y);
+	asm volatile("fyl2x\n"
 				 "fld %%st(0)\n"
 				 "frndint\n"
 				 "fsubr %%st(0), %%st(1)\n"
@@ -185,9 +268,9 @@ done:
 			: // destroyed regs
 		);
 	return x;*/
-	#else /* not x86_64 */
+	//#else /* not x86_64 */
 	return powf(x, y); // __builtin_pow only accepts an integer exponent :/
-	#endif /* GNUC, platform */
+	//#endif /* GNUC, platform */
 #endif /* MSVC/GNUC */
 }
 
@@ -214,9 +297,8 @@ static ASMNAKED double ASMVECTORCALL fpuCos(double x)
 	// gcc and clang with inlining and LTO
 	asm volatile("fcos\n":"+t"(x)::);
 	return x;
-	//return cos(x);
 	#else /* x86_64 */
-	/*return cos(x);*/return __builtin_cos(x);
+	return __builtin_cos(x);
 	#endif /* GNUC, platform */
 #endif /* MSVC/GNUC */
 }

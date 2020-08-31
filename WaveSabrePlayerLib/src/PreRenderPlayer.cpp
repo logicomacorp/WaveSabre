@@ -117,7 +117,7 @@ namespace WaveSabrePlayerLib
 
 		int samplesToTake;
 #if defined(WIN32) || defined(_WIN32)
-		int samplesToTake = min(numSamples, samplesLeft);
+		samplesToTake = min(numSamples, samplesLeft);
 #else
 		// sigh.
 		samplesToTake = (numSamples > samplesLeft) ? samplesLeft : numSamples;

@@ -5,18 +5,10 @@ using namespace WaveSabrePlayerLib;
 
 #include <stdlib.h>
 #include <string.h>
-//#include <math.h>
+#include <math.h>
+
 #if !defined(WIN32) && !defined(_WIN32)
 #include <unistd.h>
-#endif
-
-#if defined(_MSC_VER)
-// MSVC WHYYYYYY
-extern "C" FILE* __cdecl __iob_func(void)
-{
-	static FILE _iob[] = {*stdin, *stdout, *stderr};
-	return _iob;
-}
 #endif
 
 WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
@@ -62,8 +54,8 @@ int main(int argc, char **argv)
 	const int N = 1000;
 	const double scaler = 0.001;
 
-	//for (int y = 1; y <= N; ++y)
-	int y = 1.0/12;
+	for (int y = 1; y <= N; ++y)
+	//int y = 1.0/12;
 		for (int x = 1; x <= N; ++x) {
 			double xd = x * scaler,
 				   yd = y * scaler;
@@ -113,7 +105,7 @@ int main(int argc, char **argv)
 	unsigned char * buffer;
 	size_t result;
 
-	pFile = fopen(argv[1], "rb");
+	pFile = (argc < 2) ? NULL : fopen(argv[1], "rb");
 	if (pFile == NULL) { printf("File error\n"); exit(1); }
 
 	// obtain file size:
