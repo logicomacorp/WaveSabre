@@ -4,7 +4,7 @@
 #include <Windows.h>
 #endif
 
-static char *gmDlsPaths[2] =
+static char const *gmDlsPaths[2] =
 {
 	"drivers/gm.dls",
 	"drivers/etc/gm.dls"

@@ -12,6 +12,7 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Echo.h
 	include/WaveSabreCore/Envelope.h
 	include/WaveSabreCore/Falcon.h
+	include/WaveSabreCore/GmDls.h
 	include/WaveSabreCore/Helpers.h
 	include/WaveSabreCore/Leveller.h
 	include/WaveSabreCore/MxcsrFlagGuard.h
@@ -38,6 +39,7 @@ add_library(WaveSabreCore
 	src/Echo.cpp
 	src/Envelope.cpp
 	src/Falcon.cpp
+	src/GmDls.cpp
 	src/Helpers.cpp
 	src/Leveller.cpp
 	src/MxcsrFlagGuard.cpp
@@ -55,8 +57,7 @@ add_library(WaveSabreCore
 
 if(WIN32)
 	target_sources(WaveSabreCore PRIVATE
-		include/WaveSabreCore/GmDls.h
-		src/GmDls.cppà)
+		)
 
 	target_link_libraries(WaveSabreCore PUBLIC Msacm32.lib)
 endif()

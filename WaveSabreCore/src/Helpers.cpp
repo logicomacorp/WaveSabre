@@ -76,7 +76,14 @@ done:
 	if (y == 0.0) return 1;
 	if (x == 0.0) return 0;
 
-	asm volatile("fyl2x\n"
+	if (y >= 1.99 && y <= 2.01) return x*x;
+	if (y >= 3.99 && y <= 4.01) {
+		x = x*x;
+		return x*x;
+	}
+
+	return pow(x,y);
+	/*asm volatile("fyl2x\n"
 				 "fld %%st(0)\n"
 				 "frndint\n"
 				 "fsubr %%st(0), %%st(1)\n"
@@ -91,7 +98,7 @@ done:
 			:"u"(y) // input regs
 			: // destroyed regs
 		);
-	return x;
+	return x;*/
 	#else /* not x86 */
 	return pow(x, y); // __builtin_pow only accepts an integer exponent :/
 	#endif /* GNUC, platform */
@@ -152,7 +159,15 @@ done:
 	if (y == 0) return 1;
 	if (x == 0) return 0;
 
-	asm volatile("fyl2x\n"
+	if (y >= 1.99f && y <= 2.01f) return x*x;
+	if (y >= 3.99f && y <= 4.01f) {
+		x = x*x;
+		return x*x;
+	}
+
+	return powf(x,y);
+
+	/*asm volatile("fyl2x\n"
 				 "fld %%st(0)\n"
 				 "frndint\n"
 				 "fsubr %%st(0), %%st(1)\n"
@@ -167,7 +182,7 @@ done:
 			:"u"(y) // input regs
 			: // destroyed regs
 		);
-	return x;
+	return x;*/
 	#else /* not x86_64 */
 	return powf(x, y); // __builtin_pow only accepts an integer exponent :/
 	#endif /* GNUC, platform */
@@ -195,10 +210,11 @@ static ASMVECTORCALL double fpuCos(double x)
 	#if defined(__x86_64__) || defined(__i386__)
 	// not writing the *entire* function body in assembly actually helps
 	// gcc and clang with inlining and LTO
-	asm volatile("fcos\n":"+t"(x)::);
-	return x;
+	//asm volatile("fcos\n":"+t"(x)::);
+	//return x;
+	return cos(x);
 	#else /* x86_64 */
-	return __builtin_cos(x);
+	return cos(x);//return __builtin_cos(x);
 	#endif /* GNUC, platform */
 #endif /* MSVC/GNUC */
 }

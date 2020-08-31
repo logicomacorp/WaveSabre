@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 		       "Writing WAV instead...\n");
 		writeWav = true;
 	}*/
-	//writeWav = true;
+	writeWav = true;
 	preRender = true;
 #endif
 
