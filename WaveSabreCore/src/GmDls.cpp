@@ -1,6 +1,8 @@
 #include <WaveSabreCore/GmDls.h>
 
+#if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
+#endif
 
 static char *gmDlsPaths[2] =
 {
@@ -12,6 +14,7 @@ namespace WaveSabreCore
 {
 	unsigned char *GmDls::Load()
 	{
+#if defined(WIN32) || defined(_WIN32)
 		HANDLE gmDlsFile = INVALID_HANDLE_VALUE;
 		for (int i = 0; gmDlsFile == INVALID_HANDLE_VALUE; i++)
 		{
@@ -26,5 +29,8 @@ namespace WaveSabreCore
 		CloseHandle(gmDlsFile);
 
 		return gmDls;
+#else
+		return nullptr;
+#endif
 	}
 }

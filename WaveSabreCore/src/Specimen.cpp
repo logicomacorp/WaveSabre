@@ -1,11 +1,13 @@
-#include <WaveSabreCore/SpecimenWin32.h>
+#include <WaveSabreCore/Specimen.h>
 #include <WaveSabreCore/Helpers.h>
 
 #include <math.h>
 
 namespace WaveSabreCore
 {
+#if defined(WIN32) || defined(_WIN32)
 	HACMDRIVERID Specimen::driverId = NULL;
+#endif
 
 	Specimen::Specimen()
 		: SynthDevice(0)
@@ -152,6 +154,7 @@ namespace WaveSabreCore
 
 	void Specimen::SetChunk(void *data, int size)
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (!size) return;
 
 		// Read header
@@ -182,10 +185,18 @@ namespace WaveSabreCore
 		auto numChunkParams = (int)((size - sizeof(int) - (paramDataPtr - (char *)data)) / sizeof(float));
 		for (int i = 0; i < numChunkParams; i++)
 			SetParam(i, ((float *)paramDataPtr)[i]);
+#else
+		sampleLength = 1;
+		sampleData = new float[1];
+		sampleData[0] = 0.0f;
+		sampleLoopStart = 0;
+		sampleLoopLength = 1;
+#endif
 	}
 
 	int Specimen::GetChunk(void **data)
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (!compressedData) return 0;
 
 		// Figure out size of chunk
@@ -226,8 +237,12 @@ namespace WaveSabreCore
 
 		*data = chunkData;
 		return size;
+#else
+		return 0;
+#endif
 	}
 
+#if defined(WIN32) || defined(_WIN32)
 	void Specimen::LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat)
 	{
 		this->compressedSize = compressedSize;
@@ -283,6 +298,7 @@ namespace WaveSabreCore
 
 		delete [] uncompressedData;
 	}
+#endif
 
 	Specimen::SpecimenVoice::SpecimenVoice(Specimen *specimen)
 	{
@@ -391,6 +407,7 @@ namespace WaveSabreCore
 		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
 	}
 
+#if defined(WIN32) || defined(_WIN32)
 	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Specimen::driverId) return 1;
@@ -427,4 +444,5 @@ namespace WaveSabreCore
 		}
 		return 1;
 	}
+#endif
 }

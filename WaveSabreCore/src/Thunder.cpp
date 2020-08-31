@@ -1,11 +1,13 @@
-#include <WaveSabreCore/ThunderWin32.h>
+#include <WaveSabreCore/Thunder.h>
 #include <WaveSabreCore/Helpers.h>
 
 #include <math.h>
 
 namespace WaveSabreCore
 {
+#if defined(WIN32) || defined(_WIN32)
 	HACMDRIVERID Thunder::driverId = NULL;
+#endif
 
 	Thunder::Thunder()
 		: SynthDevice(0)
@@ -38,15 +40,22 @@ namespace WaveSabreCore
 
 	void Thunder::SetChunk(void *data, int size)
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (!size) return;
 		auto h = (ChunkHeader *)data;
 		auto waveFormat = (WAVEFORMATEX *)((char *)data + sizeof(ChunkHeader));
 		auto compressedData = (char *)waveFormat + sizeof(WAVEFORMATEX) + waveFormat->cbSize;
 		LoadSample(compressedData, h->CompressedSize, h->UncompressedSize, waveFormat);
+#else
+		sampleLength = 1;
+		sampleData = new float[1];
+		sampleData[0] = 0.0f;
+#endif
 	}
 
 	int Thunder::GetChunk(void **data)
 	{
+#if defined(WIN32) || defined(_WIN32)
 		if (!compressedData) return 0;
 		ChunkHeader h;
 		h.CompressedSize = compressedSize;
@@ -60,8 +69,12 @@ namespace WaveSabreCore
 		*(int *)(chunkData + chunkSize - sizeof(int)) = chunkSize;
 		*data = chunkData;
 		return chunkSize;
+#else
+		return 0;
+#endif
 	}
 
+#if defined(WIN32) || defined(_WIN32)
 	void Thunder::LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat)
 	{
 		this->compressedSize = compressedSize;
@@ -114,6 +127,7 @@ namespace WaveSabreCore
 
 		delete [] uncompressedData;
 	}
+#endif
 
 	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
 	{
@@ -147,6 +161,7 @@ namespace WaveSabreCore
 		samplePos = 0;
 	}
 
+#if defined(WIN32) || defined(_WIN32)
 	BOOL __stdcall Thunder::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Thunder::driverId) return 1;
@@ -183,4 +198,5 @@ namespace WaveSabreCore
 		}
 		return 1;
 	}
+#endif
 }

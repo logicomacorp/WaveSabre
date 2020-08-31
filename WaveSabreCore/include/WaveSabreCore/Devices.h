@@ -4,9 +4,9 @@
 #include "Falcon.h"
 #include "Slaughter.h"
 #if defined(WIN32) || defined(_WIN32)
-#include "ThunderWin32.h"
-#include "AdulteryWin32.h"
-#include "SpecimenWin32.h"
+#include "Thunder.h"
+#include "Adultery.h"
+#include "Specimen.h"
 #endif
 
 #include "Scissor.h"

@@ -1,4 +1,4 @@
-#include <WaveSabreCore/AdulteryWin32.h>
+#include <WaveSabreCore/Adultery.h>
 #include <WaveSabreCore/Helpers.h>
 #include <WaveSabreCore/GmDls.h>
 
@@ -98,6 +98,15 @@ namespace WaveSabreCore
 			if (sampleIndex >= 0)
 			{
 				auto gmDls = GmDls::Load();
+				if (gmDls == nullptr) {
+					sampleLength = 1;
+					sampleData = new float[sampleLength];
+					sampleData[0] = 0.0f;
+					sampleLoopStart = 0;
+					sampleLoopLength = 1;
+
+					break;
+				}
 
 				// Seek to wave pool chunk's data
 				auto ptr = gmDls + GmDls::WaveListOffset;

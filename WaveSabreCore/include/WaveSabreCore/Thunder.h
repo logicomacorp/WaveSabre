@@ -3,6 +3,7 @@
 
 #include "SynthDevice.h"
 
+#if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
 #include <mmreg.h>
 
@@ -10,6 +11,7 @@
 #define _UNICODE
 #endif
 #include <MSAcm.h>
+#endif /* WIN32 */
 
 namespace WaveSabreCore
 {
@@ -24,7 +26,9 @@ namespace WaveSabreCore
 		virtual void SetChunk(void *data, int size);
 		virtual int GetChunk(void **data);
 
+#if defined(WIN32) || defined(_WIN32)
 		void LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat);
+#endif
 
 	private:
 		class ThunderVoice : public Voice
@@ -43,10 +47,12 @@ namespace WaveSabreCore
 			int samplePos;
 		};
 
+#if defined(WIN32) || defined(_WIN32)
 		static BOOL __stdcall driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport);
 		static BOOL __stdcall formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport);
 
 		static HACMDRIVERID driverId;
+#endif
 
 		char *chunkData;
 
