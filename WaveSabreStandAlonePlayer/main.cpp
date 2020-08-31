@@ -33,7 +33,7 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
 #endif
 	}
-	fprintf(stderr, "ack, unknown device %d!\n", id);
+	printf("ack, unknown device %d!\n", id);
 	return nullptr;
 }
 
