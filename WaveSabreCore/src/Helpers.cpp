@@ -7,14 +7,16 @@
 // TODO: make assembly equivalent for x64 (use intrinsic ?)
 #if defined(_MSC_VER) && defined(_M_IX86)
 	#define ASM_MATH_AVAILABLE (1)
-	#define ASMVECTORCALL __declspec(naked) __vectorcall
+	#define ASMNAKED __declspec(naked)
+	#define ASMVECTORCALL __vectorcall
 #elif defined(__GNUC__)
 	#define ASM_MATH_AVAILABLE (1)
 	#if defined(__x86_64) || defined(__i386__)
-		#define ASMVECTORCALL inline __attribute__((__always_inline__))
+		#define ASMNAKED inline __attribute__((__always_inline__))
 	#else
-		#define ASMVECTORCALL inline
+		#define ASMNAKED inline
 	#endif
+	#define ASMVECTORCALL
 #else /* nor MSVC nor GCC/clang */
 	#define ASM_MATH_AVAILABLE (0)
 #endif
@@ -22,7 +24,7 @@
 // XXX: this pow() implementation seems to suck for y > 4, regardless of float/double
 
 #if ASM_MATH_AVAILABLE == 1
-static ASMVECTORCALL double fpuPow(double x, double y)
+static ASMNAKED double ASMVECTORCALL fpuPow(double x, double y)
 {
 #if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
@@ -105,7 +107,7 @@ done:
 #endif /* MSVC/GNUC */
 }
 
-static ASMVECTORCALL float fpuPowF(float x, float y)
+static ASMNAKED float ASMVECTORCALL fpuPowF(float x, float y)
 {
 #if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
@@ -189,7 +191,7 @@ done:
 #endif /* MSVC/GNUC */
 }
 
-static ASMVECTORCALL double fpuCos(double x)
+static ASMNAKED double ASMVECTORCALL fpuCos(double x)
 {
 #if defined(_MSC_VER) && defined(_M_IX86)
 	__asm
@@ -210,11 +212,11 @@ static ASMVECTORCALL double fpuCos(double x)
 	#if defined(__x86_64__) || defined(__i386__)
 	// not writing the *entire* function body in assembly actually helps
 	// gcc and clang with inlining and LTO
-	//asm volatile("fcos\n":"+t"(x)::);
-	//return x;
-	return cos(x);
+	asm volatile("fcos\n":"+t"(x)::);
+	return x;
+	//return cos(x);
 	#else /* x86_64 */
-	return cos(x);//return __builtin_cos(x);
+	/*return cos(x);*/return __builtin_cos(x);
 	#endif /* GNUC, platform */
 #endif /* MSVC/GNUC */
 }
