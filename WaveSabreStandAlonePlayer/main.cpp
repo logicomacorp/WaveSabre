@@ -90,14 +90,14 @@ int main(int argc, char **argv)
 		       "Writing WAV instead...\n");
 		writeWav = true;
 	}*/
-	writeWav = true;
-	preRender = true;
+	//writeWav = true;
+	//preRender = true;
 #endif
 
 #if defined(WIN32) || defined(_WIN32)
 	const int numRenderThreads = 3;
 #else
-	const int numRenderThreads = 3; // TODO
+	const int numRenderThreads = 3;
 #endif
 
 	FILE * pFile;
@@ -182,6 +182,7 @@ int main(int argc, char **argv)
 #if defined(WIN32) || defined(_WIN32)
 			Sleep(10);
 #else
+			fflush(stdout);
 			sleep( 1);
 #endif
 		}

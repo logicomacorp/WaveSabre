@@ -41,7 +41,7 @@ namespace WaveSabrePlayerLib
 		int sampleRate;
 		int bufferSizeMs;
 		int bufferSizeBytes;
-		int samplesWritten;
+		int bytesWritten;
 		SongRenderer::Sample *sampleBuffer;
 		const SongRenderer::Sample *bufferToWrite;
 		size_t bufferBytesLeft;

@@ -33,7 +33,7 @@ namespace WaveSabrePlayerLib
 		, callbackData(callbackData)
 		, sampleRate(sampleRate)
 		, bufferSizeMs(bufferSizeMs)
-		, samplesWritten(0)
+		, bytesWritten(0)
 		, bufferBytesLeft(0)
 		, writeBytesMax(PIPE_BUF)
 #if HAVE_PTHREAD
@@ -45,7 +45,8 @@ namespace WaveSabrePlayerLib
 #endif
 
 		bufferSizeBytes = sampleRate * SongRenderer::BlockAlign * bufferSizeMs / 1000;
-		bufferToWrite = (SongRenderer::Sample*)malloc(bufferSizeBytes);
+		sampleBuffer = (SongRenderer::Sample*)malloc(bufferSizeBytes);
+		bufferToWrite = sampleBuffer;
 
 		int fdpair[2];
 		int rv = pipe(fdpair);
@@ -141,7 +142,7 @@ namespace WaveSabrePlayerLib
 
 	int AplayRenderThread::GetPlayPositionMs()
 	{
-		return (samplesWritten * 1000) / sampleRate;
+		return (int)(bytesWritten / SongRenderer::BlockAlign * 1000 / sampleRate);
 	}
 
 	void AplayRenderThread::AplayProc(int readend, int rate)
@@ -222,7 +223,7 @@ namespace WaveSabrePlayerLib
 				//printf("written buffer %p size 0x%zx, wrote 0x%zx bytes, left: 0x%zx\n",
 				//		bufferToWrite, toWrite, (size_t)ret, bufferBytesLeft);
 				bufferToWrite   += ret / sizeof(SongRenderer::Sample);
-				samplesWritten  += ret / sizeof(SongRenderer::Sample);
+				bytesWritten    += ret;
 
 				break;
 			}
