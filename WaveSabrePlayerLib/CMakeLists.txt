@@ -24,7 +24,7 @@ if(WIN32)
 		include/WaveSabrePlayerLib/DirectSoundRenderThread.h
 		src/DirectSoundRenderThread.cpp)
 
-	target_link_libraries(WaveSabrePlayerLib
+	target_link_libraries(WaveSabrePlayerLib PUBLIC
 		winmm.lib
 		dsound.lib)
 else()
