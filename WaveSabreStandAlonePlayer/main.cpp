@@ -7,6 +7,15 @@ using namespace WaveSabrePlayerLib;
 #include <string.h>
 //#include <math.h>
 
+#if defined(_MSC_VER)
+// MSVC WHYYYYYY
+extern "C" FILE* __cdecl __iob_func(void)
+{
+	static FILE _iob[] = {*stdin, *stdout, *stderr};
+	return _iob;
+}
+#endif
+
 WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 {
 	switch (id)
@@ -29,6 +38,7 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
 #endif
 	}
+	fprintf(stderr, "ack, unknown device %d!\n", id);
 	return nullptr;
 }
 
@@ -128,6 +138,7 @@ int main(int argc, char **argv)
 
 		auto fileName = argc >= 4 ? argv[3] : "out.wav";
 		printf("Rendering...\n");
+		//asm volatile("int3\n");
 		wavWriter.Write(fileName, progressCallback, nullptr);
 
 		printf("\n\nWAV file written to \"%s\". Enjoy.\n", fileName);

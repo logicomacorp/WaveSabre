@@ -3,7 +3,7 @@
 
 #include "SongRenderer.h"
 #include "CriticalSection.h"
-#include "IRenderThread"
+#include "IRenderThread.h"
 
 #include <Windows.h>
 #include <dsound.h>

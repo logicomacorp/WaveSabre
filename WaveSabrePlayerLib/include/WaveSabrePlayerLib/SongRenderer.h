@@ -1,9 +1,7 @@
 #ifndef __WAVESABREPLAYERLIB_SONGRENDERER_H__
 #define __WAVESABREPLAYERLIB_SONGRENDERER_H__
 
-#if defined(WIN32) || defined(_WIN32)
 #include "CriticalSection.h"
-#endif
 
 #include <WaveSabreCore.h>
 
@@ -160,6 +158,8 @@ namespace WaveSabrePlayerLib
 
 #if defined(WIN32) || defined(_WIN32)
 		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
+#elif HAVE_PTHREAD
+		static void* renderThreadProc(void* lpParameter);
 #endif
 
 		bool renderThreadWork(int renderThreadIndex);
@@ -190,14 +190,20 @@ namespace WaveSabrePlayerLib
 		int numRenderThreads;
 #if defined(WIN32) || defined(_WIN32)
 		HANDLE *additionalRenderThreads;
+#elif HAVE_PTHREAD
+		pthread_t *additionalRenderThreads;
 #endif
 
 		bool renderThreadShutdown;
 		int renderThreadNumFloatSamples;
-		unsigned int renderThreadsRunning;
 #if defined(WIN32) || defined(_WIN32)
+		unsigned int renderThreadsRunning;
 		HANDLE *renderThreadStartEvents;
 		HANDLE renderDoneEvent;
+#elif HAVE_PTHREAD
+		std::atomic_int renderThreadsRunning;
+		sem_t *renderThreadStartEvents;
+		sem_t renderDoneEvent;
 #endif
 	};
 }

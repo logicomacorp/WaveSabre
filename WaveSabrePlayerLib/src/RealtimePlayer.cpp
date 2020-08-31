@@ -2,6 +2,8 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #include <WaveSabrePlayerLib/DirectSoundRenderThread.h>
+#elif HAVE_APLAY
+#include <WaveSabrePlayerLib/AplayRenderThread.h>
 #endif
 
 namespace WaveSabrePlayerLib
@@ -39,6 +41,8 @@ namespace WaveSabrePlayerLib
 		songRenderer = new SongRenderer(song, numRenderThreads);
 #if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, songRenderer->GetSampleRate(), bufferSizeMs);
+#elif HAVE_APLAY
+		renderThread = new AplayRenderThread(renderCallback, this, songRenderer->GetSampleRate(), bufferSizeMs);
 #endif
 	}
 

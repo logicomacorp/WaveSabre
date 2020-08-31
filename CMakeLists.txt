@@ -3,6 +3,12 @@ project("WaveSabre")
 cmake_minimum_required(VERSION 3.11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if(NOT WIN32)
+	option(USE_PTHREADS "Use Pthreads for threading" OFF)
+	option(ENABLE_APLAY "Enable aplay(1) backend for audio playback" ON)
+	option(ENABLE_SDL2 "Enable SDL2_Audio backend for audio playback" ON)
+endif()
+
 if(MSVC)
 	# disable exceptions globally (will be added back for VSTs)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
@@ -21,7 +27,7 @@ add_subdirectory(WaveSabrePlayerLib)
 
 # binaries
 if(WIN32)
-add_subdirectory(Tests/PlayerTest)
+	add_subdirectory(Tests/PlayerTest)
 endif()
 add_subdirectory(WaveSabreStandAlonePlayer)
 

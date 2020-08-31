@@ -47,7 +47,7 @@ add_library(WaveSabreCore
 	src/Twister.cpp)
 
 if(WIN32)
-	add_library(WaveSabreCore
+	target_sources(WaveSabreCore PUBLIC
 		include/WaveSabreCore/AdulteryWin32.h
 		include/WaveSabreCore/GmDls.h
 		include/WaveSabreCore/SpecimenWin32.h
@@ -77,7 +77,8 @@ if(MSVC)
 else()
 	# assuming GCC or clang for now
 
-	set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION True) # enable LTO
+	set(CMAKE_CXX_FLAGS "-g -Og")
 	# stuff to make the code smaller
-	set(CMAKE_CXX_FLAGS "-g -O2 -ffast-math -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections")
+	#set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION True) # enable LTO
+	#set(CMAKE_CXX_FLAGS "-g -O2 -ffast-math -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections")
 endif()
