@@ -112,6 +112,8 @@ namespace WaveSabrePlayerLib
 		for (int i = 0; i < numRenderThreads; i++)
 			CloseHandle(renderThreadStartEvents[i]);
 		CloseHandle(renderDoneEvent);
+
+		delete [] renderThreadStartEvents;
 	}
 
 	void SongRenderer::RenderSamples(Sample *buffer, int numSamples)
