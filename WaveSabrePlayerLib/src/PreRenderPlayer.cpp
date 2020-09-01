@@ -2,6 +2,8 @@
 
 #if defined(WIN32) || defined(_WIN32)
 #include <WaveSabrePlayerLib/DirectSoundRenderThread.h>
+#elif HAVE_SDL2
+#include <WaveSabrePlayerLib/SDL2RenderThread.h>
 #elif HAVE_APLAY
 #include <WaveSabrePlayerLib/AplayRenderThread.h>
 #endif
@@ -71,6 +73,8 @@ namespace WaveSabrePlayerLib
 
 #if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
+#elif HAVE_SDL2
+		renderThread = new SDL2RenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs, true);
 #elif HAVE_APLAY
 		renderThread = new AplayRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs, true);
 #endif

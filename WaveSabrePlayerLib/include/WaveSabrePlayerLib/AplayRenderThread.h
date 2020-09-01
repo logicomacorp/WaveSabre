@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#if HAVE_PTHREADS
+#if HAVE_PTHREAD
 #include <pthread.h>
 #endif
 
@@ -32,7 +32,9 @@ namespace WaveSabrePlayerLib
 
 	private:
 		static void  AplayProc(int readend, int rate);
+#if HAVE_PTHREAD
 		static void* AplayWriterProc(void* ud);
+#endif
 
 		void GetBufferTick(bool block = false);
 

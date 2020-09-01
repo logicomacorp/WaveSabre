@@ -56,7 +56,6 @@ namespace WaveSabrePlayerLib
 		SongRenderer::Sample buf[stepSize];
 		for (int i = 0; i < numSamples; i += stepSize)
 		{
-			//asm volatile("int3\n");
 			songRenderer->RenderSamples(buf, stepSize);
 			for (int j = 0; j < stepSize; j++) writeShort(buf[j], file);
 

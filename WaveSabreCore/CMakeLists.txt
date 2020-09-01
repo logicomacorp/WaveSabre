@@ -79,8 +79,12 @@ if(MSVC)
 else()
 	# assuming GCC or clang for now
 
-	set(CMAKE_CXX_FLAGS "-g -Og")
-	# stuff to make the code smaller
-	#set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION True) # enable LTO
-	#set(CMAKE_CXX_FLAGS "-g -O2 -ffast-math -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections")
+	if(CMAKE_BUILD_TYPE EQUAL Debug)
+		target_compile_options(WaveSabreCore PUBLIC -g -Og)
+	else()
+		#set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+		target_compile_options(WaveSabreCore
+			PUBLIC -O2 -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics
+			PRIVATE -ffast-math -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections)
+	endif()
 endif()

@@ -18,7 +18,7 @@
 #include <pthread.h>
 #endif
 
-static unsigned is_le(void)
+inline static unsigned is_le(void)
 {
 	const union { unsigned u; unsigned char c[4]; } one = { 1 };
 	return one.c[0];
@@ -80,7 +80,6 @@ namespace WaveSabrePlayerLib
 
 #if HAVE_PTHREAD
 		if (pthread) {
-			//printf("create pthread!\n");
 			rv = pthread_create(&writer, NULL, AplayWriterProc, this);
 			assert(rv == 0 && "Couldn't create background writer thread");
 
@@ -98,13 +97,7 @@ namespace WaveSabrePlayerLib
 #if HAVE_PTHREAD
 		if (writerStarted) {
 			pthread_cancel(writer);
-			if (pthread_timedjoin_np(writer, NULL, &ts) != 0) {
-				pthread_kill(writer, SIGTERM);
-				if (pthread_timedjoin_np(writer, NULL, &ts) != 0) {
-					pthread_kill(writer, SIGKILL);
-					pthread_join(writer, NULL);
-				}
-			}
+			pthread_join(writer, NULL);
 			writerStarted = false;
 		}
 #endif
@@ -127,11 +120,12 @@ namespace WaveSabrePlayerLib
 			this->aupipe  = -1;
 			this->aplay = -1;
 		}
+
+		free(sampleBuffer);
 	}
 
 	void AplayRenderThread::DoForegroundWork()
 	{
-		//printf("\nfgw\n");
 #if HAVE_PTHREAD
 		if (!writerStarted)
 #else
@@ -241,7 +235,6 @@ namespace WaveSabrePlayerLib
 #if HAVE_PTHREAD
 	void* AplayRenderThread::AplayWriterProc(void* ud)
 	{
-		//printf("writer proc!\n");
 		auto self = (AplayRenderThread*)ud;
 
 		while (self->aupipe >= 0) {

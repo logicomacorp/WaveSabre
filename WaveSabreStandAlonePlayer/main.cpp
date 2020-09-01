@@ -158,7 +158,11 @@ static void parse_args(struct player_args* args, int argc, char** argv)
 	}
 }
 
+/*#if HAVE_SDL2
+int SDLmain(int argc, char **argv)
+#else*/
 int main(int argc, char **argv)
+//#endif
 {
 	/*double minerr = 1.0/0, maxerr = -1.0/0;
 	double stddev = 0, avg = 0;
@@ -244,7 +248,6 @@ int main(int argc, char **argv)
 		printf("WAV writer activated.\n");
 
 		printf("Rendering...\n");
-		//asm volatile("int3\n");
 		wavWriter.Write(args.outfile, progressCallback, nullptr);
 
 		printf("\n\nWAV file written to \"%s\". Enjoy.\n", args.outfile);

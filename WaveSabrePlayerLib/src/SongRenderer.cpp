@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <stdio.h>
+
 #if HAVE_PTHREAD
 #include <signal.h>
 #endif
@@ -133,20 +135,10 @@ namespace WaveSabrePlayerLib
 				to.tv_sec = 0;
 				//          .1sec  milli  micro
 				to.tv_nsec = 100 * 1000 * 1000;
-				bool badAddThrds[numRenderThreads - 1] = { false };
 				for (int i = 0; i < numRenderThreads - 1; i++) {
 					if (pthread_timedjoin_np(additionalRenderThreads[i], NULL, &to)) {
-						badAddThrds[i] = true;
-					}
-				}
-
-				for (int i = 0; i < numRenderThreads - 1; i++) {
-					if (badAddThrds[i]) {
-						pthread_kill(additionalRenderThreads[i], SIGTERM);
-						if (pthread_timedjoin_np(additionalRenderThreads[i], NULL, &to)) {
-							pthread_kill(additionalRenderThreads[i], SIGKILL);
-							pthread_join(additionalRenderThreads[i], NULL);
-						}
+						pthread_cancel(additionalRenderThreads[i]);
+						pthread_join(additionalRenderThreads[i], NULL);
 					}
 				}
 			}

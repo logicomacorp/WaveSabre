@@ -1,5 +1,5 @@
 add_executable(WaveSabreStandAlonePlayer main.cpp)
-target_link_libraries(WaveSabreStandAlonePlayer WaveSabrePlayerLib)
+target_link_libraries(WaveSabreStandAlonePlayer PUBLIC WaveSabrePlayerLib)
 
 if(MSVC)
 	target_compile_definitions(WaveSabreStandAlonePlayer PRIVATE _CRT_SECURE_NO_WARNINGS)
@@ -13,10 +13,29 @@ if(MSVC)
 			$<$<CONFIG:MinSizeRel>:_NO_CRT_STDIO_INLINE>)
 	endif()
 else()
+	#if(ENABLE_SDL2)
+	#	message(STATUS "Enabling SDL2 backend")
+	#
+	#	find_package(SDL2)
+	#	if(SDL2_FOUND)
+	#		message(STATUS "Found SDL2, enabling SDL2 backend")
+	#		target_link_libraries(WaveSabreStandAlonePlayer PUBLIC SDL2::SDL2 SDL2::SDL2main)
+	#		target_compile_definitions(WaveSabreStandAlonePlayer PUBLIC HAVE_SDL2=1)
+	#	else()
+	#		message(WARNING "SDL2 not found, disabling SDL2 backend")
+	#	endif()
+	#else()
+	#	message(STATUS "SDL2 backend disabled")
+	#endif()
+
 	# assuming GCC or clang for now
 
-	set(CMAKE_CXX_FLAGS "-g -Og")
-	# stuff to make the code smaller
-	#set_property(TARGET WaveSabrePlayerLib PROPERTY INTERPROCEDURAL_OPTIMIZATION True) # enable LTO
-	#set(CMAKE_CXX_FLAGS "-g -O2 -ffast-math -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections")
+	if(CMAKE_BUILD_TYPE EQUAL Debug)
+		target_compile_options(WaveSabreStandAlonePlayer PUBLIC -g -Og)
+	else()
+		#set_property(TARGET WaveSabreStandAlonePlayer PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+		target_compile_options(WaveSabreStandAlonePlayer
+			PUBLIC -O2 -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics
+			PRIVATE -ffast-math -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections)
+	endif()
 endif()
