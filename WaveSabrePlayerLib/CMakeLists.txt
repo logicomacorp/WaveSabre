@@ -56,7 +56,7 @@ else()
 		message(STATUS "SDL2 backend disabled")
 	endif()
 
-	if(USE_PTHREADS)
+	if(ENABLE_PTHREADS)
 		set_property(TARGET WaveSabrePlayerLib PROPERTY CXX_STANDARD 11) # need a recent one for stdatomic.h
 
 		message(STATUS "Trying to look for pthreads...")

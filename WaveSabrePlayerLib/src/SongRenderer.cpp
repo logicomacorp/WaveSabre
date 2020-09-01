@@ -125,6 +125,8 @@ namespace WaveSabrePlayerLib
 			WaitForMultipleObjects(numRenderThreads - 1, additionalRenderThreads, TRUE, INFINITE);
 			for (int i = 0; i < numRenderThreads - 1; i++)
 				CloseHandle(additionalRenderThreads[i]);
+
+			delete [] additionalRenderThreads;
 #elif HAVE_PTHREAD
 			for (int i = 0; i < numRenderThreads; i++)
 				sem_post(&renderThreadStartEvents[i]);
@@ -142,8 +144,9 @@ namespace WaveSabrePlayerLib
 					}
 				}
 			}
-#endif
+
 			delete [] additionalRenderThreads;
+#endif
 		}
 
 		for (int i = 0; i < numDevices; i++) delete devices[i];
@@ -159,13 +162,16 @@ namespace WaveSabrePlayerLib
 #if defined(WIN32) || defined(_WIN32)
 		for (int i = 0; i < numRenderThreads; i++)
 			CloseHandle(renderThreadStartEvents[i]);
+		delete [] renderThreadStartEvents;
+
 		CloseHandle(renderDoneEvent);
 #elif HAVE_PTHREAD
 		for (int i = 0; i < numRenderThreads; i++)
 			sem_destroy(&renderThreadStartEvents[i]);
+		delete [] renderThreadStartEvents;
+
 		sem_destroy(&renderDoneEvent);
 #endif
-		delete [] renderThreadStartEvents;
 	}
 
 	void SongRenderer::RenderSamples(Sample *buffer, int numSamples)
@@ -178,11 +184,12 @@ namespace WaveSabrePlayerLib
 		renderThreadNumFloatSamples = numSamples / 2;
 
 		// Dispatch work
-		renderThreadsRunning = numRenderThreads;
 #if defined(WIN32) || defined(_WIN32)
+		renderThreadsRunning = numRenderThreads;
 		for (int i = 0; i < numRenderThreads; i++)
 			SetEvent(renderThreadStartEvents[i]);
 #elif HAVE_PTHREAD
+		renderThreadsRunning = numRenderThreads;
 		for (int i = 0; i < numRenderThreads; i++)
 			sem_post(&renderThreadStartEvents[i]);
 #endif
@@ -207,11 +214,12 @@ namespace WaveSabrePlayerLib
 		}
 	}
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || HAVE_PTHREAD
+	#if defined(WIN32) || defined(_WIN32)
 	DWORD WINAPI SongRenderer::renderThreadProc(LPVOID lpParameter)
-#elif HAVE_PTHREAD
+	#elif HAVE_PTHREAD
 	void* SongRenderer::renderThreadProc(void* lpParameter)
-#endif
+	#endif
 	{
 		auto renderThreadData = (RenderThreadData *)lpParameter;
 
@@ -225,6 +233,7 @@ namespace WaveSabrePlayerLib
 
 		return 0;
 	}
+#endif
 
 	bool SongRenderer::renderThreadWork(int renderThreadIndex)
 	{
@@ -277,9 +286,13 @@ namespace WaveSabrePlayerLib
 							&xv, (int)TrackRenderState::Rendering)
 						)
 #else
-#error "AAAAAAAAAAAAAAAA"
+				if (trackRenderStates[i] == TrackRenderState::Idle)
 #endif
 				{
+#if !(defined(WIN32) || defined(_WIN32)) && !(defined(HAVE_PTHREAD) && HAVE_PTHREAD)
+					trackRenderStates[i] = TrackRenderState::Rendering;
+#endif
+
 					// We marked it successfully, so now we'll do the work
 					tracks[i]->Run(renderThreadNumFloatSamples);
 					// And mark it as finished :)

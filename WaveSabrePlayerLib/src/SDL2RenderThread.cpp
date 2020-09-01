@@ -124,11 +124,12 @@ namespace WaveSabrePlayerLib
 				//       (needs an atomic exchange)
 				SDL_memcpy(sampleBuffer, backupBuffer, bufferSizeBytes);
 				sem_post(&needbuf_sem);
-			} else {
+			} else
 #else
+			{
 				callback(sampleBuffer, bufferSizeBytes/sizeof(SongRenderer::Sample), callbackData);
-#endif
 			}
+#endif
 
 			bufferToWrite = sampleBuffer;
 			bufferBytesLeft = bufferSizeBytes;

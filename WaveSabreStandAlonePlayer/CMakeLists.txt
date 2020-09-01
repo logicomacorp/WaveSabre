@@ -13,22 +13,24 @@ if(MSVC)
 			$<$<CONFIG:MinSizeRel>:_NO_CRT_STDIO_INLINE>)
 	endif()
 else()
-	#if(ENABLE_SDL2)
-	#	message(STATUS "Enabling SDL2 backend")
-	#
-	#	find_package(SDL2)
-	#	if(SDL2_FOUND)
-	#		message(STATUS "Found SDL2, enabling SDL2 backend")
-	#		target_link_libraries(WaveSabreStandAlonePlayer PUBLIC SDL2::SDL2 SDL2::SDL2main)
-	#		target_compile_definitions(WaveSabreStandAlonePlayer PUBLIC HAVE_SDL2=1)
-	#	else()
-	#		message(WARNING "SDL2 not found, disabling SDL2 backend")
-	#	endif()
-	#else()
-	#	message(STATUS "SDL2 backend disabled")
-	#endif()
-
 	# assuming GCC or clang for now
+
+	if(ENABLE_PTHREADS)
+		set_property(TARGET WaveSabrePlayerLib PROPERTY CXX_STANDARD 11) # need a recent one for stdatomic.h
+
+		message(STATUS "Trying to look for pthreads...")
+		set(THREADS_PREFER_PTHREAD_FLAG ON)
+		find_package(Threads)
+		if(CMAKE_USE_PTHREADS_INIT)
+			message(STATUS "Found pthreads, enabling pthreads for background rendering threads.")
+			#target_link_libraries(WaveSabrePlayerLib PRIVATE Threads::Threads) # we don't actually need it here
+			target_compile_definitions(WaveSabrePlayerLib PRIVATE HAVE_PTHREAD=1)
+		else()
+			message(WARNING "pthreads not found, using synchronous fallback.")
+		endif()
+	else()
+			message(STATUS "pthreads disabled explicitely.")
+	endif()
 
 	if(CMAKE_BUILD_TYPE EQUAL Debug)
 		target_compile_options(WaveSabreStandAlonePlayer PUBLIC -g -Og)

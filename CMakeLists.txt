@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(NOT WIN32)
-	option(USE_PTHREADS "Use Pthreads for threading" OFF)
+	option(ENABLE_PTHREADS "Use Pthreads for threading" OFF)
 	option(ENABLE_APLAY "Enable aplay(1) backend for audio playback" ON)
 	option(ENABLE_SDL2 "Enable SDL2_Audio backend for audio playback" ON)
 endif()

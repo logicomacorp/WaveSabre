@@ -9,6 +9,7 @@ using namespace WaveSabrePlayerLib;
 
 #if !defined(WIN32) && !defined(_WIN32)
 #include <unistd.h>
+#include <time.h>
 #endif
 
 WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
@@ -295,7 +296,14 @@ int main(int argc, char **argv)
 			Sleep(10);
 #else
 			fflush(stdout);
+	#if HAVE_PTHREAD
 			sleep( 1);
+	#else
+			struct timespec to;
+			to.tv_sec = 0;
+			to.tv_nsec = 50*1000*1000; // 50 ms
+			nanosleep(&to, NULL);
+	#endif
 #endif
 		}
 		printf("\n");
