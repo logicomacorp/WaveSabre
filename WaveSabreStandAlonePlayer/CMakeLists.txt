@@ -4,7 +4,7 @@ target_link_libraries(WaveSabreStandAlonePlayer PUBLIC WaveSabrePlayerLib)
 if(MSVC)
 	target_compile_definitions(WaveSabreStandAlonePlayer PRIVATE _CRT_SECURE_NO_WARNINGS)
 
-	target_link_libraries(WaveSabreStandAlonePlayer $<$<CONFIG:MinSizeRel>:msvcrt>)
+	target_link_libraries(WaveSabreStandAlonePlayer PUBLIC $<$<CONFIG:MinSizeRel>:msvcrt>)
 	set_property(TARGET WaveSabreStandAlonePlayer APPEND_STRING PROPERTY LINK_FLAGS_MINSIZEREL
 		" /NODEFAULTLIB /SAFESEH:NO /MANIFEST:NO /LTCG /OPT:REF /OPT:ICF /DYNAMICBASE:NO")
 
