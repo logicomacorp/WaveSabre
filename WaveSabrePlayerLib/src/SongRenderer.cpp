@@ -3,6 +3,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#if HAVE_PTHREAD
+#include <signal.h>
+#endif
+
 using namespace WaveSabreCore;
 
 namespace WaveSabrePlayerLib
@@ -122,7 +126,30 @@ namespace WaveSabrePlayerLib
 #elif HAVE_PTHREAD
 			for (int i = 0; i < numRenderThreads; i++)
 				sem_post(&renderThreadStartEvents[i]);
-			// TODO: wait for threads, stop threads
+
+			// properly stop threads
+			{
+				struct timespec to;
+				to.tv_sec = 0;
+				//          .1sec  milli  micro
+				to.tv_nsec = 100 * 1000 * 1000;
+				bool badAddThrds[numRenderThreads - 1] = { false };
+				for (int i = 0; i < numRenderThreads - 1; i++) {
+					if (pthread_timedjoin_np(additionalRenderThreads[i], NULL, &to)) {
+						badAddThrds[i] = true;
+					}
+				}
+
+				for (int i = 0; i < numRenderThreads - 1; i++) {
+					if (badAddThrds[i]) {
+						pthread_kill(additionalRenderThreads[i], SIGTERM);
+						if (pthread_timedjoin_np(additionalRenderThreads[i], NULL, &to)) {
+							pthread_kill(additionalRenderThreads[i], SIGKILL);
+							pthread_join(additionalRenderThreads[i], NULL);
+						}
+					}
+				}
+			}
 #endif
 			delete [] additionalRenderThreads;
 		}
@@ -268,6 +295,11 @@ namespace WaveSabrePlayerLib
 					break;
 				}
 			}
+
+			// might take a wihle before more work becomes available
+#if HAVE_PTHREAD
+			pthread_yield();
+#endif
 		}
 
 		//asm volatile("int3\n");
