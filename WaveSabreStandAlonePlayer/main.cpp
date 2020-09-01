@@ -46,6 +46,118 @@ void progressCallback(double progress, void *data)
 	printf("]");
 }
 
+struct player_args
+{
+	const char* infile;
+	const char* outfile;
+	int nthreads;
+	bool prerender;
+	bool wavwriter;
+};
+
+static void print_usage(const char* prgm)
+{
+	printf("%s: WaveSabre standalone song player/renderer\n"
+		"Usage:\n"
+#if defined(WIN32) || defined(_WIN32)
+		"\t%s [/p|/prerender] [/w|/wav [out.wav]] [/t|/threads 3] <input.bin>\n"
+#else
+		"\t%s [-p|--prerender] [-w|--wav [out.wav]] [-t|--threads 3] <input.bin>\n"
+#endif
+		"\n"
+		"Arguments:\n"
+		"\tprerender prerender the song instead of rendering while playing.\n"
+		"\twav       instead of playing back the song, write a WAV file. By default,\n"
+		"\t          the output file is called `out.wav', but another may be supplied\n"
+		"\t          immediately after this argument.\n"
+		"\tthreads   the amount of threads to use in parallel for rendering. By\n"
+		"\t          default, this number is 3.\n"
+		"\tinput.bin the input song file, exported by the WaveSabre exporter.\n"
+		, prgm, prgm);
+	exit(0);
+}
+static void parse_args(struct player_args* args, int argc, char** argv)
+{
+	if (argc < 2) {
+		print_usage(argv[0]);
+		// unreachable
+	}
+
+	args->infile = NULL;
+	args->outfile = NULL;
+	args->nthreads = 3;
+	args->prerender = false;
+	args->wavwriter = false;
+
+	char argpfix;
+#if defined(WIN32) || defined(_WIN32)
+	argpfix = '/';
+#else
+	argpfix = '-';
+#endif
+
+	for (int i = 1; i < argc; ++i) {
+		if (argv[i][0] == argpfix) {
+			const char* as = &argv[i][1];
+
+			if (!strcmp(as, "h") || !strcmp(as, "-help") || !strcmp(as, "help")) {
+				print_usage(argv[0]);
+				// unreachable
+			}
+			// TODO: option for printing version info
+			if (!strcmp(as, "p") || !strcmp(as, "-prerender") || !strcmp(as, "prerender")) {
+				args->prerender = true;
+				continue;
+			}
+			if (!strcmp(as, "w") || !strcmp(as, "-wav") || !strcmp(as, "wav")) {
+				args->wavwriter = true;
+
+				if (i+1 < argc && argv[i+1][0] != argpfix) {
+					args->outfile = argv[i+1];
+					++i;
+				}
+				continue;
+			}
+			if (!strcmp(as, "t") || !strcmp(as, "-threads") || !strcmp(as, "threads")) {
+				if (i+1 == argc) {
+					printf("Expecting thread amount\n");
+					exit(2);
+				}
+
+				++i;
+				int res = sscanf(argv[i], "%d", &args->nthreads);
+				if (res != 1 || args->nthreads < 0) {
+					printf("Can't parse thread amount '%s'\n", argv[i]);
+					exit(2);
+				}
+
+				continue;
+			}
+
+			printf("Unrecognised option '%s', ignoring...\n", argv[i]);
+		} else {
+			if (args->infile != NULL) {
+				printf("Unexpected argument '%s'\n", argv[i]);
+				exit(2);
+			}
+
+			args->infile = argv[i];
+		}
+	}
+
+	if (args->infile == NULL) {
+		if (args->outfile != NULL) {
+			// oops, was probably meant as input file path
+			args->infile = args->outfile;
+			args->outfile = NULL;
+		}
+	}
+
+	if (args->outfile == NULL && args->wavwriter) {
+		args->outfile = "out.wav";
+	}
+}
+
 int main(int argc, char **argv)
 {
 	/*double minerr = 1.0/0, maxerr = -1.0/0;
@@ -82,31 +194,19 @@ int main(int argc, char **argv)
 
 	return 0;*/
 
-	bool writeWav = argc >= 3 && !strcmp(argv[2], "-w");
-	bool preRender = argc == 3 && !strcmp(argv[2], "-p");
-#if !defined(WIN32) && !defined(_WIN32)
-	/*if (!writeWav) {
-		printf("W: playback not yet supported on non-Windows platforms."
-		       "Writing WAV instead...\n");
-		writeWav = true;
-	}*/
-	//writeWav = true;
-	//preRender = true;
-#endif
-
-#if defined(WIN32) || defined(_WIN32)
-	const int numRenderThreads = 3;
-#else
-	const int numRenderThreads = 3;
-#endif
+	struct player_args args;
+	parse_args(&args, argc, argv);
 
 	FILE * pFile;
 	long lSize;
 	unsigned char * buffer;
 	size_t result;
 
-	pFile = (argc < 2) ? NULL : fopen(argv[1], "rb");
-	if (pFile == NULL) { printf("File error\n"); exit(1); }
+	pFile = fopen(args.infile, "rb");
+	if (pFile == NULL) {
+		printf("Can't open input file '%s'\n", args.infile);
+		exit(1);
+	}
 
 	// obtain file size:
 	fseek(pFile, 0, SEEK_END);
@@ -118,7 +218,10 @@ int main(int argc, char **argv)
 
 	// copy the file into the buffer:
 	result = fread(buffer, 1, lSize, pFile);
-	if (result != lSize) { printf("Reading error\n"); exit(3); }
+	if (result != lSize) {
+		printf("Can't read from input file '%s'\n", args.infile);
+		exit(3);
+	}
 
 	// terminate
 	fclose(pFile);
@@ -127,35 +230,41 @@ int main(int argc, char **argv)
 	song.blob = buffer;
 	song.factory = SongFactory;
 
-	if (writeWav)
+	if (args.wavwriter)
 	{
-		WavWriter wavWriter(&song, numRenderThreads);
+		FILE* outf = fopen(args.outfile, "wb");
+		if (!outf) {
+			printf("Can't open output file '%s'\n", args.outfile);
+			exit(4);
+		}
+		fclose(outf); // close again because WavWriter wants a file path
+
+		WavWriter wavWriter(&song, args.nthreads);
 
 		printf("WAV writer activated.\n");
 
-		auto fileName = argc >= 4 ? argv[3] : "out.wav";
 		printf("Rendering...\n");
 		//asm volatile("int3\n");
-		wavWriter.Write(fileName, progressCallback, nullptr);
+		wavWriter.Write(args.outfile, progressCallback, nullptr);
 
-		printf("\n\nWAV file written to \"%s\". Enjoy.\n", fileName);
+		printf("\n\nWAV file written to \"%s\". Enjoy.\n", args.outfile);
 	}
 	else
 	{
 		IPlayer *player;
 
-		if (preRender)
+		if (args.prerender)
 		{
 			printf("Prerender activated.\n");
 			printf("Rendering...\n");
 
-			player = new PreRenderPlayer(&song, numRenderThreads, progressCallback, nullptr);
+			player = new PreRenderPlayer(&song, args.nthreads, progressCallback, nullptr);
 
 			printf("\n\n");
 		}
 		else
 		{
-			player = new RealtimePlayer(&song, numRenderThreads);
+			player = new RealtimePlayer(&song, args.nthreads);
 		}
 
 #if defined(WIN32) || defined(_WIN32)
