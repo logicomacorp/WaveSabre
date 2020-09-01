@@ -4,8 +4,8 @@
 using namespace WaveSabrePlayerLib;
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 #if !defined(WIN32) && !defined(_WIN32)
 #include <unistd.h>
@@ -165,40 +165,6 @@ int SDLmain(int argc, char **argv)
 int main(int argc, char **argv)
 //#endif
 {
-	/*double minerr = 1.0/0, maxerr = -1.0/0;
-	double stddev = 0, avg = 0;
-
-	const int N = 1000;
-	const double scaler = 0.001;
-
-	for (int y = 1; y <= N; ++y)
-	//int y = 1.0/12;
-		for (int x = 1; x <= N; ++x) {
-			double xd = x * scaler,
-				   yd = y * scaler;
-
-			double pf = WaveSabreCore::Helpers::Pow(xd, yd),
-				   pm = pow(xd, yd); // from libm
-
-			double err = abs(pf - pm);
-			//err = err / pm; // fuck it, relative error
-
-			if (err < minerr) minerr = err;
-			if (err > maxerr) maxerr = err;
-
-			avg += err;
-			stddev += err*err;
-			printf("%f\n",err);
-		}
-
-	avg /= N*N;
-	stddev /= N*N - 1;
-	stddev = sqrt(stddev);
-
-	printf("#min=%f avg=%f max=%f stddev=%f\n", minerr, avg, maxerr, stddev);
-
-	return 0;*/
-
 	struct player_args args;
 	parse_args(&args, argc, argv);
 
