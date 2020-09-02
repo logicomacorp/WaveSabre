@@ -1,6 +1,6 @@
 ![WaveSabre](Media/logo-black.png)
 
-[![build status](https://ci.appveyor.com/api/projects/status/4su4q028eywtr5gl?svg=true)](https://ci.appveyor.com/project/yupferris/wavesabre) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logicomacorp/WaveSabre#license) [![Slack](https://img.shields.io/badge/chat-Slack-orange.svg)](https://join.slack.com/t/wavesabre/shared_invite/enQtNTYwNDA2MTgwODM5LWI0OGNjNWY5Njc1ZTA5MzQ0NjZiN2M3NzNhOWFiZjNiMmEwM2EzZWFjNzAzZWQzZWNkOWJiOGExMWY3ZGJmNTI)
+[![build status](https://ci.appveyor.com/api/projects/status/4su4q028eywtr5gl?svg=true)](https://ci.appveyor.com/project/yupferris/wavesabre) [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/logicomacorp/WaveSabre#license) [![Slack](https://img.shields.io/badge/chat-Slack-orange.svg)](https://join.slack.com/t/wavesabre/shared_invite/zt-75g3dckn-8AeINw6OZIBc~qrWfqZkKA)
 
 ## Description
 
