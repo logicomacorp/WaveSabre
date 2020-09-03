@@ -117,20 +117,21 @@ namespace WaveSabreCore
 
 			// write fake(ish) WAV header
 			size_t M = (waveFormat->nAvgBytesPerSec * waveFormat->nSamplesPerSec) / waveFormat->nChannels;
-			char fileheader[4+4/*RIFF*/ + 4/*WAVE*/ + 4+4+sizeof(WAVEFORMATEX)/*fmt */ + 4+4+4/*fact*/ + 4+4/*data*/];
+			size_t wvfmtsz = sizeof(WAVEFORMATEX) + waveFormat->cbSize;
+			char fileheader[4+4/*RIFF*/ + 4/*WAVE*/ + 4+4+wvfmtsz/*fmt */ + 4+4+4/*fact*/ + 4+4/*data*/];
 
 			memcpy(&fileheader[0], "RIFF", 4);
-			*(uint32_t*)&fileheader[4] = 4 + 4+4+sizeof(WAVEFORMATEX) + 4+4+4 + 4+4+compressedSize;
+			*(uint32_t*)&fileheader[4] = 4 + 4+4+wvfmtsz + 4+4+4 + 4+4+compressedSize;
 
 			memcpy(&fileheader[8], "WAVEfmt ", 8);
-			*(uint32_t*)&fileheader[16] = sizeof(WAVEFORMATEX);
-			memcpy(&fileheader[20], waveFormat, sizeof(WAVEFORMATEX));
+			*(uint32_t*)&fileheader[16] = wvfmtsz;
+			memcpy(&fileheader[20], waveFormat, wvfmtsz);
 
-			memcpy(&fileheader[20+sizeof(WAVEFORMATEX)], "FACT\x04\0\0\0", 8);
-			*(uint32_t*)&fileheader[28+sizeof(WAVEFORMATEX)] = M;
+			memcpy(&fileheader[20+wvfmtsz], "FACT\x04\0\0\0", 8);
+			*(uint32_t*)&fileheader[28+wvfmtsz] = M;
 
-			memcpy(&fileheader[32+sizeof(WAVEFORMATEX)], "data", 4);
-			*(uint32_t*)&fileheader[36+sizeof(WAVEFORMATEX)] = compressedSize;
+			memcpy(&fileheader[32+wvfmtsz], "data", 4);
+			*(uint32_t*)&fileheader[36+wvfmtsz] = compressedSize;
 
 			bool wrote_hdr = false;
 			uint8_t* uncompr = (uint8_t*)malloc(uncompressedSize);
