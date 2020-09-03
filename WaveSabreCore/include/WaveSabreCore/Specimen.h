@@ -4,6 +4,7 @@
 #include "SynthDevice.h"
 #include "Envelope.h"
 #include "StateVariableFilter.h"
+#include "SampleLoader.h"
 #include "SamplePlayer.h"
 
 namespace WaveSabreCore

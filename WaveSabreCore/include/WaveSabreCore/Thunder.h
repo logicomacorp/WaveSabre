@@ -2,6 +2,7 @@
 #define __WAVESABRECORE_THUNDER_H__
 
 #include "SynthDevice.h"
+#include "SampleLoader.h"
 
 namespace WaveSabreCore
 {
