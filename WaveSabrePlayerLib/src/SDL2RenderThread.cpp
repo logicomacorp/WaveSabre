@@ -45,7 +45,7 @@ namespace WaveSabrePlayerLib
 			printf("SDL2 error: %s\n", SDL_GetError());
 		}
 #endif
-		assert(rv > 0 && "Can't open SDL2 audio");
+		assert(dev > 0 && "Can't open SDL2 audio");
 
 		// pre-buffer stuff a bit, SDL2 tends to be finnicky
 		callback(sampleBuffer, bufferSizeBytes/sizeof(SongRenderer::Sample), callbackData);

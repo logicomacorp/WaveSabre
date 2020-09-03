@@ -62,7 +62,7 @@ try_xdgdat:
 		}
 
 		gmDlsPathAlloc = true;
-		gmDlsPathAlloc = (char*)malloc(0x100);
+		gmDlsPath = (char*)malloc(0x100);
 		snprintf(gmDlsPath, 0x100, "%s/WaveSabre/gm.dls", dataHome);
 		if (dataHomeAlloc) free(dataHome);
 
