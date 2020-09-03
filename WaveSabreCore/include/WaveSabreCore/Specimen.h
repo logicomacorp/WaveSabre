@@ -12,6 +12,8 @@ namespace WaveSabreCore
 	class Specimen : public SynthDevice
 	{
 	public:
+		static const int SampleRate = SampleLoader::SampleRate;
+
 		enum class ParamIndices
 		{
 			AmpAttack,

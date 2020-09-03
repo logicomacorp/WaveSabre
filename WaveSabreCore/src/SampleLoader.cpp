@@ -64,6 +64,7 @@ namespace WaveSabreCore
 			ret.sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
 
 		delete [] uncompressedData;
+#elif HAVE_FFMPEG_GSM
 #else
 		ret.sampleLength = 1;
 		ret.sampleData = new float[1];
