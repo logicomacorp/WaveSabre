@@ -9,6 +9,7 @@ if(NOT WIN32)
 	option(ENABLE_APLAY "Enable aplay(1) backend for audio playback" ON)
 	option(ENABLE_SDL2 "Enable SDL2_Audio backend for audio playback" OFF)
 	option(ENABLE_FFMPEG_GSM "Enable GSM 6.10 sample decoding using FFmpeg. Required for Thunder and Specimen." OFF)
+	option(ENABLE_EXTERNAL_GMDLS "Enable using a gm.dls file provided at runtime" OFF)
 	# for standalone playback, or playing back Windows-specific tracks, you
 	# probably want to enable all of the above options
 endif()

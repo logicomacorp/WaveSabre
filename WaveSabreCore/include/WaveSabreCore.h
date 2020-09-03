@@ -12,9 +12,7 @@
 #include "WaveSabreCore/AllPassDelay.h"
 #include "WaveSabreCore/Comb.h"
 #include "WaveSabreCore/ResampleBuffer.h"
-#if defined(WIN32) || defined(_WIN32)
 #include "WaveSabreCore/GmDls.h"
-#endif
 #include "WaveSabreCore/MxcsrFlagGuard.h"
 
 #include "WaveSabreCore/Devices.h"

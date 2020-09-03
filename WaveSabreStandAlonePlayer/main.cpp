@@ -18,9 +18,7 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	{
 	case SongRenderer::DeviceId::Falcon: return new WaveSabreCore::Falcon();
 	case SongRenderer::DeviceId::Slaughter: return new WaveSabreCore::Slaughter();
-#if defined(WIN32) || defined(_WIN32)
 	case SongRenderer::DeviceId::Thunder: return new WaveSabreCore::Thunder();
-#endif
 	case SongRenderer::DeviceId::Scissor: return new WaveSabreCore::Scissor();
 	case SongRenderer::DeviceId::Leveller: return new WaveSabreCore::Leveller();
 	case SongRenderer::DeviceId::Crusher: return new WaveSabreCore::Crusher();
@@ -29,9 +27,7 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	case SongRenderer::DeviceId::Chamber: return new WaveSabreCore::Chamber();
 	case SongRenderer::DeviceId::Twister: return new WaveSabreCore::Twister();
 	case SongRenderer::DeviceId::Cathedral: return new WaveSabreCore::Cathedral();
-#if defined(WIN32) || defined(_WIN32)
 	case SongRenderer::DeviceId::Adultery: return new WaveSabreCore::Adultery();
-#endif
 	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
 	}
 	printf("ack, unknown device %d!\n", id);

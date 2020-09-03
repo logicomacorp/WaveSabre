@@ -88,6 +88,13 @@ else()
 		message(NOTICE "FFmpeg GSM 6.10 decoding disabled")
 	endif()
 
+	if(ENABLE_EXTERNAL_GMDLS)
+		message(NOTICE "Enabling gm.dls support")
+		target_compile_definitions(WaveSabreCore PRIVATE HAVE_EXTERNAL_GMDLS=1)
+	else()
+		message(NOTICE "External gm.dls loading disabled")
+	endif()
+
 	if(CMAKE_BUILD_TYPE EQUAL Debug)
 		target_compile_options(WaveSabreCore PUBLIC -g -Og)
 	else()
