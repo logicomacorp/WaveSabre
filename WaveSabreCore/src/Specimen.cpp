@@ -165,22 +165,8 @@ namespace WaveSabreCore
 		// Read compressed data and load sample
 		auto compressedDataPtr = (char *)waveFormatPtr + waveFormatSize;
 		auto compressedDataSize = headerPtr->CompressedSize;
-		auto sample = SampleLoader::LoadSampleGSM(compressedDataPtr,
-				headerPtr->CompressedSize, headerPtr->UncompressedSize, waveFormatPtr);
 
-		this->compressedSize = sample.compressedSize;
-		this->uncompressedSize = sample.uncompressedSize;
-
-		if (waveFormatData) delete [] waveFormatData;
-		waveFormatData = sample.waveFormatData;
-		if (compressedData) delete [] compressedData;
-		compressedData = sample.compressedData;
-		if (sampleData) delete [] sampleData;
-		sampleData = sample.sampleData;
-
-		sampleLength = sample.sampleLength;
-		sampleLoopStart = 0;
-		sampleLoopLength = sampleLength;
+		LoadSample(compressedDataPtr, headerPtr->CompressedSize, headerPtr->UncompressedSize, waveFormatPtr);
 
 		// Read params
 		//  The rest of the data from the start of the params until the end of the chunk

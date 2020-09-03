@@ -42,19 +42,7 @@ namespace WaveSabreCore
 		auto h = (ChunkHeader *)data;
 		auto waveFormat = (WAVEFORMATEX *)((char *)data + sizeof(ChunkHeader));
 		auto compressedData = (char *)waveFormat + sizeof(WAVEFORMATEX) + waveFormat->cbSize;
-		auto sample = SampleLoader::LoadSampleGSM(compressedData, h->CompressedSize, h->UncompressedSize, waveFormat);
-
-		this->compressedSize = sample.compressedSize;
-		this->uncompressedSize = sample.uncompressedSize;
-
-		if (waveFormatData) delete [] waveFormatData;
-		waveFormatData = sample.waveFormatData;
-		if (compressedData) delete [] compressedData;
-		compressedData = sample.compressedData;
-		if (sampleData) delete [] sampleData;
-		sampleData = sample.sampleData;
-
-		sampleLength = sample.sampleLength;
+		LoadSample(compressedData, h->CompressedSize, h->UncompressedSize, waveFormat);
 	}
 
 	int Thunder::GetChunk(void **data)
