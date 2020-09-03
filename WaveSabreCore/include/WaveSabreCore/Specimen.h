@@ -51,8 +51,6 @@ namespace WaveSabreCore
 			NumParams,
 		};
 
-		static const int SampleRate = 44100;
-
 		Specimen();
 		virtual ~Specimen();
 

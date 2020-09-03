@@ -59,7 +59,7 @@ namespace WaveSabreCore
 		acmDriverClose(driver, 0);
 
 		ret.sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
-		ret.sampleData = new float[sampleLength];
+		ret.sampleData = new float[ret.sampleLength];
 		for (int i = 0; i < ret.sampleLength; i++)
 			ret.sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
 

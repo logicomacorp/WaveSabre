@@ -28,6 +28,8 @@ namespace WaveSabreCore
 	class SampleLoader
 	{
 	public:
+		static const int SampleRate = 44100;
+
 		struct LoadedSample {
 			char *chunkData;
 

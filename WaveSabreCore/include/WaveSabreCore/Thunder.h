@@ -8,8 +8,6 @@ namespace WaveSabreCore
 	class Thunder : public SynthDevice
 	{
 	public:
-		static const int SampleRate = 44100;
-
 		Thunder();
 		virtual ~Thunder();
 
