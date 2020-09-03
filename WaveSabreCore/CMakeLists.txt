@@ -83,7 +83,7 @@ else()
 
 	if(ENABLE_FFMPEG_GSM)
 		message(NOTICE "Enabling FFmpeg GSM 6.10 decoding")
-		target_compile_definitions(WaveSabrePlayerLib PRIVATE HAVE_FFMPEG_GSM=1)
+		target_compile_definitions(WaveSabreCore PRIVATE HAVE_FFMPEG_GSM=1)
 	else()
 		message(NOTICE "FFmpeg GSM 6.10 decoding disabled")
 	endif()

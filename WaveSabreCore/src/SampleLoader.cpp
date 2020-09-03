@@ -2,6 +2,18 @@
 
 #include <string.h>
 
+#if !defined(WIN32) && !defined(_WIN32) && HAVE_FFMPEG_GSM
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <poll.h>
+#endif
+
 namespace WaveSabreCore
 {
 #if defined(WIN32) || defined(_WIN32)
@@ -65,7 +77,133 @@ namespace WaveSabreCore
 
 		delete [] uncompressedData;
 #elif HAVE_FFMPEG_GSM
+		// you're going to hate me for this and I'll absolutely deserve it
+
+		// cat test.gsm \
+		//     | ffmpeg -i - -f f32le -acodec pcm_f32le - 2>/dev/null \
+		//     | aplay -traw -c1 -r44100 -fFLOAT -
+
+		int gsmpipe[2], wavpipe[2];
+		int rv;
+		rv = pipe(gsmpipe);
+		assert(rv == 0 && "Can't set up input pipe for ffmpeg");
+		rv = pipe(wavpipe);
+		assert(rv == 0 && "Can't set up output pipe for ffmpeg");
+
+		int gsmread = gsmpipe[0], gsmwrite = gsmpipe[1],
+			wavread = wavpipe[0], wavwrite = wavpipe[1];
+
+		pid_t child = fork(); // dun dun duuuuun
+		assert(child >= 0 && "fork() failed.");
+
+		if (child == 0) {
+			// child
+			close(gsmwrite);
+			close(wavread);
+			//close(STDERR_FILENO);
+
+			dup2(gsmread, STDIN_FILENO);
+			dup2(wavwrite, STDOUT_FILENO);
+
+			char *const args[] = {"/usr/bin/ffmpeg", "-i", "-", "-f", "f32le",
+				"-acodec", "pcm_f32le", "-", NULL};
+			rv = execve("/usr/bin/ffmpeg", args, environ);
+			assert(rv >= 0 && "Failed to run FFmpeg!");
+			// unreachable
+		} else {
+			// parent
+			close(gsmread);
+			close(wavwrite);
+
+			// write fake(ish) WAV header
+			size_t M = (waveFormat->nAvgBytesPerSec * waveFormat->nSamplesPerSec) / waveFormat->nChannels;
+			char fileheader[4+4/*RIFF*/ + 4/*WAVE*/ + 4+4+sizeof(WAVEFORMATEX)/*fmt */ + 4+4+4/*fact*/ + 4+4/*data*/];
+
+			memcpy(&fileheader[0], "RIFF", 4);
+			*(uint32_t*)&fileheader[4] = 4 + 4+4+sizeof(WAVEFORMATEX) + 4+4+4 + 4+4+compressedSize;
+
+			memcpy(&fileheader[8], "WAVEfmt ", 8);
+			*(uint32_t*)&fileheader[16] = sizeof(WAVEFORMATEX);
+			memcpy(&fileheader[20], waveFormat, sizeof(WAVEFORMATEX));
+
+			memcpy(&fileheader[20+sizeof(WAVEFORMATEX)], "FACT\x04\0\0\0", 8);
+			*(uint32_t*)&fileheader[28+sizeof(WAVEFORMATEX)] = M;
+
+			memcpy(&fileheader[32+sizeof(WAVEFORMATEX)], "data", 4);
+			*(uint32_t*)&fileheader[36+sizeof(WAVEFORMATEX)] = compressedSize;
+
+			bool wrote_hdr = false;
+			size_t uncompr_cap = PIPE_BUF,
+				   uncompr_incr = PIPE_BUF >> 2;
+			uint8_t* uncompr = (uint8_t*)malloc(uncompr_cap);
+			size_t uncomprSize = 0;
+
+			int rev;
+			while (true) {
+				struct pollfd watched[2];
+				watched[0].fd = wavread;
+				watched[0].events = POLLIN;
+				watched[0].revents = 0;
+				watched[1].fd = gsmwrite;
+				watched[1].events = (compressedSize > 0) ? POLLOUT : 0;
+				watched[1].revents = 0;
+
+				rv = poll(watched, (compressedSize > 0) ? 2 : 1, -1);
+				assert(rv >= 0 && "poll(2) failed?!");
+
+				if (watched[0].revents & POLLNVAL)
+					watched[0].revents |= POLLERR;
+				if (watched[1].revents & POLLNVAL)
+					watched[1].revents |= POLLERR;
+				rev = (watched[0].revents | watched[1].revents);
+
+				if ((rev & POLLOUT) && !wrote_hdr && compressedSize > 0 && !(watched[1].revents & POLLERR)) {
+					if (wrote_hdr) {
+						wrote_hdr = false;
+						write(gsmwrite, fileheader, sizeof(fileheader));
+					} else {
+						size_t towr = compressedSize;
+						if (towr > PIPE_BUF)
+							towr = PIPE_BUF;
+						rv = write(gsmwrite, data, towr);
+						assert(rv >= 0 && "Couldn't write GSM data to FFmpeg");
+						compressedSize -= rv;
+					}
+				}
+				if ((rev & POLLIN) && !(watched[0].revents & POLLERR)) {
+					// TODO: make nonblocking, seek for smallest possible data size left
+					if (uncomprSize + uncompr_incr > uncompr_cap) {
+						uncompr_cap <<= 1;
+						uncompr = (uint8_t*)realloc(uncompr, uncompr_cap);
+					}
+					rv = read(wavread, uncompr + uncomprSize, uncompr_incr);
+					assert(rv >= 0 && "Couldn't read converted GSM data from FFmpeg");
+					uncomprSize += rv;
+				}
+
+				if (rev & (POLLHUP | POLLERR))
+					break;
+			}
+
+			if (rev & POLLERR) {
+				printf("I/O error to ffmpeg?\n");
+			}
+
+			waitpid(child, &rev, 0);
+			if (rev != 0) {
+				printf("FFmpeg exited with error %d!\n", rev);
+			}
+
+			ret.sampleLength = uncomprSize / sizeof(float);
+			ret.sampleData = new float[ret.sampleLength];
+			memcpy(ret.sampleData, uncompr, uncomprSize);
+			free(uncompr);
+		}
 #else
+		// sorry, not supported.
+#ifndef NDEBUG
+		printf("WARNING: trying to load a GSM sample, while this is unsupported. Output will be silence.\n");
+#endif
 		ret.sampleLength = 1;
 		ret.sampleData = new float[1];
 		ret.sampleData[0] = 0;

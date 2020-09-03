@@ -144,6 +144,7 @@ namespace WaveSabrePlayerLib
 		// stdin becomes readend (properly sets up the pipe)
 		// doing this instead of using /proc/$pid/fd is more portable
 		dup2(readend, STDIN_FILENO);
+		//close(STDERR_FILENO);
 
 		// format aplay args
 		char arg2[strlen("-fS16_LE")+1];
@@ -159,6 +160,7 @@ namespace WaveSabrePlayerLib
 		char *const args[] = {"/usr/bin/aplay", "-traw", "-c2", arg2, arg3, NULL};
 		int rv = execve("/usr/bin/aplay", args, environ);
 		assert(rv >= 0 && "Failed to run aplay!");
+		// unreachable
 	}
 
 	void AplayRenderThread::GetBufferTick(bool block)
