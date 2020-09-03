@@ -100,7 +100,7 @@ namespace WaveSabreCore
 			// child
 			close(gsmwrite);
 			close(wavread);
-			//close(STDERR_FILENO);
+			close(STDERR_FILENO);
 
 			dup2(gsmread, STDIN_FILENO);
 			dup2(wavwrite, STDOUT_FILENO);
@@ -133,19 +133,23 @@ namespace WaveSabreCore
 			*(uint32_t*)&fileheader[36+sizeof(WAVEFORMATEX)] = compressedSize;
 
 			bool wrote_hdr = false;
-			size_t uncompr_cap = PIPE_BUF,
-				   uncompr_incr = PIPE_BUF >> 2;
-			uint8_t* uncompr = (uint8_t*)malloc(uncompr_cap);
-			size_t uncomprSize = 0;
+			uint8_t* uncompr = (uint8_t*)malloc(uncompressedSize);
+			size_t uncomprOff = 0;
 
 			int rev;
 			while (true) {
+				bool needDataOut = compressedSize > 0 || !wrote_hdr;
+				bool needDataIn = uncomprOff < uncompressedSize;
+
+				if (!needDataOut && !needDataIn)
+					break;
+
 				struct pollfd watched[2];
 				watched[0].fd = wavread;
 				watched[0].events = POLLIN;
 				watched[0].revents = 0;
 				watched[1].fd = gsmwrite;
-				watched[1].events = (compressedSize > 0) ? POLLOUT : 0;
+				watched[1].events = needDataOut ? POLLOUT : 0;
 				watched[1].revents = 0;
 
 				rv = poll(watched, (compressedSize > 0) ? 2 : 1, -1);
@@ -157,9 +161,9 @@ namespace WaveSabreCore
 					watched[1].revents |= POLLERR;
 				rev = (watched[0].revents | watched[1].revents);
 
-				if ((rev & POLLOUT) && !wrote_hdr && compressedSize > 0 && !(watched[1].revents & POLLERR)) {
-					if (wrote_hdr) {
-						wrote_hdr = false;
+				if ((rev & POLLOUT) && needDataOut && !(watched[1].revents & POLLERR)) {
+					if (!wrote_hdr) {
+						wrote_hdr = true;
 						write(gsmwrite, fileheader, sizeof(fileheader));
 					} else {
 						size_t towr = compressedSize;
@@ -168,17 +172,20 @@ namespace WaveSabreCore
 						rv = write(gsmwrite, data, towr);
 						assert(rv >= 0 && "Couldn't write GSM data to FFmpeg");
 						compressedSize -= rv;
+
+						if (compressedSize <= 0) close(gsmwrite);
 					}
 				}
-				if ((rev & POLLIN) && !(watched[0].revents & POLLERR)) {
+				if ((rev & POLLIN) && uncomprOff < uncompressedSize && !(watched[0].revents & POLLERR)) {
 					// TODO: make nonblocking, seek for smallest possible data size left
-					if (uncomprSize + uncompr_incr > uncompr_cap) {
-						uncompr_cap <<= 1;
-						uncompr = (uint8_t*)realloc(uncompr, uncompr_cap);
-					}
-					rv = read(wavread, uncompr + uncomprSize, uncompr_incr);
+					size_t toRead = 0x100;
+					if (toRead > (uncompressedSize - uncomprOff))
+						toRead = (uncompressedSize - uncomprOff);
+					rv = read(wavread, uncompr + uncomprOff, toRead);
 					assert(rv >= 0 && "Couldn't read converted GSM data from FFmpeg");
-					uncomprSize += rv;
+					uncomprOff += rv;
+
+					if (uncomprOff >= uncompressedSize) close(wavread);
 				}
 
 				if (rev & (POLLHUP | POLLERR))
@@ -194,9 +201,9 @@ namespace WaveSabreCore
 				printf("FFmpeg exited with error %d!\n", rev);
 			}
 
-			ret.sampleLength = uncomprSize / sizeof(float);
+			ret.sampleLength = uncompressedSize / sizeof(float);
 			ret.sampleData = new float[ret.sampleLength];
-			memcpy(ret.sampleData, uncompr, uncomprSize);
+			memcpy(ret.sampleData, uncompr, uncompressedSize);
 			free(uncompr);
 		}
 #else
