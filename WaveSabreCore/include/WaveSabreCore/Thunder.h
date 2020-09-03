@@ -21,7 +21,7 @@ namespace WaveSabreCore
 				int uncompressedSize, WAVEFORMATEX *waveFormatPtr)
 		{
 			auto sample = SampleLoader::LoadSampleGSM(compressedDataPtr,
-					headerPtr->CompressedSize, headerPtr->UncompressedSize, waveFormatPtr);
+					compressedSize, uncompressedSize, waveFormatPtr);
 
 			this->compressedSize = sample.compressedSize;
 			this->uncompressedSize = sample.uncompressedSize;
