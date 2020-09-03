@@ -16,7 +16,7 @@ Please see [our docs](https://github.com/logicomacorp/WaveSabre/blob/master/Docs
 
 As WaveSabre is hot and fresh right out of the oven, we've got some kinks to work out; particularly with documentation, support for more Visual Studio versions, and supporting various VST SDK versions. We'd appreciate any help we can get on any of these fronts, so please talk to us on Slack so we can guide you in the right direction and help you help us!
 
-Contributions are very welcome, however as the public release is still in its infancy, we'd greatly appreciate it if we could discuss contributions on [Slack](https://join.slack.com/t/wavesabre/shared_invite/enQtNTYwNDA2MTgwODM5LWI0OGNjNWY5Njc1ZTA5MzQ0NjZiN2M3NzNhOWFiZjNiMmEwM2EzZWFjNzAzZWQzZWNkOWJiOGExMWY3ZGJmNTI), rather than just opening up for pull requests for the time being, in order to avoid duplicate work. This will change in the future when things mature/settle down a bit. :)
+Contributions are very welcome, however as the public release is still in its infancy, we'd greatly appreciate it if we could discuss contributions on [Slack](https://join.slack.com/t/wavesabre/shared_invite/zt-75g3dckn-8AeINw6OZIBc~qrWfqZkKA), rather than just opening up for pull requests for the time being, in order to avoid duplicate work. This will change in the future when things mature/settle down a bit. :)
 
 ## Productions
 
