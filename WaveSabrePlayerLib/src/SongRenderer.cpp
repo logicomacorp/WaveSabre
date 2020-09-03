@@ -307,7 +307,6 @@ namespace WaveSabrePlayerLib
 #endif
 		}
 
-		//asm volatile("int3\n");
 #if defined(WIN32) || defined(_WIN32)
 		if (!InterlockedDecrement(&renderThreadsRunning))
 			SetEvent(renderDoneEvent);

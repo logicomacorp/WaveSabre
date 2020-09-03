@@ -17,6 +17,7 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Leveller.h
 	include/WaveSabreCore/MxcsrFlagGuard.h
 	include/WaveSabreCore/ResampleBuffer.h
+	include/WaveSabreCore/SampleLoader.h
 	include/WaveSabreCore/SamplePlayer.h
 	include/WaveSabreCore/Scissor.h
 	include/WaveSabreCore/Slaughter.h
@@ -44,6 +45,7 @@ add_library(WaveSabreCore
 	src/Leveller.cpp
 	src/MxcsrFlagGuard.cpp
 	src/ResampleBuffer.cpp
+	src/SampleLoader.cpp
 	src/SamplePlayer.cpp
 	src/Scissor.cpp
 	src/Slaughter.cpp
@@ -78,6 +80,13 @@ if(MSVC)
 	endif()
 else()
 	# assuming GCC or clang for now
+
+	if(ENABLE_FFMPEG_GSM)
+		message(NOTICE "Enabling FFmpeg GSM 6.10 decoding")
+		target_compile_definitions(WaveSabrePlayerLib PRIVATE HAVE_FFMPEG_GSM=1)
+	else()
+		message(NOTICE "FFmpeg GSM 6.10 decoding disabled")
+	endif()
 
 	if(CMAKE_BUILD_TYPE EQUAL Debug)
 		target_compile_options(WaveSabreCore PUBLIC -g -Og)

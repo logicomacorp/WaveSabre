@@ -3,11 +3,9 @@
 
 #include "Falcon.h"
 #include "Slaughter.h"
-#if defined(WIN32) || defined(_WIN32)
 #include "Thunder.h"
 #include "Adultery.h"
 #include "Specimen.h"
-#endif
 
 #include "Scissor.h"
 #include "Leveller.h"

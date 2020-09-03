@@ -1,14 +1,12 @@
 #include <WaveSabreCore/Thunder.h>
 #include <WaveSabreCore/Helpers.h>
+#include <WaveSabreCore/SampleLoader.h>
 
+#include <string.h>
 #include <math.h>
 
 namespace WaveSabreCore
 {
-#if defined(WIN32) || defined(_WIN32)
-	HACMDRIVERID Thunder::driverId = NULL;
-#endif
-
 	Thunder::Thunder()
 		: SynthDevice(0)
 	{
@@ -40,22 +38,27 @@ namespace WaveSabreCore
 
 	void Thunder::SetChunk(void *data, int size)
 	{
-#if defined(WIN32) || defined(_WIN32)
 		if (!size) return;
 		auto h = (ChunkHeader *)data;
 		auto waveFormat = (WAVEFORMATEX *)((char *)data + sizeof(ChunkHeader));
 		auto compressedData = (char *)waveFormat + sizeof(WAVEFORMATEX) + waveFormat->cbSize;
-		LoadSample(compressedData, h->CompressedSize, h->UncompressedSize, waveFormat);
-#else
-		sampleLength = 1;
-		sampleData = new float[1];
-		sampleData[0] = 0.0f;
-#endif
+		auto sample = SampleLoader::LoadSampleGSM(compressedData, h->CompressedSize, h->UncompressedSize, waveFormat);
+
+		this->compressedSize = sample.compressedSize;
+		this->uncompressedSize = sample.uncompressedSize;
+
+		if (waveFormatData) delete [] waveFormatData;
+		waveFormatData = sample.waveFormatData;
+		if (compressedData) delete [] compressedData;
+		compressedData = sample.compressedData;
+		if (sampleData) delete [] sampleData;
+		sampleData = sample.sampleData;
+
+		sampleLength = sample.sampleLength;
 	}
 
 	int Thunder::GetChunk(void **data)
 	{
-#if defined(WIN32) || defined(_WIN32)
 		if (!compressedData) return 0;
 		ChunkHeader h;
 		h.CompressedSize = compressedSize;
@@ -69,65 +72,7 @@ namespace WaveSabreCore
 		*(int *)(chunkData + chunkSize - sizeof(int)) = chunkSize;
 		*data = chunkData;
 		return chunkSize;
-#else
-		return 0;
-#endif
 	}
-
-#if defined(WIN32) || defined(_WIN32)
-	void Thunder::LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat)
-	{
-		this->compressedSize = compressedSize;
-		this->uncompressedSize = uncompressedSize;
-
-		if (waveFormatData) delete [] waveFormatData;
-		waveFormatData = new char[sizeof(WAVEFORMATEX) + waveFormat->cbSize];
-		memcpy(waveFormatData, waveFormat, sizeof(WAVEFORMATEX) + waveFormat->cbSize);
-		if (compressedData) delete [] compressedData;
-		compressedData = new char[compressedSize];
-		memcpy(compressedData, data, compressedSize);
-
-		acmDriverEnum(driverEnumCallback, NULL, NULL);
-		HACMDRIVER driver = NULL;
-		acmDriverOpen(&driver, driverId, 0);
-
-		WAVEFORMATEX dstWaveFormat =
-		{
-			WAVE_FORMAT_PCM,
-			1,
-			waveFormat->nSamplesPerSec,
-			waveFormat->nSamplesPerSec * 2,
-			sizeof(short),
-			sizeof(short) * 8,
-			0
-		};
-
-		HACMSTREAM stream = NULL;
-		acmStreamOpen(&stream, driver, waveFormat, &dstWaveFormat, NULL, NULL, NULL, ACM_STREAMOPENF_NONREALTIME);
-
-		ACMSTREAMHEADER streamHeader;
-		memset(&streamHeader, 0, sizeof(ACMSTREAMHEADER));
-		streamHeader.cbStruct = sizeof(ACMSTREAMHEADER);
-		streamHeader.pbSrc = (LPBYTE)compressedData;
-		streamHeader.cbSrcLength = compressedSize;
-		auto uncompressedData = new short[uncompressedSize * 2];
-		streamHeader.pbDst = (LPBYTE)uncompressedData;
-		streamHeader.cbDstLength = uncompressedSize * 2;
-		acmStreamPrepareHeader(stream, &streamHeader, 0);
-
-		acmStreamConvert(stream, &streamHeader, 0);
-
-		acmStreamClose(stream, 0);
-		acmDriverClose(driver, 0);
-
-		sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
-		if (sampleData) delete [] sampleData;
-		sampleData = new float[sampleLength];
-		for (int i = 0; i < sampleLength; i++) sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
-
-		delete [] uncompressedData;
-	}
-#endif
 
 	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
 	{
@@ -160,43 +105,4 @@ namespace WaveSabreCore
 		Voice::NoteOn(note, velocity, detune, pan);
 		samplePos = 0;
 	}
-
-#if defined(WIN32) || defined(_WIN32)
-	BOOL __stdcall Thunder::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
-	{
-		if (Thunder::driverId) return 1;
-
-		HACMDRIVER driver = NULL;
-		acmDriverOpen(&driver, driverId, 0);
-
-		int waveFormatSize = 0;
-		acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, &waveFormatSize);
-		auto waveFormat = (WAVEFORMATEX *)(new char[waveFormatSize]);
-		memset(waveFormat, 0, waveFormatSize);
-		ACMFORMATDETAILS formatDetails;
-		memset(&formatDetails, 0, sizeof(formatDetails));
-		formatDetails.cbStruct = sizeof(formatDetails);
-		formatDetails.pwfx = waveFormat;
-		formatDetails.cbwfx = waveFormatSize;
-		formatDetails.dwFormatTag = WAVE_FORMAT_UNKNOWN;
-		acmFormatEnum(driver, &formatDetails, formatEnumCallback, NULL, NULL);
-
-		delete [] (char *)waveFormat;
-
-		acmDriverClose(driver, 0);
-
-		return 1;
-	}
-
-	BOOL __stdcall Thunder::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport)
-	{
-		if (formatDetails->pwfx->wFormatTag == WAVE_FORMAT_GSM610 &&
-			formatDetails->pwfx->nChannels == 1 &&
-			formatDetails->pwfx->nSamplesPerSec == SampleRate)
-		{
-			Thunder::driverId = driverId;
-		}
-		return 1;
-	}
-#endif
 }

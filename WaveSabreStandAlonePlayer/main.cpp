@@ -31,8 +31,8 @@ WaveSabreCore::Device *SongFactory(SongRenderer::DeviceId id)
 	case SongRenderer::DeviceId::Cathedral: return new WaveSabreCore::Cathedral();
 #if defined(WIN32) || defined(_WIN32)
 	case SongRenderer::DeviceId::Adultery: return new WaveSabreCore::Adultery();
-	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
 #endif
+	case SongRenderer::DeviceId::Specimen: return new WaveSabreCore::Specimen();
 	}
 	printf("ack, unknown device %d!\n", id);
 	return nullptr;

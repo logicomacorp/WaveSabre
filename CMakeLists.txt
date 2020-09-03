@@ -4,9 +4,13 @@ cmake_minimum_required(VERSION 3.11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(NOT WIN32)
+	# compo build defaults
 	option(ENABLE_PTHREADS "Use Pthreads for threading" OFF)
 	option(ENABLE_APLAY "Enable aplay(1) backend for audio playback" ON)
-	option(ENABLE_SDL2 "Enable SDL2_Audio backend for audio playback" ON)
+	option(ENABLE_SDL2 "Enable SDL2_Audio backend for audio playback" OFF)
+	option(ENABLE_FFMPEG_GSM "Enable GSM 6.10 sample decoding using FFmpeg. Required for Thunder and Specimen." OFF)
+	# for standalone playback, or playing back Windows-specific tracks, you
+	# probably want to enable all of the above options
 endif()
 
 if(MSVC)
