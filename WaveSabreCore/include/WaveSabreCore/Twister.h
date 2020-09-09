@@ -65,7 +65,7 @@ namespace WaveSabreCore
 
 		ResampleBuffer leftBuffer;
 		ResampleBuffer rightBuffer;
-		
+
 		StateVariableFilter lowCutFilter[2], highCutFilter[2];
 	};
 }

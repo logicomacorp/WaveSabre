@@ -79,7 +79,7 @@ namespace WaveSabreCore
 				outL += combLeft[i].Process(input);
 				outR += combRight[i].Process(input);
 			}
-			
+
 			// Feed through allpasses in series
 			for (int i = 0; i < numAllPasses; i++)
 			{

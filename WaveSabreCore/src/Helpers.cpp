@@ -4,8 +4,17 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+// TODO: make assembly equivalent for Windows x64 (use intrinsic ?)
+//       ^--- you probably only need to change esp to rsp?  -poro
+
+#if (defined(_MSC_VER) && defined(_M_IX86)) || defined(__GNUC__)
+	#define ASM_MATH_AVAILABLE (1)
+#else /* nor MSVC nor GCC/clang */
+	#define ASM_MATH_AVAILABLE (0)
+#endif
+
+#if ASM_MATH_AVAILABLE == 1
 #if defined(_MSC_VER) && defined(_M_IX86)
-// TODO: make assembly equivalent for x64 (use intrinsic ?)
 static __declspec(naked) double __vectorcall fpuPow(double x, double y)
 {
 	__asm
@@ -53,7 +62,87 @@ done:
 		ret
 	}
 }
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__naked__,__noinline__)) static double fpuPow(double x, double y)
+{
+	// i386 Linux ABI: pass thru the stack, return in st(0)
+	// x86_64 SysV ABI: pass/return thru xmm0/1
+	asm volatile(
+#ifdef __x86_64__
+				 "subq $8, %%rsp\n"
+#else
+				 "movsd  4(%%esp), %%xmm0\n"
+				 "movsd 12(%%esp), %%xmm1\n"
+				 "subl $8, %%esp\n"
+#endif
+				 "xorpd %%xmm2, %%xmm2\n"
+				 "comisd %%xmm2, %%xmm1\n"
+				 "jne 1f\n"
 
+				 "fld1\n"
+				 "jmp 3f\n"
+
+				 "1:\n"
+				 "comisd %%xmm2, %%xmm0\n"
+				 "jne 2f\n"
+
+				 "fldz\n"
+				 "jmp 3f\n"
+
+				 "2:\n"
+#ifdef __x86_64__
+				 "movsd %%xmm1, (%%rsp)\n"
+				 "fldl (%%rsp)\n"
+				 "movsd %%xmm0, (%%rsp)\n"
+				 "fldl (%%rsp)\n"
+#else
+				 "movsd %%xmm1, (%%esp)\n"
+				 "fldl (%%esp)\n"
+				 "movsd %%xmm0, (%%esp)\n"
+				 "fldl (%%esp)\n"
+#endif
+
+				 "fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsub %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+
+				 "3:\n"
+#ifdef __x86_64__
+				 "fstpl (%%rsp)\n"
+				 "movsd (%%rsp), %%xmm0\n"
+				 "addq $8, %%rsp\n"
+#else
+				 "addl $8, %%esp\n"
+#endif
+				 "ret\n"
+				 :// no output
+				 :// no input
+				 :"xmm2" // clobbered
+				 );
+}
+	#else
+		// __builtin_pow only supports integer exponents... so if the exponent
+		// is an integer, use __builtin_pow, using some preprocessor magic
+		#define fpuPow(x, y) \
+			((__builtin_constant_p(y) && ((y) == (int)(y))) \
+				? __builtin_pow(x, y) \
+				: pow(x, y)) \
+
+	#endif
+#else
+#error "Unsupported compiler."
+#endif /* compiler */
+
+#if defined(_MSC_VER) && defined(_M_IX86)
 static __declspec(naked) float __vectorcall fpuPowF(float x, float y)
 {
 	__asm
@@ -101,7 +190,87 @@ done:
 		ret
 	}
 }
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__naked__,__noinline__)) static float fpuPowF(float x, float y)
+{
+	// i386 Linux ABI: pass thru the stack, return in st(0)
+	// x86_64 SysV ABI: pass/return thru xmm0/1
+	asm volatile(
+#ifdef __x86_64__
+				 "subq $8, %%rsp\n"
+#else
+				 "movss 4(%%esp), %%xmm0\n"
+				 "movss 8(%%esp), %%xmm1\n"
+				 "subl $8, %%esp\n"
+#endif
+				 "xorps %%xmm2, %%xmm2\n"
+				 "comiss %%xmm2, %%xmm1\n"
+				 "jne 1f\n"
 
+				 "fld1\n"
+				 "jmp 3f\n"
+
+				 "1:\n"
+				 "comiss %%xmm2, %%xmm0\n"
+				 "jne 2f\n"
+
+				 "fldz\n"
+				 "jmp 3f\n"
+
+				 "2:\n"
+#ifdef __x86_64__
+				 "movss %%xmm1, (%%rsp)\n"
+				 "flds (%%rsp)\n"
+				 "movss %%xmm0, (%%rsp)\n"
+				 "flds (%%rsp)\n"
+#else
+				 "movss %%xmm1, (%%esp)\n"
+				 "flds (%%esp)\n"
+				 "movss %%xmm0, (%%esp)\n"
+				 "flds (%%esp)\n"
+#endif
+
+				 "fyl2x\n"
+				 "fld %%st(0)\n"
+				 "frndint\n"
+				 "fsub %%st(0), %%st(1)\n"
+				 "fxch %%st(1)\n"
+				 "fchs\n"
+				 "f2xm1\n"
+				 "fld1\n"
+				 "faddp %%st(0), %%st(1)\n"
+				 "fscale\n"
+				 "fstp %%st(1)\n"
+
+				 "3:\n"
+#ifdef __x86_64__
+				 "fstps (%%rsp)\n"
+				 "movss (%%rsp), %%xmm0\n"
+				 "addq $8, %%rsp\n"
+#else
+				 "addl $8, %%esp\n"
+#endif
+				 "ret\n"
+				 :// no output
+				 :// no input
+				 :"xmm2" // clobbered
+				 );
+}
+	#else
+		// __builtin_powf only supports integer exponents... so if the exponent
+		// is an integer, use __builtin_powf, using some preprocessor magic
+		#define fpuPowF(x, y) \
+			((__builtin_constant_p(y) && ((y) == (int)(y))) \
+				? __builtin_powf(x, y) \
+				: powf(x, y)) \
+
+	#endif
+#else
+#error "Unsupported compiler."
+#endif /* compiler */
+
+#if defined(_MSC_VER) && defined(_M_IX86)
 static __declspec(naked) double __vectorcall fpuCos(double x)
 {
 	__asm
@@ -119,7 +288,24 @@ static __declspec(naked) double __vectorcall fpuCos(double x)
 		ret
 	}
 }
-#endif // defined(_MSC_VER) && defined(_M_IX86)
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__always_inline__)) inline static double fpuCos(double x)
+{
+	// not writing the *entire* function body in assembly actually helps
+	// gcc and clang with inlining and LTO
+	// ... except trying this with fpuPow/F somehow got botched, so those I
+	// wrote as pure assembly
+	asm volatile("fcos\n":"+t"(x)::);
+	return x;
+}
+	#else /* x86_64 */
+		#define fpuCos(x) __builtin_cos(x)
+	#endif /* GNUC, platform */
+#else
+#error "Unsupported compiler."
+#endif /* compiler */
+#endif // ASM_MATH_AVAILABLE == 1
 
 namespace WaveSabreCore
 {
@@ -138,7 +324,7 @@ namespace WaveSabreCore
 		for (int i = 0; i < fastCosTabSize + 1; i++)
 		{
 			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 			fastCosTab[i] = fpuCos(phase);
 #else
 			fastCosTab[i] = cos(phase);
@@ -153,7 +339,7 @@ namespace WaveSabreCore
 
 	double Helpers::Pow(double x, double y)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 		return fpuPow(x, y);
 #else
 		return pow(x, y);
@@ -162,7 +348,7 @@ namespace WaveSabreCore
 
 	float Helpers::PowF(float x, float y)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE == 1
 		return fpuPowF(x, y);
 #else
 		return powf(x, y);
@@ -365,7 +551,7 @@ namespace WaveSabreCore
 	{
 		return (Spread)(int)(param * 2.0f);
 	}
-	
+
 	float Helpers::SpreadToParam(Spread spread)
 	{
 		return (float)spread / 2.0f;

@@ -1,5 +1,15 @@
 #include <WaveSabrePlayerLib/PreRenderPlayer.h>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WaveSabrePlayerLib/DirectSoundRenderThread.h>
+#elif HAVE_SDL2
+#include <WaveSabrePlayerLib/SDL2RenderThread.h>
+#elif HAVE_APLAY
+#include <WaveSabrePlayerLib/AplayRenderThread.h>
+#endif
+
+#include <string.h>
+
 namespace WaveSabrePlayerLib
 {
 	PreRenderPlayer::PreRenderPlayer(const SongRenderer::Song *song, int numRenderThreads, ProgressCallback callback, void *data, int playbackBufferSizeMs)
@@ -48,6 +58,12 @@ namespace WaveSabrePlayerLib
 		delete [] renderBuffer;
 	}
 
+	void PreRenderPlayer::DoForegroundWork()
+	{
+		if (renderThread)
+			renderThread->DoForegroundWork();
+	}
+
 	void PreRenderPlayer::Play()
 	{
 		if (renderThread)
@@ -55,7 +71,13 @@ namespace WaveSabrePlayerLib
 
 		playbackBufferIndex = 0;
 
+#if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs);
+#elif HAVE_SDL2
+		renderThread = new SDL2RenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs, true);
+#elif HAVE_APLAY
+		renderThread = new AplayRenderThread(renderCallback, this, sampleRate, playbackBufferSizeMs, true);
+#endif
 	}
 
 	int PreRenderPlayer::GetTempo() const
@@ -78,7 +100,12 @@ namespace WaveSabrePlayerLib
 		if (!renderThread)
 			return 0.0;
 
-		return max(((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0, 0.0);
+		double v = ((double)renderThread->GetPlayPositionMs() - (double)playbackBufferSizeMs) / 1000.0;
+#if defined(WIN32) || defined(_WIN32)
+		return max(v, 0.0);
+#else
+		return (v > 0.0) ? v : 0.0;
+#endif
 	}
 
 	void PreRenderPlayer::renderCallback(SongRenderer::Sample *buffer, int numSamples, void *data)
@@ -92,7 +119,13 @@ namespace WaveSabrePlayerLib
 			return;
 		}
 
-		int samplesToTake = min(numSamples, samplesLeft);
+		int samplesToTake;
+#if defined(WIN32) || defined(_WIN32)
+		samplesToTake = min(numSamples, samplesLeft);
+#else
+		// sigh.
+		samplesToTake = (numSamples > samplesLeft) ? samplesLeft : numSamples;
+#endif
 		if (samplesToTake)
 		{
 			memcpy(buffer, player->renderBuffer + player->playbackBufferIndex, samplesToTake * sizeof(SongRenderer::Sample));

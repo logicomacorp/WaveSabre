@@ -4,21 +4,16 @@
 #include "SynthDevice.h"
 #include "Envelope.h"
 #include "StateVariableFilter.h"
+#include "SampleLoader.h"
 #include "SamplePlayer.h"
-
-#include <Windows.h>
-#include <mmreg.h>
-
-#ifdef UNICODE
-#define _UNICODE
-#endif
-#include <MSAcm.h>
 
 namespace WaveSabreCore
 {
 	class Specimen : public SynthDevice
 	{
 	public:
+		static const int SampleRate = SampleLoader::SampleRate;
+
 		enum class ParamIndices
 		{
 			AmpAttack,
@@ -59,8 +54,6 @@ namespace WaveSabreCore
 			NumParams,
 		};
 
-		static const int SampleRate = 44100;
-
 		Specimen();
 		virtual ~Specimen();
 
@@ -70,8 +63,26 @@ namespace WaveSabreCore
 		virtual void SetChunk(void *data, int size);
 		virtual int GetChunk(void **data);
 
-		void LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat);
+		inline void LoadSample(char *compressedDataPtr, int compressedSize,
+				int uncompressedSize, WAVEFORMATEX *waveFormatPtr)
+		{
+			auto sample = SampleLoader::LoadSampleGSM(compressedDataPtr,
+					compressedSize, uncompressedSize, waveFormatPtr);
 
+			this->compressedSize = sample.compressedSize;
+			this->uncompressedSize = sample.uncompressedSize;
+
+			if (waveFormatData) delete [] waveFormatData;
+			waveFormatData = sample.waveFormatData;
+			if (compressedData) delete [] compressedData;
+			compressedData = sample.compressedData;
+			if (sampleData) delete [] sampleData;
+			sampleData = sample.sampleData;
+
+			sampleLength = sample.sampleLength;
+			sampleLoopStart = 0;
+			sampleLoopLength = sampleLength;
+		}
 	private:
 		class SpecimenVoice : public Voice
 		{
@@ -98,11 +109,6 @@ namespace WaveSabreCore
 
 			float velocity;
 		};
-
-		static BOOL __stdcall driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport);
-		static BOOL __stdcall formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport);
-
-		static HACMDRIVERID driverId;
 
 		char *chunkData;
 

@@ -31,6 +31,7 @@ Release/
 Vsts/build/
 Tests/PlayerTest/build/
 build/
+cmake-build/
 Vst3.x/*
 !Vst3.x/README
 Data/data.aps

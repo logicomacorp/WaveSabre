@@ -98,6 +98,15 @@ namespace WaveSabreCore
 			if (sampleIndex >= 0)
 			{
 				auto gmDls = GmDls::Load();
+				if (gmDls == nullptr) {
+					sampleLength = 1;
+					sampleData = new float[sampleLength];
+					sampleData[0] = 0.0f;
+					sampleLoopStart = 0;
+					sampleLoopLength = 1;
+
+					break;
+				}
 
 				// Seek to wave pool chunk's data
 				auto ptr = gmDls + GmDls::WaveListOffset;
@@ -240,7 +249,7 @@ namespace WaveSabreCore
 		case ParamIndices::VoicesUnisono: return Helpers::UnisonoToParam(VoicesUnisono);
 		case ParamIndices::VoicesDetune: return VoicesDetune;
 		case ParamIndices::VoicesPan: return VoicesPan;
-		
+
 		case ParamIndices::VoiceMode: return Helpers::VoiceModeToParam(GetVoiceMode());
 		case ParamIndices::SlideTime: return Slide;
 
@@ -319,7 +328,7 @@ namespace WaveSabreCore
 		modEnv.Sustain = adultery->modSustain;
 		modEnv.Release = adultery->modRelease;
 		modEnv.Trigger();
-		
+
 		samplePlayer.SampleData = adultery->sampleData;
 		samplePlayer.SampleLength = adultery->sampleLength;
 		samplePlayer.SampleLoopStart = adultery->sampleLoopStart;

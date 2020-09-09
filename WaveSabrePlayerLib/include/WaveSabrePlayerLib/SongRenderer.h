@@ -89,7 +89,7 @@ namespace WaveSabrePlayerLib
 
 			Track(SongRenderer *songRenderer, DeviceFactory factory);
 			~Track();
-			
+
 			void Run(int numSamples);
 
 		private:
@@ -156,7 +156,11 @@ namespace WaveSabrePlayerLib
 			int renderThreadIndex;
 		} RenderThreadData;
 
+#if defined(WIN32) || defined(_WIN32)
 		static DWORD WINAPI renderThreadProc(LPVOID lpParameter);
+#elif HAVE_PTHREAD
+		static void* renderThreadProc(void* lpParameter);
+#endif
 
 		bool renderThreadWork(int renderThreadIndex);
 
@@ -172,7 +176,7 @@ namespace WaveSabrePlayerLib
 		int bpm;
 		int sampleRate;
 		double length;
-	
+
 		int numDevices;
 		WaveSabreCore::Device **devices;
 
@@ -184,13 +188,23 @@ namespace WaveSabrePlayerLib
 		TrackRenderState *trackRenderStates;
 
 		int numRenderThreads;
+#if defined(WIN32) || defined(_WIN32)
 		HANDLE *additionalRenderThreads;
+#elif HAVE_PTHREAD
+		pthread_t *additionalRenderThreads;
+#endif
 
 		bool renderThreadShutdown;
 		int renderThreadNumFloatSamples;
+#if defined(WIN32) || defined(_WIN32)
 		unsigned int renderThreadsRunning;
 		HANDLE *renderThreadStartEvents;
 		HANDLE renderDoneEvent;
+#elif HAVE_PTHREAD
+		std::atomic_int renderThreadsRunning;
+		sem_t *renderThreadStartEvents;
+		sem_t renderDoneEvent;
+#endif
 	};
 }
 

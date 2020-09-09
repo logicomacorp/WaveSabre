@@ -2,8 +2,8 @@
 #define __WAVESABREPLAYERLIB_REALTIMEPLAYER_H__
 
 #include "IPlayer.h"
+#include "IRenderThread.h"
 #include "SongRenderer.h"
-#include "DirectSoundRenderThread.h"
 
 namespace WaveSabrePlayerLib
 {
@@ -14,7 +14,8 @@ namespace WaveSabrePlayerLib
 		virtual ~RealtimePlayer();
 
 		virtual void Play();
-		
+		virtual void DoForegroundWork();
+
 		virtual int GetTempo() const;
 		virtual int GetSampleRate() const;
 		virtual double GetLength() const;
@@ -28,7 +29,7 @@ namespace WaveSabrePlayerLib
 		int bufferSizeMs;
 
 		SongRenderer *songRenderer;
-		DirectSoundRenderThread *renderThread;
+		IRenderThread *renderThread;
 	};
 }
 

@@ -3,21 +3,22 @@
 
 #include "SongRenderer.h"
 #include "CriticalSection.h"
+#include "IRenderThread.h"
 
 #include <Windows.h>
 #include <dsound.h>
 
 namespace WaveSabrePlayerLib
 {
-	class DirectSoundRenderThread
+	class DirectSoundRenderThread : public IRenderThread
 	{
 	public:
-		typedef void (*RenderCallback)(SongRenderer::Sample *buffer, int numSamples, void *data);
-
 		DirectSoundRenderThread(RenderCallback callback, void *callbackData, int sampleRate, int bufferSizeMs = 1000);
-		~DirectSoundRenderThread();
+		virtual ~DirectSoundRenderThread();
 
-		int GetPlayPositionMs();
+		virtual int GetPlayPositionMs();
+
+		virtual void DoForegroundWork();
 
 	private:
 		static DWORD WINAPI threadProc(LPVOID lpParameter);

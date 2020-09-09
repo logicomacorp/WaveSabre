@@ -1,6 +1,12 @@
 #include <WaveSabrePlayerLib/WavWriter.h>
 
+#if defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
+#endif
+
+#ifndef WAVE_FORMAT_PCM
+#define WAVE_FORMAT_PCM (0x0001)
+#endif
 
 namespace WaveSabrePlayerLib
 {
@@ -25,7 +31,7 @@ namespace WaveSabrePlayerLib
 		auto file = fopen(fileName, "wb");
 
 		int dataSubChunkSize = numSamples * bitsPerSample / 8;
-		
+
 		// RIFF header
 		fputs("RIFF", file);
 		writeInt(36 + dataSubChunkSize, file);

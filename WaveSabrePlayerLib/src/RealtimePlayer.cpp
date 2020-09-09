@@ -1,5 +1,13 @@
 #include <WaveSabrePlayerLib/RealtimePlayer.h>
 
+#if defined(WIN32) || defined(_WIN32)
+#include <WaveSabrePlayerLib/DirectSoundRenderThread.h>
+#elif HAVE_SDL2
+#include <WaveSabrePlayerLib/SDL2RenderThread.h>
+#elif HAVE_APLAY
+#include <WaveSabrePlayerLib/AplayRenderThread.h>
+#endif
+
 namespace WaveSabrePlayerLib
 {
 	RealtimePlayer::RealtimePlayer(const SongRenderer::Song *song, int numRenderThreads, int bufferSizeMs)
@@ -19,6 +27,12 @@ namespace WaveSabrePlayerLib
 			delete songRenderer;
 	}
 
+	void RealtimePlayer::DoForegroundWork()
+	{
+		if (renderThread)
+			renderThread->DoForegroundWork();
+	}
+
 	void RealtimePlayer::Play()
 	{
 		if (renderThread)
@@ -27,7 +41,13 @@ namespace WaveSabrePlayerLib
 			delete songRenderer;
 
 		songRenderer = new SongRenderer(song, numRenderThreads);
+#if defined(WIN32) || defined(_WIN32)
 		renderThread = new DirectSoundRenderThread(renderCallback, this, songRenderer->GetSampleRate(), bufferSizeMs);
+#elif HAVE_SDL2
+		renderThread = new SDL2RenderThread(renderCallback, this, songRenderer->GetSampleRate(), bufferSizeMs, true);
+#elif HAVE_APLAY
+		renderThread = new AplayRenderThread(renderCallback, this, songRenderer->GetSampleRate(), bufferSizeMs, true);
+#endif
 	}
 
 	int RealtimePlayer::GetTempo() const
@@ -50,14 +70,23 @@ namespace WaveSabrePlayerLib
 		if (!renderThread)
 			return 0.0;
 
-		return max(((double)renderThread->GetPlayPositionMs() - (double)bufferSizeMs) / 1000.0, 0.0);
+		double v = ((double)renderThread->GetPlayPositionMs() - (double)bufferSizeMs) / 1000.0;
+#if defined(WIN32) || defined(_WIN32)
+		return max(v, 0.0);
+#else
+		return (v > 0.0) ? v : 0.0;
+#endif
 	}
 
 	void RealtimePlayer::renderCallback(SongRenderer::Sample *buffer, int numSamples, void *data)
 	{
 		auto player = (RealtimePlayer *)data;
 		const int stepSize = 100 * SongRenderer::NumChannels;
-		for (int i = 0; i < numSamples; i += stepSize)
-			player->songRenderer->RenderSamples(buffer + i, min(numSamples - i, stepSize));
+		for (int i = 0; i < numSamples; i += stepSize) {
+			int v = numSamples - i;
+			if (v > stepSize) v = stepSize;
+
+			player->songRenderer->RenderSamples(buffer + i, v);
+		}
 	}
 }

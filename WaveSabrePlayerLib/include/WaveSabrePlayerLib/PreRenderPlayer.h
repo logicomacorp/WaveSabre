@@ -2,8 +2,8 @@
 #define __WAVESABREPLAYERLIB_PRERENDERPLAYER_H__
 
 #include "IPlayer.h"
+#include "IRenderThread.h"
 #include "SongRenderer.h"
-#include "DirectSoundRenderThread.h"
 
 namespace WaveSabrePlayerLib
 {
@@ -16,6 +16,7 @@ namespace WaveSabrePlayerLib
 		virtual ~PreRenderPlayer();
 
 		virtual void Play();
+		virtual void DoForegroundWork();
 
 		virtual int GetTempo() const;
 		virtual int GetSampleRate() const;
@@ -35,7 +36,7 @@ namespace WaveSabrePlayerLib
 		int playbackBufferSizeMs;
 		int playbackBufferIndex;
 
-		DirectSoundRenderThread *renderThread;
+		IRenderThread *renderThread;
 	};
 }
 
