@@ -80,6 +80,7 @@ try_winepfx:
 		for (int i = 0; i < sizeof(gmDlsPaths)/sizeof(*gmDlsPaths); ++i) {
 			gmDlsPathAlloc = true;
 			gmDlsPath = (char*)malloc(0x100);
+			// TODO: $WINEPREFIX
 			snprintf(gmDlsPath, 0x100, "%s/.wine/drive_c/windows/system32/%s", home, gmDlsPaths[i]);
 
 			if (access(gmDlsPath, R_OK) == 0)

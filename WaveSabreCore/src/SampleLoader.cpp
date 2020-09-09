@@ -118,6 +118,9 @@ namespace WaveSabreCore
 			// write fake(ish) WAV header
 			size_t M = (waveFormat->nAvgBytesPerSec * waveFormat->nSamplesPerSec) / waveFormat->nChannels;
 			size_t wvfmtsz = sizeof(WAVEFORMATEX) + waveFormat->cbSize;
+#ifndef NDEBUG
+			assert(waveFormat->cbSize <= 8 && "cbSize too high!");
+#endif
 			char fileheader[4+4/*RIFF*/ + 4/*WAVE*/ + 4+4+wvfmtsz/*fmt */ + 4+4+4/*fact*/ + 4+4/*data*/];
 
 			memcpy(&fileheader[0], "RIFF", 4);
