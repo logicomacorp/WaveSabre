@@ -13,6 +13,7 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Envelope.h
 	include/WaveSabreCore/Falcon.h
 	include/WaveSabreCore/GmDls.h
+	include/WaveSabreCore/GsmSample.h
 	include/WaveSabreCore/Helpers.h
 	include/WaveSabreCore/Leveller.h
 	include/WaveSabreCore/MxcsrFlagGuard.h
@@ -40,6 +41,7 @@ add_library(WaveSabreCore
 	src/Envelope.cpp
 	src/Falcon.cpp
 	src/GmDls.cpp
+	src/GsmSample.cpp
 	src/Helpers.cpp
 	src/Leveller.cpp
 	src/MxcsrFlagGuard.cpp
