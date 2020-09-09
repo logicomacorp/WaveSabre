@@ -5,21 +5,13 @@
 
 namespace WaveSabreCore
 {
-	HACMDRIVERID Specimen::driverId = NULL;
-
 	Specimen::Specimen()
 		: SynthDevice((int)ParamIndices::NumParams)
+		, sample(nullptr)
 	{
 		for (int i = 0; i < maxVoices; i++) voices[i] = new SpecimenVoice(this);
 
 		chunkData = nullptr;
-
-		waveFormatData = nullptr;
-		compressedSize = uncompressedSize = 0;
-		compressedData = nullptr;
-		sampleData = nullptr;
-
-		sampleLength = 0;
 
 		ampAttack = 1.0f;
 		ampDecay = 1.0f;
@@ -36,8 +28,6 @@ namespace WaveSabreCore
 		sampleLoopLength = 0;
 
 		interpolationMode = InterpolationMode::Linear;
-
-		sampleLength = 0;
 
 		coarseTune = 0.5f;
 		fineTune = 0.5f;
@@ -58,9 +48,7 @@ namespace WaveSabreCore
 	Specimen::~Specimen()
 	{
 		if (chunkData) delete [] chunkData;
-		if (waveFormatData) delete [] waveFormatData;
-		if (compressedData) delete [] compressedData;
-		if (sampleData) delete [] sampleData;
+		if (sample) delete sample;
 	}
 
 	void Specimen::SetParam(int index, float value)
@@ -186,16 +174,16 @@ namespace WaveSabreCore
 
 	int Specimen::GetChunk(void **data)
 	{
-		if (!compressedData) return 0;
+		if (!sample) return 0;
 
 		// Figure out size of chunk
 		//  The names here are meant to be symmetric with those in SetChunk for clarity
 		auto headerSize = sizeof(ChunkHeader);
-		auto waveFormatSize = sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)waveFormatData)->cbSize;
-		auto compressedDataSize = compressedSize;
+		auto waveFormatSize = sizeof(WAVEFORMATEX) + ((WAVEFORMATEX *)sample->WaveFormatData)->cbSize;
+		auto compressedDataSize = sample->CompressedSize;
 		auto paramSize = (int)ParamIndices::NumParams * sizeof(float);
 		auto chunkSizeSize = sizeof(int);
-		int size = (int)(headerSize + waveFormatSize + compressedSize + paramSize + chunkSizeSize);
+		int size = (int)(headerSize + waveFormatSize + sample->CompressedSize + paramSize + chunkSizeSize);
 
 		// (Re)allocate chunk data
 		if (chunkData) delete [] chunkData;
@@ -203,17 +191,17 @@ namespace WaveSabreCore
 
 		// Write header
 		ChunkHeader header;
-		header.CompressedSize = compressedSize;
-		header.UncompressedSize = uncompressedSize;
+		header.CompressedSize = sample->CompressedSize;
+		header.UncompressedSize = sample->UncompressedSize;
 		memcpy(chunkData, &header, sizeof(ChunkHeader));
 
 		// Write wave format
 		auto waveFormatPtr = (char *)chunkData + headerSize;
-		memcpy(waveFormatPtr, waveFormatData, waveFormatSize);
+		memcpy(waveFormatPtr, sample->WaveFormatData, waveFormatSize);
 
 		// Write compressed data
 		auto compressedDataPtr = waveFormatPtr + waveFormatSize;
-		memcpy(compressedDataPtr, compressedData, compressedDataSize);
+		memcpy(compressedDataPtr, sample->CompressedData, compressedDataSize);
 
 		// Write params
 		auto paramDataPtr = (float *)(compressedDataPtr + compressedDataSize);
@@ -228,60 +216,14 @@ namespace WaveSabreCore
 		return size;
 	}
 
-	void Specimen::LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat)
+	void Specimen::LoadSample(char *compressedDataPtr, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormatPtr)
 	{
-		this->compressedSize = compressedSize;
-		this->uncompressedSize = uncompressedSize;
+		if (sample) delete sample;
 
-		if (waveFormatData) delete [] waveFormatData;
-		waveFormatData = new char[sizeof(WAVEFORMATEX) + waveFormat->cbSize];
-		memcpy(waveFormatData, waveFormat, sizeof(WAVEFORMATEX) + waveFormat->cbSize);
-		if (compressedData) delete [] compressedData;
-		compressedData = new char[compressedSize];
-		memcpy(compressedData, data, compressedSize);
-
-		acmDriverEnum(driverEnumCallback, NULL, NULL);
-		HACMDRIVER driver = NULL;
-		acmDriverOpen(&driver, driverId, 0);
-
-		WAVEFORMATEX dstWaveFormat =
-		{
-			WAVE_FORMAT_PCM,
-			1,
-			waveFormat->nSamplesPerSec,
-			waveFormat->nSamplesPerSec * 2,
-			sizeof(short),
-			sizeof(short) * 8,
-			0
-		};
-
-		HACMSTREAM stream = NULL;
-		acmStreamOpen(&stream, driver, waveFormat, &dstWaveFormat, NULL, NULL, NULL, ACM_STREAMOPENF_NONREALTIME);
-
-		ACMSTREAMHEADER streamHeader;
-		memset(&streamHeader, 0, sizeof(ACMSTREAMHEADER));
-		streamHeader.cbStruct = sizeof(ACMSTREAMHEADER);
-		streamHeader.pbSrc = (LPBYTE)compressedData;
-		streamHeader.cbSrcLength = compressedSize;
-		auto uncompressedData = new short[uncompressedSize * 2];
-		streamHeader.pbDst = (LPBYTE)uncompressedData;
-		streamHeader.cbDstLength = uncompressedSize * 2;
-		acmStreamPrepareHeader(stream, &streamHeader, 0);
-
-		acmStreamConvert(stream, &streamHeader, 0);
-		
-		acmStreamClose(stream, 0);
-		acmDriverClose(driver, 0);
-
-		sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
-		if (sampleData) delete [] sampleData;
-		sampleData = new float[sampleLength];
-		for (int i = 0; i < sampleLength; i++) sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
+		sample = new GsmSample(compressedDataPtr, compressedSize, uncompressedSize, waveFormatPtr);
 
 		sampleLoopStart = 0;
-		sampleLoopLength = sampleLength;
-
-		delete [] uncompressedData;
+		sampleLoopLength = sample->SampleLength;
 	}
 
 	Specimen::SpecimenVoice::SpecimenVoice(Specimen *specimen)
@@ -356,8 +298,8 @@ namespace WaveSabreCore
 		modEnv.Release = specimen->modRelease;
 		modEnv.Trigger();
 
-		samplePlayer.SampleData = specimen->sampleData;
-		samplePlayer.SampleLength = specimen->sampleLength;
+		samplePlayer.SampleData = specimen->sample->SampleData;
+		samplePlayer.SampleLength = specimen->sample->SampleLength;
 		samplePlayer.SampleLoopStart = specimen->sampleLoopStart;
 		samplePlayer.SampleLoopLength = specimen->sampleLoopLength;
 
@@ -389,42 +331,5 @@ namespace WaveSabreCore
 	void Specimen::SpecimenVoice::calcPitch()
 	{
 		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
-	}
-
-	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
-	{
-		if (Specimen::driverId) return 1;
-
-		HACMDRIVER driver = NULL;
-		acmDriverOpen(&driver, driverId, 0);
-
-		int waveFormatSize = 0;
-		acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, &waveFormatSize);
-		auto waveFormat = (WAVEFORMATEX *)(new char[waveFormatSize]);
-		memset(waveFormat, 0, waveFormatSize);
-		ACMFORMATDETAILS formatDetails;
-		memset(&formatDetails, 0, sizeof(formatDetails));
-		formatDetails.cbStruct = sizeof(formatDetails);
-		formatDetails.pwfx = waveFormat;
-		formatDetails.cbwfx = waveFormatSize;
-		formatDetails.dwFormatTag = WAVE_FORMAT_UNKNOWN;
-		acmFormatEnum(driver, &formatDetails, formatEnumCallback, NULL, NULL);
-
-		delete [] (char *)waveFormat;
-
-		acmDriverClose(driver, 0);
-
-		return 1;
-	}
-
-	BOOL __stdcall Specimen::formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport)
-	{
-		if (formatDetails->pwfx->wFormatTag == WAVE_FORMAT_GSM610 &&
-			formatDetails->pwfx->nChannels == 1 &&
-			formatDetails->pwfx->nSamplesPerSec == SampleRate)
-		{
-			Specimen::driverId = driverId;
-		}
-		return 1;
 	}
 }
