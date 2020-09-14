@@ -226,6 +226,28 @@ namespace WaveSabreCore
 		return size;
 	}
 
+	void Specimen::LoadSample(char *compressedDataPtr, int compressedSize,
+			int uncompressedSize, WAVEFORMATEX *waveFormatPtr)
+	{
+		auto sample = SampleLoader::LoadSampleGSM(compressedDataPtr,
+				compressedSize, uncompressedSize, waveFormatPtr);
+
+		this->compressedSize = sample.compressedSize;
+		this->uncompressedSize = sample.uncompressedSize;
+
+		if (waveFormatData) delete [] waveFormatData;
+		waveFormatData = sample.waveFormatData;
+		if (compressedData) delete [] compressedData;
+		compressedData = sample.compressedData;
+		if (sampleData) delete [] sampleData;
+		sampleData = sample.sampleData;
+
+		sampleLength = sample.sampleLength;
+
+		sampleLoopStart = 0;
+		sampleLoopLength = sampleLength;
+	}
+
 	Specimen::SpecimenVoice::SpecimenVoice(Specimen *specimen)
 	{
 		this->specimen = specimen;

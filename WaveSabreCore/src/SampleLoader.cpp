@@ -6,61 +6,6 @@ namespace WaveSabreCore
 {
 	HACMDRIVERID SampleLoader::driverId = NULL;
 
-	SampleLoader::LoadedSample SampleLoader::LoadSampleGSM(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat)
-	{
-		LoadedSample ret;
-
-		ret.compressedSize = compressedSize;
-		ret.uncompressedSize = uncompressedSize;
-
-		ret.waveFormatData = new char[sizeof(WAVEFORMATEX) + waveFormat->cbSize];
-		memcpy(ret.waveFormatData, waveFormat, sizeof(WAVEFORMATEX) + waveFormat->cbSize);
-		ret.compressedData = new char[compressedSize];
-		memcpy(ret.compressedData, data, compressedSize);
-
-		acmDriverEnum(driverEnumCallback, NULL, NULL);
-		HACMDRIVER driver = NULL;
-		acmDriverOpen(&driver, driverId, 0);
-
-		WAVEFORMATEX dstWaveFormat =
-		{
-			WAVE_FORMAT_PCM,
-			1,
-			waveFormat->nSamplesPerSec,
-			waveFormat->nSamplesPerSec * 2,
-			sizeof(short),
-			sizeof(short) * 8,
-			0
-		};
-
-		HACMSTREAM stream = NULL;
-		acmStreamOpen(&stream, driver, waveFormat, &dstWaveFormat, NULL, NULL, NULL, ACM_STREAMOPENF_NONREALTIME);
-
-		ACMSTREAMHEADER streamHeader;
-		memset(&streamHeader, 0, sizeof(ACMSTREAMHEADER));
-		streamHeader.cbStruct = sizeof(ACMSTREAMHEADER);
-		streamHeader.pbSrc = (LPBYTE)ret.compressedData;
-		streamHeader.cbSrcLength = compressedSize;
-		auto uncompressedData = new short[uncompressedSize * 2];
-		streamHeader.pbDst = (LPBYTE)uncompressedData;
-		streamHeader.cbDstLength = uncompressedSize * 2;
-		acmStreamPrepareHeader(stream, &streamHeader, 0);
-
-		acmStreamConvert(stream, &streamHeader, 0);
-
-		acmStreamClose(stream, 0);
-		acmDriverClose(driver, 0);
-
-		ret.sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
-		ret.sampleData = new float[ret.sampleLength];
-		for (int i = 0; i < ret.sampleLength; i++)
-			ret.sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
-
-		delete [] uncompressedData;
-
-		return ret;
-	}
-
 	BOOL __stdcall SampleLoader::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (SampleLoader::driverId) return 1;

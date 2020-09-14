@@ -60,6 +60,25 @@ namespace WaveSabreCore
 		return chunkSize;
 	}
 
+	void Thunder::LoadSample(char *compressedDataPtr, int compressedSize,
+			int uncompressedSize, WAVEFORMATEX *waveFormatPtr)
+	{
+		auto sample = SampleLoader::LoadSampleGSM(compressedDataPtr,
+				compressedSize, uncompressedSize, waveFormatPtr);
+
+		this->compressedSize = sample.compressedSize;
+		this->uncompressedSize = sample.uncompressedSize;
+
+		if (waveFormatData) delete [] waveFormatData;
+		waveFormatData = sample.waveFormatData;
+		if (compressedData) delete [] compressedData;
+		compressedData = sample.compressedData;
+		if (sampleData) delete [] sampleData;
+		sampleData = sample.sampleData;
+
+		sampleLength = sample.sampleLength;
+	}
+
 	Thunder::ThunderVoice::ThunderVoice(Thunder *thunder)
 	{
 		this->thunder = thunder;
