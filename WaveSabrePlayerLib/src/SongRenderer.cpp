@@ -102,7 +102,10 @@ namespace WaveSabrePlayerLib
 		for (int i = 0; i < numDevices; i++) delete devices[i];
 		delete [] devices;
 
-		for (int i = 0; i < numMidiLanes; i++) delete midiLanes[i];
+		for (int i = 0; i < numMidiLanes; i++) {
+			delete midiLanes[i]->events;
+			delete midiLanes[i];
+		}
 		delete [] midiLanes;
 
 		for (int i = 0; i < numTracks; i++) delete tracks[i];
