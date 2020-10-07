@@ -4,6 +4,12 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#if (defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__)))
+	#define ASM_MATH_AVAILABLE (1)
+#else
+	#define ASM_MATH_AVAILABLE (0)
+#endif
+
 #if defined(_MSC_VER) && defined(_M_IX86)
 // TODO: make assembly equivalent for x64 (use intrinsic ?)
 static __declspec(naked) double __vectorcall fpuExp2(double x)
@@ -34,7 +40,53 @@ static __declspec(naked) double __vectorcall fpuExp2(double x)
 		ret
 	}
 }
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__naked__,__noinline__)) static double fpuExp2(double x)
+{
+	// i386 Linux ABI: pass thru the stack, return in st(0)
+	// x86_64 SysV ABI: pass/return thru xmm0/1
+	asm volatile(
+#ifdef __x86_64__
+		"subq $8, %%rsp\n"
+#else
+		"movsd 4(%%esp), %%xmm0\n"
+		"subl $8, %%esp\n"
+#endif
 
+#ifdef __x86_64__
+		"movsd %%xmm0, (%%rsp)\n"
+		"fldl (%%rsp)\n"
+#else
+		"movsd %%xmm0, (%%esp)\n"
+		"fldl (%%esp)\n"
+#endif
+
+		"fld %%st(0)\n"
+		"frndint\n"
+		"fsub %%st(0), %%st(1)\n"
+		"fxch %%st(1)\n"
+		"fchs\n"
+		"f2xm1\n"
+		"fld1\n"
+		"faddp %%st(0), %%st(1)\n"
+		"fscale\n"
+		"fstp %%st(1)\n"
+
+#ifdef __x86_64__
+		"fstpl (%%rsp)\n"
+		"movsd (%%rsp), %%xmm0\n"
+		"addq $8, %%esp\n"
+#else
+		"addl $8, %%esp\n"
+#endif
+		"ret\n"
+	);
+}
+	#endif // GCC arch
+#endif // compiler
+
+#if defined(_MSC_VER) && defined(_M_IX86)
 static __declspec(naked) float __vectorcall fpuExp2F(float x)
 {
 	__asm
@@ -63,7 +115,53 @@ static __declspec(naked) float __vectorcall fpuExp2F(float x)
 		ret
 	}
 }
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__naked__,__noinline__)) static float fpuExp2F(float x)
+{
+	// i386 Linux ABI: pass thru the stack, return in st(0)
+	// x86_64 SysV ABI: pass/return thru xmm0/1
+	asm volatile(
+#ifdef __x86_64__
+		"subq $8, %%rsp\n"
+#else
+		"movss 4(%%esp), %%xmm0\n"
+		"subl $8, %%esp\n"
+#endif
 
+#ifdef __x86_64__
+		"movss %%xmm0, (%%rsp)\n"
+		"fldl (%%rsp)\n"
+#else
+		"movss %%xmm0, (%%esp)\n"
+		"fldl (%%esp)\n"
+#endif
+
+		"fld %%st(0)\n"
+		"frndint\n"
+		"fsub %%st(0), %%st(1)\n"
+		"fxch %%st(1)\n"
+		"fchs\n"
+		"f2xm1\n"
+		"fld1\n"
+		"faddp %%st(0), %%st(1)\n"
+		"fscale\n"
+		"fstp %%st(1)\n"
+
+#ifdef __x86_64__
+		"fstpl (%%rsp)\n"
+		"movss (%%rsp), %%xmm0\n"
+		"addq $8, %%esp\n"
+#else
+		"addl $8, %%esp\n"
+#endif
+		"ret\n"
+	);
+}
+	#endif // GCC arch
+#endif // compiler
+
+#if defined(_MSC_VER) && defined(_M_IX86)
 static __declspec(naked) double __vectorcall fpuCos(double x)
 {
 	__asm
@@ -81,7 +179,21 @@ static __declspec(naked) double __vectorcall fpuCos(double x)
 		ret
 	}
 }
-#endif // defined(_MSC_VER) && defined(_M_IX86)
+#elif defined(__GNUC__)
+	#if defined(__x86_64__) || defined(__i386__)
+__attribute__((__always_inline__)) inline static double fpuCos(double x)
+{
+	// not writing the *entire* function body in assembly actually helps
+	// gcc and clang with inlining and LTO
+	// ... except trying this with fpuExp2/F somehow got botched, so those I
+	// wrote as pure assembly
+	asm volatile("fcos\n":"+t"(x)::);
+	return x;
+}
+	#else
+		#define fpuCos(x) __builtin_cos(x)
+	#endif // GCC arch
+#endif // compiler
 
 namespace WaveSabreCore
 {
@@ -100,7 +212,7 @@ namespace WaveSabreCore
 		for (int i = 0; i < fastCosTabSize + 1; i++)
 		{
 			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE
 			fastCosTab[i] = fpuCos(phase);
 #else
 			fastCosTab[i] = cos(phase);
@@ -115,7 +227,7 @@ namespace WaveSabreCore
 
 	double Helpers::Exp2(double x)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE
 		return fpuExp2(x);
 #else
 		return pow(2.0, x);
@@ -124,7 +236,7 @@ namespace WaveSabreCore
 
 	float Helpers::Exp2F(float x)
 	{
-#if defined(_MSC_VER) && defined(_M_IX86)
+#if ASM_MATH_AVAILABLE
 		return fpuExp2F(x);
 #else
 		return powf(2.0f, x);
