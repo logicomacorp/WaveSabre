@@ -17,7 +17,7 @@ namespace WaveSabrePlayerLib
 		DirectSoundRenderThread(RenderCallback callback, void *callbackData, int sampleRate, int bufferSizeMs = 1000);
 		~DirectSoundRenderThread();
 
-		int GetPlayPositionMs();
+		double GetPlayPositionMs();
 
 	private:
 		static DWORD WINAPI threadProc(LPVOID lpParameter);
@@ -34,7 +34,7 @@ namespace WaveSabrePlayerLib
 		bool shutdown;
 
 		int oldPlayCursorPos;
-		long long bytesRendered;
+		double bytesRendered;
 		LPDIRECTSOUNDBUFFER buffer;
 	};
 }
