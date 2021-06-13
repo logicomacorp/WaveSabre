@@ -26,7 +26,7 @@ namespace WaveSabrePlayerLib
 		WaitForSingleObject(thread, INFINITE);
 	}
 
-	int DirectSoundRenderThread::GetPlayPositionMs()
+	double DirectSoundRenderThread::GetPlayPositionMs()
 	{
 		if (!buffer)
 			return 0;
@@ -35,7 +35,7 @@ namespace WaveSabrePlayerLib
 		buffer->GetCurrentPosition((LPDWORD)&playCursorPos, 0);
 
 		int currentOldPlayCursorPos;
-		long long currentBytesRendered;
+		double currentBytesRendered;
 
 		{
 			auto playPositionCriticalSectionGuard = playPositionCriticalSection.Enter();
@@ -44,12 +44,12 @@ namespace WaveSabrePlayerLib
 			currentBytesRendered = bytesRendered;
 		}
 
-		long long totalBytesRead = playCursorPos - currentOldPlayCursorPos;
+		double totalBytesRead = playCursorPos - currentOldPlayCursorPos;
 		if (totalBytesRead < 0)
 			totalBytesRead += bufferSizeBytes;
 		totalBytesRead += currentBytesRendered;
 
-		return (int)(totalBytesRead / SongRenderer::BlockAlign * 1000 / sampleRate);
+		return totalBytesRead / SongRenderer::BlockAlign * 1000 / sampleRate;
 	}
 
 	DWORD WINAPI DirectSoundRenderThread::threadProc(LPVOID lpParameter)
