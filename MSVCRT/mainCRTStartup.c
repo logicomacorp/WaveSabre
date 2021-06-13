@@ -1,4 +1,4 @@
-#if defined(_MSC_VER) && !defined(_M_X86)
+#if defined(_MSC_VER)
 int __getmainargs(int *argc, char ***argv, char ***env, int dowildcards, int *new_mode);
 int main(int argc, char **argv);
 int mainCRTStartup()
