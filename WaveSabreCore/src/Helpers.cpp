@@ -64,7 +64,7 @@ static __declspec(naked) float __vectorcall fpuExp2F(float x)
 	}
 }
 
-static __declspec(naked) double __vectorcall fpuCos(double x)
+static __declspec(naked) double __vectorcall fpuSin(double x)
 {
 	__asm
 	{
@@ -72,7 +72,7 @@ static __declspec(naked) double __vectorcall fpuCos(double x)
 
 		movsd mmword ptr [esp], xmm0
 		fld qword ptr [esp]
-		fcos
+		fsin
 		fstp qword ptr [esp]
 		movsd xmm0, mmword ptr [esp]
 
@@ -89,19 +89,19 @@ namespace WaveSabreCore
 	int Helpers::CurrentTempo = 120;
 	int Helpers::RandomSeed = 1;
 
-	double Helpers::fastCosTab[adjustedFastCosTabSize];
+	double Helpers::fastSinTab[adjustedFastSinTabSize];
 
 	void Helpers::Init()
 	{
 		RandomSeed = 1;
 
-		for (int i = 0; i < adjustedFastCosTabSize; i++)
+		for (int i = 0; i < adjustedFastSinTabSize; i++)
 		{
-			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
+			double phase = double(i) * ((M_PI * 2) / fastSinTabSize);
 #if defined(_MSC_VER) && defined(_M_IX86)
-			fastCosTab[i] = fpuCos(phase);
+			fastSinTab[i] = fpuSin(phase);
 #else
-			fastCosTab[i] = cos(phase);
+			fastSinTab[i] = sin(phase);
 #endif
 		}
 	}
@@ -131,6 +131,11 @@ namespace WaveSabreCore
 
 	double Helpers::FastCos(double x)
 	{
+		return FastSin(x + M_PI_2);
+	}
+
+	double Helpers::FastSin(double x)
+	{
 		// normalize range from 0..2PI to 1..2
 		const auto phaseScale = 1.0 / (M_PI * 2);
 		x *= phaseScale;
@@ -139,7 +144,7 @@ namespace WaveSabreCore
 		// the exponent is always 0 now, which allows us to use the significand bits directly
 		auto phaseAsInt = *reinterpret_cast<unsigned long long*>(&phase);
 
-		const auto fractBits = 32 - fastCosTabLog2Size;
+		const auto fractBits = 32 - fastSinTabLog2Size;
 		const auto fractScale = 1 << fractBits;
 		const auto fractMask = fractScale - 1;
 
@@ -147,16 +152,11 @@ namespace WaveSabreCore
 		auto index = significand >> fractBits;
 		int fract = significand & fractMask;
 
-		auto left = fastCosTab[index];
-		auto right = fastCosTab[index + 1];
+		auto left = fastSinTab[index];
+		auto right = fastSinTab[index + 1];
 
 		auto fractMix = fract * (1.0 / fractScale);
 		return left + (right - left) * fractMix;
-	}
-
-	double Helpers::FastSin(double x)
-	{
-		return FastCos(x - M_PI_2);
 	}
 
 	double Helpers::Square135(double phase)
