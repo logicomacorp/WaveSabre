@@ -75,9 +75,6 @@ namespace WaveSabreCore
 
 		lastLastInput = lastInput;
 		lastInput = input;
-
-		if (fabsf(lastOutput) <= .0000001f) lastOutput = 0.0f;
-
 		lastLastOutput = lastOutput;
 		lastOutput = output;
 
