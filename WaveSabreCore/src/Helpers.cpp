@@ -131,20 +131,19 @@ namespace WaveSabreCore
 
 	double Helpers::FastCos(double x)
 	{
-		x = fabs(x); // cosine is symmetrical around 0, let's get rid of negative values
-
 		// normalize range from 0..2PI to 1..2
 		const auto phaseScale = 1.0 / (M_PI * 2);
-		auto phase = 1.0 + x * phaseScale;
+		x *= phaseScale;
+		auto phase = x - floor(x) + 1.0;
 
-		auto phaseAsInt = *reinterpret_cast<unsigned long long *>(&phase);
-		int exponent = (phaseAsInt >> 52) - 1023;
+		// the exponent is always 0 now, which allows us to use the significand bits directly
+		auto phaseAsInt = *reinterpret_cast<unsigned long long*>(&phase);
 
 		const auto fractBits = 32 - fastCosTabLog2Size;
 		const auto fractScale = 1 << fractBits;
 		const auto fractMask = fractScale - 1;
 
-		auto significand = (unsigned int)((phaseAsInt << exponent) >> (52 - 32));
+		auto significand = (unsigned int)(phaseAsInt >> (52 - 32));
 		auto index = significand >> fractBits;
 		int fract = significand & fractMask;
 
