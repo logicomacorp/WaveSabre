@@ -11,7 +11,7 @@ AudioEffect *createEffectInstance(audioMasterCallback audioMaster)
 }
 
 SmasherVst::SmasherVst(audioMasterCallback audioMaster)
-	: VstPlug(audioMaster, (int)Crusher::ParamIndices::NumParams, 4, 2, 'Smsh', new Smasher())
+	: VstPlug(audioMaster, (int)Smasher::ParamIndices::NumParams, 4, 2, 'Smsh', new Smasher())
 {
 	setEditor(new SmasherEditor(this));
 }
