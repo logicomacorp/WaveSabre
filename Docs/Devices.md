@@ -1,3 +1,5 @@
+# Current devices
+
 ### Slaughter (synth)
 
 - Polyphonic 3 oscillator subtractive synthesiser
@@ -16,15 +18,6 @@ Slaughter is a very useful synth but it is also quite a CPU hungry beast. To mak
 - Pitch ADSR Pitch which can modulate master and / or modulator
 
 The naughty step-child of the generators, Falcon can make some rather nasty noises. As with FM synthesis, one oscillator modifies the other and can fade between sine and the first 3 partials of a squarewave (same as square 1 3 5 from FM8). Generally used for horrifically nasty bass death, but can also be used for nice FM plucks or soft sines.
-
-### Thunder (sampler)
-
-- GSM sample player
-- Imports 44khz 16-bit mono WAV
-- Pitch locked to 44khz for all notes
-- Only supports note on event
-
-_PLEASE NOTE:_ This device is now deprecated and only available for compatibility with old projects. Please use Specimen instead.
 
 ### Specimen (sampler)
 
@@ -118,3 +111,12 @@ Twister is a fairly straight flanger / phaser plugin. There are 4 modes, Flange 
 - Pre-Delay
 
 Cathedral is a reverb based on Schroeder/Moorer model. The low and high cut filters allow for tuning the resulting reverb output along with a dry / wet mix. The freeze mode, when switched on, holds the current reverb buffer and prevents any further input. This can be useful for really long tails but also as a form of input gating. Also contains a pre-delay to delay the input source of the reverb.
+
+# Deprecated devices
+
+### Thunder (sampler) (superceded by Specimen)
+
+- GSM sample player
+- Imports 44khz 16-bit mono WAV
+- Pitch locked to 44khz for all notes
+- Only supports note on event
