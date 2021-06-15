@@ -89,15 +89,13 @@ namespace WaveSabreCore
 	int Helpers::CurrentTempo = 120;
 	int Helpers::RandomSeed = 1;
 
-	static const int fastCosTabLog2Size = 10; // size = 1024
-	static const int fastCosTabSize = (1 << fastCosTabLog2Size);
-	double Helpers::fastCosTab[fastCosTabSize + 1];
+	double Helpers::fastCosTab[adjustedFastCosTabSize];
 
 	void Helpers::Init()
 	{
 		RandomSeed = 1;
 
-		for (int i = 0; i < fastCosTabSize + 1; i++)
+		for (int i = 0; i < adjustedFastCosTabSize; i++)
 		{
 			double phase = double(i) * ((M_PI * 2) / fastCosTabSize);
 #if defined(_MSC_VER) && defined(_M_IX86)
