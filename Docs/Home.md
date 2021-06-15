@@ -27,7 +27,3 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
 - Re-run cmake to create new Vst project file
 - Add Build dependencies for WaveSabreCore and WaveSabrePlayer to VST Project
 - Profit!
-
-
-## Misc
-- Synth seminar from TG: https://www.youtube.com/watch?v=wLX156OVFTA
