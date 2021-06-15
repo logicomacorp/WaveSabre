@@ -99,7 +99,8 @@ namespace WaveSabreCore
 	private:
 		static const int fastCosTabLog2Size = 9; // size = 512
 		static const int fastCosTabSize = (1 << fastCosTabLog2Size);
-		static double fastCosTab[fastCosTabSize + 1];
+		static const int adjustedFastCosTabSize = fastCosTabSize + 1;
+		static double fastCosTab[adjustedFastCosTabSize];
 	};
 }
 
