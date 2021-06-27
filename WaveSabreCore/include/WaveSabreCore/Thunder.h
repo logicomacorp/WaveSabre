@@ -2,14 +2,7 @@
 #define __WAVESABRECORE_THUNDER_H__
 
 #include "SynthDevice.h"
-
-#include <Windows.h>
-#include <mmreg.h>
-
-#ifdef UNICODE
-#define _UNICODE
-#endif
-#include <MSAcm.h>
+#include "SampleLoader.h"
 
 namespace WaveSabreCore
 {
@@ -24,7 +17,8 @@ namespace WaveSabreCore
 		virtual void SetChunk(void *data, int size);
 		virtual int GetChunk(void **data);
 
-		void LoadSample(char *data, int compressedSize, int uncompressedSize, WAVEFORMATEX *waveFormat);
+		void LoadSample(char *compressedDataPtr, int compressedSize,
+				int uncompressedSize, WAVEFORMATEX *waveFormatPtr);
 
 	private:
 		class ThunderVoice : public Voice
@@ -42,11 +36,6 @@ namespace WaveSabreCore
 
 			int samplePos;
 		};
-
-		static BOOL __stdcall driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport);
-		static BOOL __stdcall formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport);
-
-		static HACMDRIVERID driverId;
 
 		char *chunkData;
 

@@ -17,6 +17,7 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Leveller.h
 	include/WaveSabreCore/MxcsrFlagGuard.h
 	include/WaveSabreCore/ResampleBuffer.h
+	include/WaveSabreCore/SampleLoader.h
 	include/WaveSabreCore/SamplePlayer.h
 	include/WaveSabreCore/Scissor.h
 	include/WaveSabreCore/Slaughter.h
@@ -44,6 +45,7 @@ add_library(WaveSabreCore
 	src/Leveller.cpp
 	src/MxcsrFlagGuard.cpp
 	src/ResampleBuffer.cpp
+	src/SampleLoader.cpp
 	src/SamplePlayer.cpp
 	src/Scissor.cpp
 	src/Slaughter.cpp
