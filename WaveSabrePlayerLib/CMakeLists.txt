@@ -1,4 +1,5 @@
 add_library(WaveSabrePlayerLib
+	include/WaveSabrePlayerLib/AtomicHelpers.h
 	include/WaveSabrePlayerLib/CriticalSection.h
 	include/WaveSabrePlayerLib/PreRenderPlayer.h
 	include/WaveSabrePlayerLib/WavWriter.h
@@ -28,4 +29,7 @@ if(MSVC)
 		$<$<CONFIG:MinSizeRel>:/EHs-c->)
 	set_property(TARGET WaveSabrePlayerLib APPEND_STRING PROPERTY STATIC_LIBRARY_FLAGS_MINSIZEREL
 		" /LTCG")
+else()
+	# we need C++11 for std::atomic
+	set_property(TARGET WaveSabrePlayerLib PROPERTY CXX_STANDARD 11)
 endif()
