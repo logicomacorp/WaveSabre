@@ -1,3 +1,9 @@
+if(APPLE)
+	set(EXTRA_VSTGUI_COCOA
+	        ${VSTSDK3_DIR}/vstgui.sf/vstgui/cocoasupport.mm
+	        ${VSTSDK3_DIR}/vstgui.sf/vstgui/cvstguitimer.cpp)
+endif(APPLE)
+
 add_library(WaveSabreVstLib STATIC
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
@@ -24,6 +30,7 @@ add_library(WaveSabreVstLib STATIC
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstcontrols.cpp
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstguidebug.cpp
+	${EXTRA_VSTGUI_COCOA}
 	${VSTSDK3_DIR}/vstgui.sf/zlib/adler32.c
 	${VSTSDK3_DIR}/vstgui.sf/zlib/compress.c
 	${VSTSDK3_DIR}/vstgui.sf/zlib/crc32.c

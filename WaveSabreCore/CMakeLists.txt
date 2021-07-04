@@ -54,7 +54,9 @@ add_library(WaveSabreCore
 	src/Thunder.cpp
 	src/Twister.cpp)
 
-target_link_libraries(WaveSabreCore Msacm32.lib)
+if(WIN32)
+	target_link_libraries(WaveSabreCore Msacm32.lib)
+endif(WIN32)
 target_include_directories(WaveSabreCore PUBLIC include)
 
 if(MSVC)
