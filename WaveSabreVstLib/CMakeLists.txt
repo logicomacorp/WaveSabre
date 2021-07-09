@@ -65,7 +65,7 @@ target_include_directories(WaveSabreVstLib PUBLIC
 target_compile_definitions(WaveSabreVstLib PUBLIC USE_LIBPNG)
 
 if(MSVC)
-	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS VSTGUI_NEW_CFILESELECTOR)
+	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS VSTGUI_NEW_CFILESELECTOR _WIN32_WINNT=0x0600)
 	target_compile_options(WaveSabreVstLib PUBLIC /EHsc)
 	set_source_files_properties(${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
 		${VSTSDK3_DIR}/vstgui.sf/zlib/minigzip.c
