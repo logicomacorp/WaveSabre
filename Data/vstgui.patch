@@ -1,0 +1,26 @@
+diff --git a/vstsdk.orig/VST3 SDK/vstgui.sf/vstgui/vstgui.cpp b/vstsdk/VST3 SDK/vstgui.sf/vstgui/vstgui.cpp
+index dd081cf..29f0467 100644
+--- a/vstsdk.orig/VST3 SDK/vstgui.sf/vstgui/vstgui.cpp	
++++ b/vstsdk/VST3 SDK/vstgui.sf/vstgui/vstgui.cpp	
+@@ -217,7 +217,7 @@ END_NAMESPACE_VSTGUI
+ //-----------------------------------------------------------------------------
+ #if MAC
+ //-----------------------------------------------------------------------------
+-#include <QuickTime/QuickTime.h>
++#include <Carbon/Carbon.h>
+ #include <CoreServices/CoreServices.h>
+ 
+ #if MAC_CARBON
+diff --git a/vstsdk.orig/VST3 SDK/vstgui.sf/vstgui/vstgui.h b/vstsdk/VST3 SDK/vstgui.sf/vstgui/vstgui.h
+index ad75218..86db083 100644
+--- a/vstsdk.orig/VST3 SDK/vstgui.sf/vstgui/vstgui.h	
++++ b/vstsdk/VST3 SDK/vstgui.sf/vstgui/vstgui.h	
+@@ -66,7 +66,7 @@
+ #endif
+ 
+ #if WINDOWS
+- #define _WIN32_WINNT 0x0501
++ #define _WIN32_WINNT 0x0600
+  #ifndef GDIPLUS
+  #define GDIPLUS		1	// by default we use GDIPlus
+  #endif
