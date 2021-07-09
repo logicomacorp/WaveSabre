@@ -14,7 +14,9 @@ namespace WaveSabrePlayerLib
 		{
 			Falcon,
 			Slaughter,
+#ifdef BUILD_DEPRECATED
 			Thunder,
+#endif
 			Scissor,
 			Leveller,
 			Crusher,
