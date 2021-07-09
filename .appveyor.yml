@@ -14,7 +14,7 @@ install:
         Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
         Expand-Archive "vstsdk.zip" "C:\tmp"
       }
-  - git apply -p2 --directory ../../tmp Data\vstgui.patch
+  - git apply -p2 --unsafe-paths --directory /tmp Data\vstgui.patch
 
 build_script:
   - mkdir build
