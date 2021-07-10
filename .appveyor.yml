@@ -1,18 +1,21 @@
 version: '{build}'
-image: Visual Studio 2013
 
-platform:
-  - Win32
-  - x64
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      platform: Win32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+      platform: x64
+    - APPVEYOR_BUILD_WORKER_IMAGE: macOS
 
 cache:
-  - C:\tmp\VST3 SDK
+  - \tmp\VST3 SDK
 
 install:
   - ps: |
-      if (-Not (Test-Path "C:\tmp\VST3 SDK")) {
+      if (-Not (Test-Path "\tmp\VST3 SDK")) {
         Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
-        Expand-Archive "vstsdk.zip" "C:\tmp"
+        Expand-Archive "vstsdk.zip" "\tmp"
       }
   - git apply -p2 --unsafe-paths --directory /tmp Data\vstgui.patch
 
@@ -23,3 +26,13 @@ build_script:
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
+
+for:
+  -
+    matrix:
+      only:
+        - image: macOS
+    build_script:
+      - cmake -B build -G Xcode
+      - xcodebuild -project build/WaveSabre.xcodeproj -scheme ALL_BUILD -configuration Release build
+
