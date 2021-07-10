@@ -1,23 +1,28 @@
 version: '{build}'
 
-environment:
-  matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+image:
+  - Visual Studio 2013
+  - macOS
+
+platform:
+  - Win32
+  - x64
+
+matrix:
+  exclude:
+    - image: macOS
       platform: Win32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-      platform: x64
-    - APPVEYOR_BUILD_WORKER_IMAGE: macOS
 
 cache:
-  - \tmp\VST3 SDK
+  - \tmp\VST3 SDK -> Data/vstgui.patch
 
 install:
   - ps: |
       if (-Not (Test-Path "\tmp\VST3 SDK")) {
         Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
         Expand-Archive "vstsdk.zip" "\tmp"
+        & git apply -p2 --unsafe-paths --directory /tmp Data/vstgui.patch
       }
-  - git apply -p2 --unsafe-paths --directory /tmp Data\vstgui.patch
 
 build_script:
   - mkdir build
@@ -33,6 +38,7 @@ for:
       only:
         - image: macOS
     build_script:
+      - brew install libgsm
       - cmake -B build -G Xcode
       - xcodebuild -project build/WaveSabre.xcodeproj -scheme ALL_BUILD -configuration Release build
 
