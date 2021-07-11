@@ -1,18 +1,27 @@
 version: '{build}'
-image: Visual Studio 2013
+
+image:
+  - Visual Studio 2013
+  - macOS
 
 platform:
   - Win32
   - x64
 
+matrix:
+  exclude:
+    - image: macOS
+      platform: Win32
+
 cache:
-  - C:\tmp\VST3 SDK
+  - c:\tmp\VST3 SDK -> Data/vstgui.patch
 
 install:
   - ps: |
-      if (-Not (Test-Path "C:\tmp\VST3 SDK")) {
+      if (-Not (Test-Path "c:\tmp\VST3 SDK")) {
         Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
-        Expand-Archive "vstsdk.zip" "C:\tmp"
+        Expand-Archive "vstsdk.zip" "c:\tmp"
+        & git apply -p2 --unsafe-paths --directory /tmp Data/vstgui.patch
       }
 
 build_script:
@@ -22,3 +31,22 @@ build_script:
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
+
+for:
+  -
+    matrix:
+      only:
+        - image: macOS
+    cache: /private/tmp/VST3 SDK -> Data/vstgui.patch
+    install:
+      - ps: |
+          if (-Not (Test-Path "/private/tmp/VST3 SDK")) {
+            Invoke-WebRequest "https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
+            Expand-Archive "vstsdk.zip" "/private/tmp"
+            & git apply -p2 --unsafe-paths --directory /private/tmp Data/vstgui.patch
+          }
+      - HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install libgsm
+    build_script:
+      - cmake -B build -G Xcode -DVSTSDK3_DIR="/private/tmp/VST3 SDK"
+      - xcodebuild -project build/WaveSabre.xcodeproj -scheme ALL_BUILD -configuration Release build
+

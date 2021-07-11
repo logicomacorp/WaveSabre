@@ -3,9 +3,17 @@
 
 #include <math.h>
 
+#ifdef __APPLE__
+#define GSM_FRAME_SIZE 160
+#define GSM_MS_FRAME_SIZE (GSM_FRAME_SIZE * 2)
+#define GSM_MS_BLOCK_SIZE 65
+#endif
+
 namespace WaveSabreCore
 {
+#ifdef _WIN32
 	HACMDRIVERID Specimen::driverId = NULL;
+#endif
 
 	Specimen::Specimen()
 		: SynthDevice(0)
@@ -240,6 +248,7 @@ namespace WaveSabreCore
 		compressedData = new char[compressedSize];
 		memcpy(compressedData, data, compressedSize);
 
+#ifdef _WIN32
 		acmDriverEnum(driverEnumCallback, NULL, NULL);
 		HACMDRIVER driver = NULL;
 		acmDriverOpen(&driver, driverId, 0);
@@ -272,8 +281,50 @@ namespace WaveSabreCore
 		
 		acmStreamClose(stream, 0);
 		acmDriverClose(driver, 0);
-
 		sampleLength = streamHeader.cbDstLengthUsed / sizeof(short);
+#endif
+#ifdef __APPLE__
+	    AudioConverterRef converter;
+	    AudioStreamBasicDescription inSourceFormat = {0};
+	    AudioStreamBasicDescription inDestinationFormat = {0};
+	    OSStatus status;
+
+	    inSourceFormat.mSampleRate = Specimen::SampleRate;
+	    inSourceFormat.mChannelsPerFrame = 1;
+	    inSourceFormat.mFormatID = kAudioFormatMicrosoftGSM;
+	    inSourceFormat.mBytesPerPacket = 0;
+
+	    inDestinationFormat.mFormatID = kAudioFormatLinearPCM;
+	    inDestinationFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked;
+	    inDestinationFormat.mFramesPerPacket = 1;
+	    inDestinationFormat.mBitsPerChannel = 16;
+	    inDestinationFormat.mSampleRate = inSourceFormat.mSampleRate;
+	    inDestinationFormat.mChannelsPerFrame = inSourceFormat.mChannelsPerFrame;
+
+	    status = AudioConverterNew(&inSourceFormat, &inDestinationFormat, &converter);
+        // TODO: check status.
+
+	    char *ptr = compressedData;
+	    UInt32 ioOutputDataPacketSize = GSM_MS_FRAME_SIZE * (compressedSize / GSM_MS_BLOCK_SIZE);
+	    AudioBufferList outOutputData;
+	    outOutputData.mNumberBuffers = 1;
+	    outOutputData.mBuffers[0].mNumberChannels = 1;
+	    outOutputData.mBuffers[0].mDataByteSize = uncompressedSize;
+		auto uncompressedData = new short[uncompressedSize / 2];
+	    outOutputData.mBuffers[0].mData = uncompressedData;
+
+	    AudioStreamPacketDescription *outPacketDescription = NULL;
+	    status = AudioConverterFillComplexBuffer(converter,
+	                                    callback,
+	                                    &ptr,
+	                                    &ioOutputDataPacketSize,
+	                                    &outOutputData,
+	                                    outPacketDescription);
+        // TODO: check status.
+	    AudioConverterReset(converter);
+	    AudioConverterDispose(converter);
+		sampleLength = uncompressedSize / 2;
+#endif
 		if (sampleData) delete [] sampleData;
 		sampleData = new float[sampleLength];
 		for (int i = 0; i < sampleLength; i++) sampleData[i] = (float)((double)uncompressedData[i] / 32768.0);
@@ -391,6 +442,7 @@ namespace WaveSabreCore
 		samplePlayer.CalcPitch(GetNote() - 60 + Detune + specimen->fineTune * 2.0f - 1.0f + SpecimenVoice::coarseDetune(specimen->coarseTune));
 	}
 
+#ifdef _WIN32
 	BOOL __stdcall Specimen::driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport)
 	{
 		if (Specimen::driverId) return 1;
@@ -427,4 +479,20 @@ namespace WaveSabreCore
 		}
 		return 1;
 	}
+#endif
+
+#ifdef __APPLE__
+	OSStatus Specimen::callback(AudioConverterRef inAudioConverter, UInt32 *ioNumberDataPackets,
+	                         AudioBufferList *ioData, AudioStreamPacketDescription **outDataPacketDescription,
+	                         void *inUserData) {
+
+	    *ioNumberDataPackets = 1;
+	    ioData->mNumberBuffers = 1;
+	    ioData->mBuffers[0].mNumberChannels = 1;
+	    ioData->mBuffers[0].mDataByteSize = GSM_MS_BLOCK_SIZE;
+	    ioData->mBuffers[0].mData = *((u_int8_t **) inUserData);
+	    (*(char **) inUserData) += GSM_MS_BLOCK_SIZE;
+	    return 0;
+	}
+#endif
 }

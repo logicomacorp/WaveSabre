@@ -1,7 +1,13 @@
 #include <WaveSabreVstLib/ImageManager.h>
 #include <WaveSabreVstLib/Common.h>
 
+#ifdef _WIN32
 #include "../../Data/resource.h"
+#endif
+
+#ifdef __APPLE__
+#include "../../Data/resourcestr.h"
+#endif
 
 using namespace std;
 

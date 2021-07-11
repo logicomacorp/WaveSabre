@@ -1,3 +1,13 @@
+if(APPLE)
+	set(EXTRA_VSTGUI
+	        ${VSTSDK3_DIR}/vstgui.sf/vstgui/cocoasupport.mm
+	        ${VSTSDK3_DIR}/vstgui.sf/vstgui/cvstguitimer.cpp)
+endif(APPLE)
+if(MSVC)
+	set(EXTRA_VSTGUI
+	        ${VSTSDK3_DIR}/vstgui.sf/vstgui/winfileselector.cpp)
+endif(MSVC)
+
 add_library(WaveSabreVstLib STATIC
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffect.cpp
 	${VSTSDK3_DIR}/public.sdk/source/vst2.x/audioeffectx.cpp
@@ -24,6 +34,7 @@ add_library(WaveSabreVstLib STATIC
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstcontrols.cpp
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
 	${VSTSDK3_DIR}/vstgui.sf/vstgui/vstguidebug.cpp
+	${EXTRA_VSTGUI}
 	${VSTSDK3_DIR}/vstgui.sf/zlib/adler32.c
 	${VSTSDK3_DIR}/vstgui.sf/zlib/compress.c
 	${VSTSDK3_DIR}/vstgui.sf/zlib/crc32.c
@@ -54,7 +65,7 @@ target_include_directories(WaveSabreVstLib PUBLIC
 target_compile_definitions(WaveSabreVstLib PUBLIC USE_LIBPNG)
 
 if(MSVC)
-	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS)
+	target_compile_definitions(WaveSabreVstLib PUBLIC _CRT_SECURE_NO_WARNINGS VSTGUI_NEW_CFILESELECTOR)
 	target_compile_options(WaveSabreVstLib PUBLIC /EHsc)
 	set_source_files_properties(${VSTSDK3_DIR}/vstgui.sf/vstgui/vstgui.cpp
 		${VSTSDK3_DIR}/vstgui.sf/zlib/minigzip.c

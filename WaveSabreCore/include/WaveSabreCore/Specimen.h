@@ -6,6 +6,7 @@
 #include "StateVariableFilter.h"
 #include "SamplePlayer.h"
 
+#ifdef _WIN32
 #include <Windows.h>
 #include <mmreg.h>
 
@@ -13,6 +14,12 @@
 #define _UNICODE
 #endif
 #include <MSAcm.h>
+#endif
+
+#ifdef __APPLE__
+#include <AudioToolbox/AudioToolbox.h>
+#include "Win32defs.h"
+#endif
 
 namespace WaveSabreCore
 {
@@ -99,10 +106,17 @@ namespace WaveSabreCore
 			float velocity;
 		};
 
+#ifdef _WIN32
 		static BOOL __stdcall driverEnumCallback(HACMDRIVERID driverId, DWORD_PTR dwInstance, DWORD fdwSupport);
 		static BOOL __stdcall formatEnumCallback(HACMDRIVERID driverId, LPACMFORMATDETAILS formatDetails, DWORD_PTR dwInstance, DWORD fdwSupport);
 
 		static HACMDRIVERID driverId;
+#endif
+#ifdef __APPLE__
+		static OSStatus callback(AudioConverterRef inAudioConverter, UInt32 *ioNumberDataPackets,
+		                         AudioBufferList *ioData, AudioStreamPacketDescription **outDataPacketDescription,
+		                         void *inUserData);
+#endif
 
 		char *chunkData;
 
