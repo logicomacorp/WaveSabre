@@ -12,6 +12,8 @@ matrix:
   exclude:
     - image: macOS
       platform: Win32
+    - image: Visual Studio 2013
+      platform: x64
 
 cache:
   - c:\tmp\VST3 SDK -> Data/vstgui.patch
@@ -45,7 +47,7 @@ for:
             Expand-Archive "vstsdk.zip" "/private/tmp"
             & git apply -p2 --unsafe-paths --directory /private/tmp Data/vstgui.patch
           }
-      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libgsm
+      - HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install libgsm
     build_script:
       - cmake -B build -G Xcode -DVSTSDK3_DIR="/private/tmp/VST3 SDK"
       - xcodebuild -project build/WaveSabre.xcodeproj -scheme ALL_BUILD -configuration Release build
