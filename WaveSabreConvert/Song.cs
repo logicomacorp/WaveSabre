@@ -230,7 +230,7 @@ namespace WaveSabreConvert
         }
 
         // looks for automation points where three in a row are the same value
-        // then removes the middle point, increasing the time stamp for the first one
+        // then removes the point on the right, adjusting the middle point's time stamp to take its place
         private int DedupeAutomations()
         {
             var dupeCount = 0;
