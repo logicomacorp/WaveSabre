@@ -8,7 +8,7 @@ namespace WaveSabreCore
 	HACMDRIVERID Specimen::driverId = NULL;
 
 	Specimen::Specimen()
-		: SynthDevice(0)
+		: SynthDevice((int)ParamIndices::NumParams)
 	{
 		for (int i = 0; i < maxVoices; i++) voices[i] = new SpecimenVoice(this);
 
