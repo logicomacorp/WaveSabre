@@ -184,12 +184,12 @@ namespace WaveSabreConvert
             }
 
             if (midiLaneDupes > 0)
-                logger.WriteLine("Found {0} duplicate midi lanes", midiLaneDupes);
+                logger.WriteLine("Found {0} duplicate midi lane(s)", midiLaneDupes);
 
             var dupeCount = DedupeAutomations();
             if (dupeCount > 0)
             {
-                logger.WriteLine("Removed {0} automation points", dupeCount);
+                logger.WriteLine("Removed {0} automation point(s)", dupeCount);
             }
         }
 
