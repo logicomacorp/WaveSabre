@@ -131,7 +131,7 @@ namespace WaveSabreConvert
                 }
 
                 writer.Write(track.Devices.Count);
-                foreach (var deviceId in track.DeviceIndicies)
+                foreach (var deviceId in track.DeviceIndices)
                 {
                     writer.Write(deviceId);
                 }
