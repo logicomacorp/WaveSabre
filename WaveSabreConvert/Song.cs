@@ -100,8 +100,6 @@ namespace WaveSabreConvert
             /// Auto populated by converter, do not populate
             /// </summary>
             public int MidiLaneId;
-            
-            public int DataSize;
 
             public override string ToString()
             {

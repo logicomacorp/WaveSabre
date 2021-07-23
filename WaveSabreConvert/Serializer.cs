@@ -150,8 +150,6 @@ namespace WaveSabreConvert
                         writer.Write(point.Value);
                     }
                 }
-
-                track.DataSize = (int)(stream.Position - trackSize);
             }
 
             return stream.ToArray();
