@@ -5,8 +5,6 @@ namespace WaveSabreConvert
 {
     public class Song
     {
-        private int midiLaneDupes = 0; 
-
         public enum DeviceId
         {
             Falcon,
@@ -177,10 +175,11 @@ namespace WaveSabreConvert
             }
 
             // create midi lanes from tracks and index them
+            int midiLaneDupes = 0;
             foreach (var t in Tracks)
             {
                 var midiLane = new MidiLane() { MidiEvents = t.DeltaCodedEvents };
-                t.MidiLaneId = AddMidiLane(midiLane);
+                t.MidiLaneId = AddMidiLane(midiLane, ref midiLaneDupes);
             }
 
             if (midiLaneDupes > 0)
@@ -195,7 +194,7 @@ namespace WaveSabreConvert
 
         // determines if this midi lane is exactly the same as an existing one
         // otherwise add it
-        private int AddMidiLane(MidiLane midiLane)
+        private int AddMidiLane(MidiLane midiLane, ref int midiLaneDupes)
         {
             foreach (var m in MidiLanes)
             {
