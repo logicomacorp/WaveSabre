@@ -95,7 +95,7 @@ namespace WaveSabreConvert
             /// <summary>
             /// Auto populated by converter, do not populate
             /// </summary>
-            public List<int> DeviceIndicies = new List<int>();
+            public List<int> DeviceIndices = new List<int>();
             /// <summary>
             /// Auto populated by converter, do not populate
             /// </summary>
@@ -170,7 +170,7 @@ namespace WaveSabreConvert
             {
                 foreach (var d in t.Devices)
                 {
-                    t.DeviceIndicies.Add(Devices.IndexOf(d));
+                    t.DeviceIndices.Add(Devices.IndexOf(d));
                 }
             }
 
