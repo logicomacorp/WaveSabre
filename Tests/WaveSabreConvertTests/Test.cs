@@ -12,7 +12,7 @@ namespace WaveSabreConvertTests
 {
     class Test
     {
-        public void Run(string testFileName, string refFileName)
+        public bool Run(string testFileName, string refFileName, bool interactive)
         {
             var testFileInfo = new FileInfo(testFileName);
             var refFileInfo = new FileInfo(refFileName);
@@ -24,6 +24,8 @@ namespace WaveSabreConvertTests
 
             var testSong = new ProjectConverter().Convert(testFileName, logger);
 
+            bool success = false;
+
             if (refFileInfo.Exists)
             {
                 var refSong = JsonConvert.DeserializeObject<Song>(File.ReadAllText(refFileName));
@@ -32,6 +34,7 @@ namespace WaveSabreConvertTests
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.Write("PASSED");
+                    success = true;
                 }
                 else
                 {
@@ -43,39 +46,95 @@ namespace WaveSabreConvertTests
                     Console.ForegroundColor = ConsoleColor.White;
                     diff.Print();
                     Console.ForegroundColor = originalColor;
-                    while (true)
+                    if (interactive)
                     {
-                        Console.WriteLine("Update ref? (y/n)");
-                        var line = Console.ReadLine().ToLower();
-                        if (line.Length == 1)
+                        Response response;
+                        do
                         {
-                            var c = line[0];
-                            if (c == 'y')
-                            {
-                                writeRef(refFileName, testSong);
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write("UPDATED REF");
-                                break;
-                            }
-                            else if (c == 'n')
-                            {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.Write("FAILED");
-                                break;
-                            }
+                            response = YesNoPrompt("Update ref?");
+                        } while (response == Response.Invalid);
+                        if (response == Response.Yes)
+                        {
+                            writeRef(refFileName, testSong);
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write("UPDATED REF");
+                            success = true;
                         }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("FAILED");
+                        }
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("FAILED");
                     }
                 }
             }
             else
             {
-                writeRef(refFileName, testSong);
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write("CREATED REF");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("NO REF FOUND");
+                Console.ForegroundColor = originalColor;
+                if (interactive)
+                {
+                    Response response;
+                    do
+                    {
+                        response = YesNoPrompt("Create ref?");
+                    } while (response == Response.Invalid);
+                    if (response == Response.Yes)
+                    {
+                        writeRef(refFileName, testSong);
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write("CREATED REF");
+                        success = true;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("FAILED");
+                    }
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("FAILED");
+                }
             }
 
             Console.ForegroundColor = originalColor;
             Console.WriteLine();
+
+            return success;
+        }
+
+        enum Response
+        {
+            Yes,
+            No,
+            Invalid,
+        }
+
+        Response YesNoPrompt(string prompt)
+        {
+            Console.WriteLine(prompt + " (y/n)");
+            var line = Console.ReadLine().ToLower();
+            if (line.Length == 1)
+            {
+                var c = line[0];
+                if (c == 'y')
+                {
+                    return Response.Yes;
+                }
+                else if (c == 'n')
+                {
+                    return Response.No;
+                }
+            }
+            return Response.Invalid;
         }
 
         void writeRef(string refFileName, Song song)
