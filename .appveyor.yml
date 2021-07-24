@@ -19,9 +19,12 @@ install:
       }
 
 build_script:
+  # build native code/tests
   - mkdir build
   - cd build
   - cmake -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% -DVSTSDK3_DIR="C:/tmp/VST3 SDK" ..
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
+  # build tool code/tests
+  - msbuild /v:minimal /nologo Tools.sln
