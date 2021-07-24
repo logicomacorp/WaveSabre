@@ -55,7 +55,13 @@ namespace WaveSabreConvertTests
             throw new NotImplementedException("Unsupported object type: " + type.Name);
         }
 
-        public bool IsEmpty => _root.IsEmpty;
+        public bool IsEmpty
+        {
+            get
+            {
+                return _root.IsEmpty;
+            }
+        }
 
         public void Print()
         {
@@ -97,7 +103,12 @@ namespace WaveSabreConvertTests
             }
         }
 
-        public bool IsEmpty => _members.All(m => m.Node.IsEmpty);
+        public bool IsEmpty
+        {
+            get {
+                return _members.All(m => m.Node.IsEmpty);
+            }
+        }
 
         public void Print(Printer p)
         {
@@ -125,7 +136,12 @@ namespace WaveSabreConvertTests
             _b = b;
         }
 
-        public bool IsEmpty => _a.Equals(_b);
+        public bool IsEmpty
+        {
+            get {
+                return _a.Equals(_b);
+            }
+        }
 
         public void Print(Printer p)
         {
@@ -143,7 +159,12 @@ namespace WaveSabreConvertTests
             _bCount = bCount;
         }
 
-        public bool IsEmpty => false;
+        public bool IsEmpty
+        {
+            get {
+                return false;
+            }
+        }
 
         public void Print(Printer p)
         {
@@ -160,7 +181,12 @@ namespace WaveSabreConvertTests
             _items = items;
         }
 
-        public bool IsEmpty => _items.All(i => i.Node.IsEmpty);
+        public bool IsEmpty
+        {
+            get {
+                return _items.All(i => i.Node.IsEmpty);
+            }
+        }
 
         public void Print(Printer p)
         {
