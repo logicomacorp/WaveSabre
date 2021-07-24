@@ -74,7 +74,6 @@
     <Compile Include="RenoiseSong63.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="Song.cs" />
-    <Compile Include="SongDiff.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -27,7 +27,7 @@ namespace WaveSabreConvertTests
             if (refFileInfo.Exists)
             {
                 var refSong = JsonConvert.DeserializeObject<Song>(File.ReadAllText(refFileName));
-                var diff = new SongDiff(testSong, refSong);
+                var diff = new Diff(testSong, refSong);
                 if (diff.IsEmpty)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
