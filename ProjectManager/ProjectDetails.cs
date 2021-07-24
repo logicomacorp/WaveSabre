@@ -18,7 +18,7 @@ namespace ProjectManager
             var t = 0;
             foreach (var track in song.Tracks)
             {
-                var trackName = string.Format("{0}: {1} ({2} bytes)", t, track.Name, track.DataSize);
+                var trackName = string.Format("{0}: {1}", t, track.Name, track);
                 var trackNode = new TreeNode(trackName);
                 var deviceNodes = new List<TreeNode>();
 
