@@ -9,6 +9,7 @@ add_library(WaveSabreCore
 	include/WaveSabreCore/Crusher.h
 	include/WaveSabreCore/DelayBuffer.h
 	include/WaveSabreCore/Device.h
+	include/WaveSabreCore/Devices.h
 	include/WaveSabreCore/Echo.h
 	include/WaveSabreCore/Envelope.h
 	include/WaveSabreCore/Falcon.h
