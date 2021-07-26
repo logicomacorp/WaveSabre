@@ -15,7 +15,7 @@ HACMDRIVERID ThunderEditor::driverId = NULL;
 WAVEFORMATEX *ThunderEditor::foundWaveFormat = nullptr;
 
 ThunderEditor::ThunderEditor(AudioEffect *audioEffect)
-	: VstEditor(audioEffect, 140, 80, "THUNDER")
+	: VstEditor(audioEffect, 280, 80, "THUNDER (DEPRECATED)")
 {
 	pressedTheFuck = false;
 

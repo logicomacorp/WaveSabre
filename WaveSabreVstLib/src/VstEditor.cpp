@@ -76,7 +76,7 @@ namespace WaveSabreVstLib
 		frame = new CFrame(size, ptr, this);
 
 		frame->setBackground(ImageManager::Get(ImageManager::ImageIds::Background));
-		addTextLabel(LeftMargin, TitleTopMargin, 200, BaseSize, title);
+		addTextLabel(LeftMargin, TitleTopMargin, 300, BaseSize, title);
 
 		currentX = LeftMargin;
 		currentY = TitleAreaHeight;
