@@ -3,7 +3,6 @@
 
 #include "Falcon.h"
 #include "Slaughter.h"
-#include "Thunder.h"
 #include "Adultery.h"
 #include "Specimen.h"
 
@@ -15,5 +14,7 @@
 #include "Chamber.h"
 #include "Twister.h"
 #include "Cathedral.h"
+
+#include "Deprecated/Thunder.h"
 
 #endif

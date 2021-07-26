@@ -1,8 +1,8 @@
 #ifndef __WAVESABRECORE_THUNDER_H__
 #define __WAVESABRECORE_THUNDER_H__
 
-#include "SynthDevice.h"
-#include "GsmSample.h"
+#include "../SynthDevice.h"
+#include "../GsmSample.h"
 
 namespace WaveSabreCore
 {
