@@ -8,7 +8,19 @@ if(MSVC)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
-set(VSTSDK3_DIR "${CMAKE_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
+if("${VSTSDK3_DIR}" STREQUAL "")
+	set(VSTSDK3_DIR "${CMAKE_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
+endif()
+
+# Download and unpack VST3 SDK
+find_file(VST3SDK_TEST name public.sdk HINTS ${VSTSDK3_DIR})
+if(${VST3SDK_TEST} MATCHES VST3SDK_TEST-NOTFOUND)
+	message(STATUS "VST3 SDK not found. Will download.")
+	file(DOWNLOAD https://web.archive.org/web/20200502121517/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip vstsdk366_27_06_2016_build_61.zip SHOW_PROGRESS)
+	file(ARCHIVE_EXTRACT INPUT vstsdk366_27_06_2016_build_61.zip DESTINATION vstsdk366_27_06_2016_build_61 VERBOSE)
+	file(GLOB VST3SDK_FILES "${CMAKE_CURRENT_BINARY_DIR}/vstsdk366_27_06_2016_build_61/VST3\ SDK/*")
+	file(COPY ${VST3SDK_FILES} DESTINATION ${VSTSDK3_DIR})
+endif()
 
 # shared code
 add_subdirectory(MSVCRT)
