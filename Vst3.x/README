@@ -1,0 +1,8 @@
+You can download the last version of the VST3 SDK that includes the full VST2
+SDK [here][1].
+
+Unpack the contents of the "VST3 SDK" subfolder from that archive into this
+folder. This means that folders like "plugininterface" and "public.sdk" should
+be located next to this file.
+
+[1]: https://web.archive.org/web/20200502121517/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip
