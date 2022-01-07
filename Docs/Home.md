@@ -14,7 +14,7 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
   - Alternatively, you can install CMake from [Chocolatey](https://chocolatey.org/) or other package managers.
 - Run `cmake -B build` to generate the Visual Studio project files and solution
   - Optionally, you can also specify `-DVSTDIR=<some-path>` to copy the VST plugins into your DAW's VST plugin directory upon build.
-  - Optionally, you can specify `-DDOWNLOAD_DEPENDENCIES=ON` to let CMake download and unpack the VST3 SDK for you.
+  - Optionally, you can specify `-DDOWNLOAD_VST3SDK=ON` to let CMake download and unpack the VST3 SDK for you.
   - You can also specify `-DVSTSDK3_DIR=<dir>` to use a VSTSDK from outside of the source-tree.
   - As of Visual Studio 2019, `-A Win32` is required to generate a project with 32-bit targets.
 - Open the generated solution from the build directory, and proceed as normal.
