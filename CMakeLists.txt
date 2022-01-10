@@ -8,7 +8,7 @@ if(MSVC)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
-set(VSTSDK3_DIR "${CMAKE_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
+set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
 
 # Download and unpack VST3 SDK
 set(DOWNLOAD_VST3SDK CACHE BOOL OFF)
