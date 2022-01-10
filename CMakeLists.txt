@@ -13,11 +13,12 @@ if(MSVC)
 	string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 endif()
 
+set(NO_VST_PLUGINS OFF CACHE BOOL "Opt out of building the VST plugins.")
 set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
 
 # Download and unpack VST3 SDK
-set(DOWNLOAD_VST3SDK CACHE BOOL OFF)
-if(${DOWNLOAD_VST3SDK})
+set(DOWNLOAD_VST3SDK OFF CACHE BOOL "Download and unpack VST3 SDK automatically.")
+if(NOT ${NO_VST_PLUGINS} AND ${DOWNLOAD_VST3SDK})
 	find_file(VST3SDK_TEST name public.sdk HINTS ${VSTSDK3_DIR})
 	if(${VST3SDK_TEST} MATCHES VST3SDK_TEST-NOTFOUND)
 		message(STATUS "VST3 SDK not found. Will download.")
@@ -38,7 +39,7 @@ add_subdirectory(Tests/PlayerTest)
 add_subdirectory(WaveSabreStandAlonePlayer)
 
 # VSTs
-if(VSTSDK3_DIR)
+if(NOT ${NO_VST_PLUGINS} AND VSTSDK3_DIR)
 	add_subdirectory(WaveSabreVstLib)
 	add_subdirectory(Vsts)
 endif()
