@@ -1,4 +1,6 @@
-project("WaveSabre")
+project("WaveSabre" LANGUAGES C CXX CSharp)
+
+include(CSharpUtilities)
 
 cmake_minimum_required(VERSION 3.11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -37,3 +39,11 @@ if(VSTSDK3_DIR)
 	add_subdirectory(WaveSabreVstLib)
 	add_subdirectory(Vsts)
 endif()
+
+# Project file conversions
+add_subdirectory(WaveSabreConvert)
+add_subdirectory(Tests/WaveSabreConvertTests)
+add_subdirectory(ConvertTheFuck)
+
+# Project manager
+add_subdirectory(ProjectManager)
