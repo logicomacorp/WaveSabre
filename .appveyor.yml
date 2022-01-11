@@ -26,8 +26,6 @@ build_script:
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
-  # build tool code/tests
-  - msbuild /v:minimal /nologo Tools.sln
 
 test_script:
   - cd Tests\WaveSabreConvertTests
