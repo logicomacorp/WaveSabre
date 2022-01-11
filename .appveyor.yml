@@ -28,6 +28,6 @@ build_script:
   - cd ..
 
 test_script:
-  - cd build\Tests\WaveSabreConvertTests
-  - Debug\WaveSabreConvertTests.exe
-  - cd ..\..\..
+  - cd build
+  - Tests\WaveSabreConvertTests\Debug\WaveSabreConvertTests.exe
+  - cd ..
