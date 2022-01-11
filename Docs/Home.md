@@ -17,6 +17,7 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
   - Optionally, you can specify `-DDOWNLOAD_VST3SDK=ON` to let CMake download and unpack the VST3 SDK for you.
   - You can specify `-DBUILD_VST_PLUGINS=OFF` to avoid building the plugins (useful for projects that only need the synthesizer and not the plugins).
   - You can also specify `-DVSTSDK3_DIR=<dir>` to use a VSTSDK from outside of the source-tree.
+  - You can limit the tools you want to build by using `-DNO_WAVESABRE_CONVERT=ON`, `-DNO_WAVESABRE_CONVERT_TESTS=ON`, `-DNO_CONVERT_THE_FUCK=ON` or `-DNO_PROJECT_MANAGER=ON`.
   - As of Visual Studio 2019, `-A Win32` is required to generate a project with 32-bit targets.
 - Open the generated solution from the build directory, and proceed as normal.
 
