@@ -14,10 +14,10 @@ if(MSVC)
 endif()
 
 set(BUILD_VST_PLUGINS ON CACHE BOOL "Opt out of building the VST plugins.")
-set(NO_WAVESABRE_CONVERT OFF CACHE BOOL "Do not build WaveSabreConvert.")
-set(NO_WAVESABRE_CONVERT_TESTS OFF CACHE BOOL "Do not build the WaveSabreConvert tests.")
-set(NO_CONVERT_THE_FUCK OFF CACHE BOOL "Do not build ConvertTheFuck.")
-set(NO_PROJECT_MANAGER OFF CACHE BOOL "Do not build the project manager.")
+set(BUILD_WAVESABRE_CONVERT ON CACHE BOOL "Do not build WaveSabreConvert.")
+set(BUILD_WAVESABRE_CONVERT_TESTS ON CACHE BOOL "Do not build the WaveSabreConvert tests.")
+set(BUILD_CONVERT_THE_FUCK ON CACHE BOOL "Do not build ConvertTheFuck.")
+set(BUILD_PROJECT_MANAGER ON CACHE BOOL "Do not build the project manager.")
 set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
 
 # Download and unpack VST3 SDK
@@ -49,17 +49,17 @@ if(${BUILD_VST_PLUGINS} AND VSTSDK3_DIR)
 endif()
 
 # Project file conversions
-if(NOT ${NO_WAVESABRE_CONVERT})
+if(${BUILD_WAVESABRE_CONVERT})
 	add_subdirectory(WaveSabreConvert)
 endif()
-if(NOT ${NO_WAVESABRE_CONVERT_TESTS})
+if(${BUILD_WAVESABRE_CONVERT_TESTS})
 	add_subdirectory(Tests/WaveSabreConvertTests)
 endif()
-if(NOT ${NO_CONVERT_THE_FUCK})
+if(${BUILD_CONVERT_THE_FUCK})
 	add_subdirectory(ConvertTheFuck)
 endif()
 
 # Project manager
-if(NOT ${NO_PROJECT_MANAGER})
+if(${BUILD_PROJECT_MANAGER})
 	add_subdirectory(ProjectManager)
 endif()
