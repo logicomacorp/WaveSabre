@@ -18,7 +18,8 @@ set(BUILD_WAVESABRE_CONVERT ON CACHE BOOL "Do not build WaveSabreConvert.")
 set(BUILD_WAVESABRE_CONVERT_TESTS ON CACHE BOOL "Do not build the WaveSabreConvert tests.")
 set(BUILD_CONVERT_THE_FUCK ON CACHE BOOL "Do not build ConvertTheFuck.")
 set(BUILD_PROJECT_MANAGER ON CACHE BOOL "Do not build the project manager.")
-set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location")
+set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location.")
+set(MONAD_FL_PARSER_DIR "${PROJECT_SOURCE_DIR}/WaveSabreConvert/FLParser/" CACHE PATH "Monad FL parser location.")
 
 # Download and unpack VST3 SDK
 set(DOWNLOAD_VST3SDK OFF CACHE BOOL "Download and unpack VST3 SDK automatically.")
@@ -30,6 +31,17 @@ if(${BUILD_VST_PLUGINS} AND ${DOWNLOAD_VST3SDK})
 		file(ARCHIVE_EXTRACT INPUT vstsdk366_27_06_2016_build_61.zip DESTINATION vstsdk366_27_06_2016_build_61 VERBOSE)
 		file(GLOB VST3SDK_FILES "${CMAKE_CURRENT_BINARY_DIR}/vstsdk366_27_06_2016_build_61/VST3\ SDK/*")
 		file(COPY ${VST3SDK_FILES} DESTINATION ${VSTSDK3_DIR})
+	endif()
+endif()
+
+# Download and unpack the Monad FL Parser
+set(DOWNLOAD_MONAD_FL_PARSER OFF CACHE BOOL "Download the Monad FL parser binary automatically.")
+if(${BUILD_WAVESABRE_CONVERT} AND ${DOWNLOAD_MONAD_FL_PARSER})
+	find_file(MONAD_FL_PARSER_TEST name Monad.FLParser.dll HINTS ${MONAD_FL_PARSER_DIR})
+	if(${MONAD_FL_PARSER_TEST} MATCHES MONAD_FL_PARSER_TEST-NOTFOUND)
+		message(STATUS "Monad FL parser not found. Will download.")
+		file(DOWNLOAD https://github.com/LeStahL/FLParser/releases/download/compatibility-20.9/Monad.FLParser.dll Monad.FLParser.dll SHOW_PROGRESS)
+		file(COPY "${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser.dll" DESTINATION "${MONAD_FL_PARSER_DIR}")
 	endif()
 endif()
 
