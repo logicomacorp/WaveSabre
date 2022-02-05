@@ -35,7 +35,6 @@ Vst3.x/*
 !Vst3.x/README
 Data/data.aps
 Vsts/*/*.def
-WaveSabreConvert/FLParser/Monad.FLParser.dll
 
 # Ignore VS 2017 IDE fluff
 .vs/

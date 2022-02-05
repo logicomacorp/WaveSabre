@@ -5,6 +5,9 @@ cmake_policy(SET CMP0057 NEW)
 include(CSharpUtilities)
 set(CMAKE_CSharp_FLAGS ${CMAKE_CSharp_FLAGS} "/langversion:6")
 
+find_package(Git REQUIRED)
+include(ExternalProject)
+
 cmake_minimum_required(VERSION 3.11)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -19,7 +22,7 @@ set(BUILD_WAVESABRE_CONVERT_TESTS ON CACHE BOOL "Do not build the WaveSabreConve
 set(BUILD_CONVERT_THE_FUCK ON CACHE BOOL "Do not build ConvertTheFuck.")
 set(BUILD_PROJECT_MANAGER ON CACHE BOOL "Do not build the project manager.")
 set(VSTSDK3_DIR "${PROJECT_SOURCE_DIR}/Vst3.x/" CACHE PATH "VSTSDK location.")
-set(MONAD_FL_PARSER_DIR "${PROJECT_SOURCE_DIR}/WaveSabreConvert/FLParser/" CACHE PATH "Monad FL parser location.")
+set(MONAD_FL_PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser.Source" CACHE PATH "Monad FL parser location.")
 
 # Download and unpack VST3 SDK
 set(DOWNLOAD_VST3SDK OFF CACHE BOOL "Download and unpack VST3 SDK automatically.")
@@ -37,12 +40,23 @@ endif()
 # Download and unpack the Monad FL Parser
 set(DOWNLOAD_MONAD_FL_PARSER OFF CACHE BOOL "Download the Monad FL parser binary automatically.")
 if(${BUILD_WAVESABRE_CONVERT} AND ${DOWNLOAD_MONAD_FL_PARSER})
-	find_file(MONAD_FL_PARSER_TEST name Monad.FLParser.dll HINTS ${MONAD_FL_PARSER_DIR})
+	set(MONAD_FL_PARSER_BINARY ${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser/Release/Monad.FLParser.dll)
+	find_file(MONAD_FL_PARSER_TEST NAME Project.cs HINTS ${MONAD_FL_PARSER_DIR})
 	if(${MONAD_FL_PARSER_TEST} MATCHES MONAD_FL_PARSER_TEST-NOTFOUND)
 		message(STATUS "Monad FL parser not found. Will download.")
-		file(DOWNLOAD https://github.com/LeStahL/FLParser/releases/download/compatibility-20.9/Monad.FLParser.dll Monad.FLParser.dll SHOW_PROGRESS)
-		file(COPY "${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser.dll" DESTINATION "${MONAD_FL_PARSER_DIR}")
+		ExternalProject_Add(FLParser
+			SOURCE_DIR ${MONAD_FL_PARSER_DIR}
+			BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser
+			GIT_REPOSITORY https://github.com/Kwarf/FLParser.git
+			CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/WaveSabreConvert/FLParser/CMakeLists.txt ${MONAD_FL_PARSER_DIR}/CMakeLists.txt && ${CMAKE_COMMAND} ${MONAD_FL_PARSER_DIR} -DMONAD_FL_PARSER_DIR=${MONAD_FL_PARSER_DIR}
+			BUILD_COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/Monad.FLParser --config Release -- -m
+			INSTALL_COMMAND ""
+		)
 	endif()
+elseif(${BUILD_WAVESABRE_CONVERT})
+	message(STATUS "Using existent FL parser repo.")
+	add_subdirectory(WaveSabreConvert/FLParser)
+	set(MONAD_FL_PARSER_BINARY ${CMAKE_CURRENT_BINARY_DIR}/WaveSabreConvert/FLParser/Release/Monad.FLParser.dll)
 endif()
 
 # shared code

@@ -4,7 +4,7 @@
 
 - WaveSabre builds have only been tested with Visual Studio 2013/2015/2017/2019 and version 3.6.6 of the VST3 SDK.
 - Due to licensing requirements, WaveSabre requires you to either [download](https://web.archive.org/web/20200502121517/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip) and copy the VST3 SDK into the build yourself. Download, extract, and copy into the *"Vst3.x"* folder. See [this readme](https://github.com/logicomacorp/WaveSabre/blob/master/Vst3.x/README) or download the VST3 SDK automatically using CMake (see below).
-- For the same reasons, you should [download](https://github.com/LeStahL/FLParser/releases/download/compatibility-20.9/Monad.FLParser.dll) and copy the Monad FL parser into the build yourself. Download and copy the dll into the folder at `WaveSabreConvert/FLParser/`. See [this readme](https://github.com/logicomacorp/WaveSabre/blob/master/WaveSabreConvert/FLParser/README). You can also let CMake download the Monad FL parser automatically for you; see below for the command line options to use for this.
+- For the same reasons, you should [download](https://github.com/Kwarf/FLParser) the Monad FL parser source yourself. You can also let CMake download the Monad FL parser automatically for you; see below for the command line options to use for this.
 
 ### CMake
 
