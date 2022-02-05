@@ -1,8 +1,8 @@
 version: '{build}'
 image:
-  - Visual Studio 2013
   - Visual Studio 2017
   - Visual Studio 2019
+  - Visual Studio 2022
 
 platform:
   - Win32
