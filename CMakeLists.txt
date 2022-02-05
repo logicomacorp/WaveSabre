@@ -3,7 +3,9 @@ project("WaveSabre" LANGUAGES C CXX CSharp)
 # Enable C# Utilities also for the VS2013 AppVeyor stage.
 cmake_policy(SET CMP0057 NEW)
 include(CSharpUtilities)
-set(CMAKE_CSharp_FLAGS ${CMAKE_CSharp_FLAGS} "/langversion:6")
+
+# Note: The space suffix is required for the flag to work correctly.
+set(CMAKE_CSharp_FLAGS "/langversion:latest ")
 
 find_package(Git REQUIRED)
 include(ExternalProject)
