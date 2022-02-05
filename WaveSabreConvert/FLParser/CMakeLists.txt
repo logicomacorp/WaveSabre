@@ -4,7 +4,9 @@ project(Monad.FLParser LANGUAGES CSharp)
 
 cmake_policy(SET CMP0057 NEW)
 include(CSharpUtilities)
-set(CMAKE_CSharp_FLAGS ${CMAKE_CSharp_FLAGS} "/langversion:6")
+
+# Note: The space suffix is required for the flag to work correctly.
+set(CMAKE_CSharp_FLAGS "/langversion:latest ")
 
 set(MONAD_FL_PARSER_SOURCES
 	${MONAD_FL_PARSER_DIR}/Properties/AssemblyInfo.cs
