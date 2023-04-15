@@ -200,10 +200,11 @@ namespace WaveSabreConvert
 
         void parseTrack(bool isMasterTrack = false, bool isReturnTrack = false)
         {
+            var currentNode = reader.Name;
             var track = new LiveProject.Track();
             returnSendInfos.Add(track, new List<ReturnSendInfo>());
             if (!isMasterTrack) track.Id = getAttrib("Id");
-            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && (reader.Name == "MasterTrack" || reader.Name == "MidiTrack" || reader.Name == "AudioTrack" || reader.Name == "ReturnTrack" || reader.Name == "GroupTrack")))
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -223,6 +224,9 @@ namespace WaveSabreConvert
                             break;
                         case "TrackGroupId":
                             track.TrackGroupId = getValueAttrib();
+                            break;
+                        case "AutomationEnvelopes":
+                            parseAutomationEnvelopes(track);
                             break;
                     }
                 }
@@ -250,7 +254,8 @@ namespace WaveSabreConvert
 
         void parseDeviceChain(LiveProject.Track track, bool isMasterTrack)
         {
-            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && (reader.Name == "DeviceChain" || reader.Name == "MasterChain")))
+            var currentNode = reader.Name;
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -296,7 +301,7 @@ namespace WaveSabreConvert
                     {
                         case "PluginDevice":
                             var device = new LiveProject.Device();
-                            if (!reader.IsEmptyElement) parsePluginDevice(device);
+                            if (!reader.IsEmptyElement) parsePluginDevice(device, track);
                             track.Devices.Add(device);
                             break;
                     }
@@ -306,7 +311,8 @@ namespace WaveSabreConvert
 
         void parseMixer(LiveProject.Track track, bool isMasterTrack)
         {
-            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Mixer"))
+            var currentNode = reader.Name;
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -317,9 +323,9 @@ namespace WaveSabreConvert
                             break;
 
                         case "Speaker":
-                            while (reader.Read())
+                            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Speaker"))
                             {
-                                if (reader.NodeType == XmlNodeType.Element && reader.Name == "BoolEvent")
+                                if (reader.NodeType == XmlNodeType.Element && (reader.Name == "BoolEvent" || reader.Name == "Manual"))
                                 {
                                     track.IsSpeakerOn = getBoolValueAttrib();
                                     break;
@@ -328,9 +334,9 @@ namespace WaveSabreConvert
                             break;
 
                         case "Volume":
-                            while (reader.Read())
+                            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Volume"))
                             {
-                                if (reader.NodeType == XmlNodeType.Element && reader.Name == "FloatEvent")
+                                if (reader.NodeType == XmlNodeType.Element && (reader.Name == "FloatEvent" || reader.Name == "Manual"))
                                 {
                                     track.Volume = getDoubleValueAttrib();
                                     break;
@@ -341,9 +347,9 @@ namespace WaveSabreConvert
                         case "Tempo":
                             if (isMasterTrack)
                             {
-                                while (reader.Read())
+                                while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Tempo"))
                                 {
-                                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "FloatEvent")
+                                    if (reader.NodeType == XmlNodeType.Element && (reader.Name == "FloatEvent" || reader.Name == "Manual"))
                                     {
                                         project.Tempo = getDoubleValueAttrib();
                                         break;
@@ -531,7 +537,7 @@ namespace WaveSabreConvert
             midiClip.KeyTracks.Add(keyTrack);
         }
 
-        void parsePluginDevice(LiveProject.Device device)
+        void parsePluginDevice(LiveProject.Device device, LiveProject.Track track)
         {
             device.Id = getAttrib("Id");
             while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "PluginDevice"))
@@ -541,9 +547,9 @@ namespace WaveSabreConvert
                     switch (reader.Name)
                     {
                         case "On":
-                            while (reader.Read())
+                            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "On"))
                             {
-                                if (reader.NodeType == XmlNodeType.Element && reader.Name == "BoolEvent")
+                                if (reader.NodeType == XmlNodeType.Element && (reader.Name == "BoolEvent" || reader.Name == "Manual"))
                                 {
                                     device.Bypass = !getBoolValueAttrib();
                                     break;
@@ -556,7 +562,7 @@ namespace WaveSabreConvert
                             break;
 
                         case "ParameterList":
-                            if (!reader.IsEmptyElement) parseParameterList(device);
+                            if (!reader.IsEmptyElement) parseParameterList(device, track);
                             break;
                     }
                 }
@@ -575,6 +581,11 @@ namespace WaveSabreConvert
                             device.PluginDll = getValueAttrib();
                             break;
 
+                        case "Path": // Added for Ableton 11 compatibility
+                            device.PluginDll = Path.GetFileName(getValueAttrib());
+                            break;
+
+                        case "Preset": // Added for Ableton 11 compatibility
                         case "VstPreset":
                             if (!reader.IsEmptyElement) parseVstPreset(device);
                             break;
@@ -585,7 +596,8 @@ namespace WaveSabreConvert
 
         void parseVstPreset(LiveProject.Device device)
         {
-            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "VstPreset"))
+            var currentNode = reader.Name;
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
             {
                 if (reader.NodeType == XmlNodeType.Element)
                 {
@@ -599,43 +611,25 @@ namespace WaveSabreConvert
             }
         }
 
-        Dictionary<char, int> hexTable = new Dictionary<char, int>()
-        {
-            { '0', 0 },
-            { '1', 1 },
-            { '2', 2 },
-            { '3', 3 },
-            { '4', 4 },
-            { '5', 5 },
-            { '6', 6 },
-            { '7', 7 },
-            { '8', 8 },
-            { '9', 9 },
-            { 'a', 10 },
-            { 'b', 11 },
-            { 'c', 12 },
-            { 'd', 13 },
-            { 'e', 14 },
-            { 'f', 15 },
-        };
         void parseVstPresetBuffer(LiveProject.Device device)
         {
+            var currentNode = reader.Name;
             var rawData = new List<byte>();
-            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Buffer"))
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
             {
-                foreach (var line in reader.Value.Split('\n'))
+                var line = reader.Value.Replace("\t", "").Replace("\n", "").TrimStart().TrimEnd();
+                if (line.Length > 0)
                 {
-                    var trimmedLine = line.Trim().ToLower();
-                    if (trimmedLine.Length > 0)
+                    for (int i = 0; i < line.Length; i += 2)
                     {
-                        for (int i = 0; i < trimmedLine.Length; i += 2) rawData.Add((byte)(hexTable[trimmedLine[i]] * 16 + hexTable[trimmedLine[i + 1]]));
+                        rawData.Add(Convert.ToByte(line.Substring(i, 2), 16));
                     }
+                    device.RawData = rawData.ToArray();
                 }
             }
-            device.RawData = rawData.ToArray();
         }
 
-        void parseParameterList(LiveProject.Device device)
+        void parseParameterList(LiveProject.Device device, LiveProject.Track track)
         {
             while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "ParameterList"))
             {
@@ -644,14 +638,14 @@ namespace WaveSabreConvert
                     switch (reader.Name)
                     {
                         case "PluginFloatParameter":
-                            if (!reader.IsEmptyElement) parseFloatParameter(device);
+                            if (!reader.IsEmptyElement) parseFloatParameter(device, track);
                             break;
                     }
                 }
             }
         }
 
-        void parseFloatParameter(LiveProject.Device device)
+        void parseFloatParameter(LiveProject.Device device, LiveProject.Track track)
         {
             var floatParameter = new LiveProject.FloatParameter();
             while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "PluginFloatParameter"))
@@ -663,7 +657,9 @@ namespace WaveSabreConvert
                         case "ParameterId":
                             floatParameter.Id = getIntValueAttrib();
                             break;
-
+                        case "AutomationTarget":
+                            floatParameter.AutomationTarget = getIntAttrib("Id");
+                            break;
                         case "Events":
                             if (!reader.IsEmptyElement)
                             {
@@ -671,10 +667,13 @@ namespace WaveSabreConvert
                                 {
                                     if (reader.NodeType == XmlNodeType.Element && reader.Name == "FloatEvent")
                                     {
-                                        var e = new LiveProject.FloatParameter.Event();
+                                        var e = new LiveProject.Event();
                                         e.Time = getDoubleAttrib("Time");
                                         e.Value = (float)getDoubleValueAttrib();
-                                        floatParameter.Events.Add(e);
+                                        if (e.Time >= 0)
+                                        {
+                                            floatParameter.Events.Add(e);
+                                        }
                                     }
                                 }
                             }
@@ -682,7 +681,81 @@ namespace WaveSabreConvert
                     }
                 }
             }
-            device.FloatParameters.Add(floatParameter);
+
+            // new special handling of automation events for Live 10
+            // they appear higher up in the XML so are now stored in a separate object on the track
+            // and linked together here.
+            if (floatParameter.Events.Count == 0)
+            {
+                foreach (var auto in track.AutomationEnvelopes)
+                {
+                    if (auto.PointeeId == floatParameter.AutomationTarget)
+                    {
+                        floatParameter.Events = auto.Events;
+                        break;
+                    }
+                }
+            }
+
+            if (floatParameter.Events.Count > 0)
+            {
+                device.FloatParameters.Add(floatParameter);
+            }
+        }
+
+        // new Live 10 automation storage
+        void parseAutomationEnvelopes(LiveProject.Track track)
+        {
+            var currentNode = reader.Name;
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "AutomationEnvelope":
+                            parseAutomationEnvelope(track);
+                            break;
+                    }
+                }
+            }
+        }
+
+        void parseAutomationEnvelope(LiveProject.Track track)
+        {
+            var currentNode = reader.Name;
+            var automation = new LiveProject.AutomationEnvelope();
+            while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == currentNode))
+            {
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    switch (reader.Name)
+                    {
+                        case "PointeeId":
+                            automation.PointeeId = getIntValueAttrib();
+                            break;
+                        case "Events":
+                            if (!reader.IsEmptyElement)
+                            {
+                                while (reader.Read() && !(reader.NodeType == XmlNodeType.EndElement && reader.Name == "Events"))
+                                {
+                                    if (reader.NodeType == XmlNodeType.Element && reader.Name == "FloatEvent")
+                                    {
+                                        var e = new LiveProject.Event();
+                                        e.Time = getDoubleAttrib("Time");
+                                        e.Value = (float)getDoubleValueAttrib();
+                                        if (e.Time >= 0)
+                                        {
+                                            automation.Events.Add(e);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+            track.AutomationEnvelopes.Add(automation);
         }
     }
 }

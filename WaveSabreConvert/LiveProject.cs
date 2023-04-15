@@ -19,15 +19,22 @@ namespace WaveSabreConvert
             }
         }
 
+        public class Event
+        {
+            public double Time;
+            public float Value;
+        }
+
+        public class AutomationEnvelope
+        {
+            public int PointeeId;
+            public List<Event> Events = new List<Event>();
+        }
+
         public class FloatParameter
         {
-            public class Event
-            {
-                public double Time;
-                public float Value;
-            }
-
             public int Id;
+            public int AutomationTarget = -1;
             public List<Event> Events = new List<Event>();
         }
 
@@ -72,6 +79,7 @@ namespace WaveSabreConvert
             public List<Device> Devices = new List<Device>();
             public List<MidiClip> MidiClips = new List<MidiClip>();
             public string TrackGroupId;
+            public List<AutomationEnvelope> AutomationEnvelopes = new List<AutomationEnvelope>();
         }
 
         public List<Track> Tracks = new List<Track>();
