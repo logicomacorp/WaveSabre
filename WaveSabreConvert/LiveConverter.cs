@@ -67,8 +67,8 @@ namespace WaveSabreConvert
             var projectTracksToSongTracks = new Dictionary<LiveProject.Track, Song.Track>();
             var songTrackEvents = new Dictionary<Song.Track, List<Event>>();
 
-            double? minEventTime = null;
-            double? maxEventTime = null;
+            int? minEventTime = null;
+            int? maxEventTime = null;
 
             foreach (var projectTrack in orderedTracks)
             {
@@ -111,7 +111,7 @@ namespace WaveSabreConvert
                                     if (e.Time >= 0.0)
                                     {
                                         var point = new Song.Point();
-                                        point.TimeStamp = secondsToSamples(e.Time, (double)song.Tempo, (double)song.SampleRate);
+                                        point.TimeStamp = secondsToSamples(e.Time, song.Tempo, song.SampleRate);
                                         point.Value = e.Value;
                                         automation.Points.Add(point);
                                     }
@@ -198,8 +198,8 @@ namespace WaveSabreConvert
             }
             else if (minEventTime.HasValue && maxEventTime.HasValue)
             {
-                songStartTime = minEventTime.Value;
-                songEndTime = maxEventTime.Value;
+                songStartTime = samplesToSeconds(minEventTime.Value, song.Tempo, song.SampleRate);
+                songEndTime = samplesToSeconds(maxEventTime.Value, song.Tempo, song.SampleRate);
             }
             else
             {
@@ -217,7 +217,7 @@ namespace WaveSabreConvert
                 {
                     var songEvent = new Song.Event();
                     var time = e.Time - songStartTime;
-                    int timeStamp = Math.Max(secondsToSamples(time, (double)song.Tempo, (double)song.SampleRate), lastTimeStamp);
+                    int timeStamp = Math.Max(secondsToSamples(time, song.Tempo, song.SampleRate), lastTimeStamp);
 
                     songEvent.TimeStamp = e.Samples;
                     songEvent.Type = e.Type;
@@ -236,7 +236,7 @@ namespace WaveSabreConvert
                 {
                     foreach (var point in automation.Points)
                     {
-                        point.TimeStamp -= secondsToSamples(songStartTime, (double)song.Tempo, (double)song.SampleRate);
+                        point.TimeStamp -= secondsToSamples(songStartTime, song.Tempo, song.SampleRate);
                     }
                 }
             }
@@ -270,9 +270,14 @@ namespace WaveSabreConvert
             orderedTracks.Add(projectTrack);
         }
 
-        static int secondsToSamples(double time, double tempo, double sampleRate)
+        static int secondsToSamples(double time, int tempo, int sampleRate)
         {
             return (int)(time * 60.0 / tempo * sampleRate);
+        }
+
+        static double samplesToSeconds(int samples, int tempo, int sampleRate)
+        {
+            return (double)samples / sampleRate * tempo / 60.0;
         }
     }
 }
