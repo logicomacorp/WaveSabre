@@ -143,7 +143,7 @@ namespace WaveSabreConvert
 
                 if (recCount > 1)
                 {
-                    logger.WriteLine("WARNING: Track {0} has {1} side-chain recieves, audio will be summed for all devices", t.Name, recCount);
+                    logger.WriteLine("WARNING: Track {0} has {1} side-chain receives, audio will be summed for all devices", t.Name, recCount);
                 }
             }
         }
