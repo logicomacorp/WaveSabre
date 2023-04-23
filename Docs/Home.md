@@ -4,6 +4,7 @@
 
 - WaveSabre builds have only been tested with Visual Studio 2013/2015/2017/2019 and version 3.6.6 of the VST3 SDK.
 - Due to licensing requirements, WaveSabre requires you to either [download](https://web.archive.org/web/20200502121517/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip) and copy the VST3 SDK into the build yourself. Download, extract, and copy into the *"Vst3.x"* folder. See [this readme](https://github.com/logicomacorp/WaveSabre/blob/master/Vst3.x/README) or download the VST3 SDK automatically using CMake (see below).
+- For the same reasons, you should [download](https://github.com/Kwarf/FLParser) the Monad FL parser source yourself. You can also let CMake download the Monad FL parser automatically for you; see below for the command line options to use for this.
 
 ### CMake
 
@@ -15,6 +16,8 @@ WaveSabre has a new [CMake](https://cmake.org/) based build-system that can gene
 - Run `cmake -B build` to generate the Visual Studio project files and solution
   - Optionally, you can also specify `-DVSTDIR=<some-path>` to copy the VST plugins into your DAW's VST plugin directory upon build.
   - Optionally, you can specify `-DDOWNLOAD_VST3SDK=ON` to let CMake download and unpack the VST3 SDK for you.
+  - Optionally, you can specify `-DDOWNLOAD_MONAD_FL_PARSER=ON` to let CMake download and unpack the Monad FL parser for you.
+  - It is possible to specify a custom directory for the Monad FL parser using `-DMONAD_FL_PARSER_DIR=<some-path>`.
   - You can specify `-DBUILD_VST_PLUGINS=OFF` to avoid building the plugins (useful for projects that only need the synthesizer and not the plugins).
   - You can also specify `-DVSTSDK3_DIR=<dir>` to use a VSTSDK from outside of the source-tree.
   - You can limit the tools you want to build by using `-DBUILD_WAVESABRE_CONVERT=OFF`, `-DBUILD_WAVESABRE_CONVERT_TESTS=OFF`, `-DBUILD_CONVERT_THE_FUCK=OFF` or `-DBUILD_PROJECT_MANAGER=OFF`.
