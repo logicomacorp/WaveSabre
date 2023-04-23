@@ -57,7 +57,8 @@ add_library(WaveSabreCore
 	src/Twister.cpp
 	src/Deprecated/Thunder.cpp)
 
-target_link_libraries(WaveSabreCore Msacm32.lib)
+target_link_libraries(WaveSabreCore PUBLIC Msacm32.lib)
+
 target_include_directories(WaveSabreCore PUBLIC include)
 
 if(MSVC)
@@ -71,5 +72,14 @@ if(MSVC)
 	if(MSVC_VERSION GREATER 1900)
 		target_compile_options(WaveSabreCore PUBLIC
 			$<$<CONFIG:MinSizeRel>:/Zc:sizedDealloc->)
+	endif()
+else()
+	# assuming GCC or clang for now
+
+	if(CMAKE_BUILD_TYPE NOTEQUAL Debug)
+		set_property(TARGET WaveSabreCore PROPERTY INTERPROCEDURAL_OPTIMIZATION ON)
+		target_compile_options(WaveSabreCore
+			PUBLIC $<$<CONFIG:MinSizeRel>:-Os -fno-exceptions -fno-rtti -fno-stack-protector -fno-stack-check -fno-unwind-tables -fno-asynchronous-unwind-tables -fomit-frame-pointer -fno-threadsafe-statics>
+			PRIVATE $<$<CONFIG:MinSizeRel>:-fno-math-errno -march=nocona -ffunction-sections -fdata-sections -Wl,--gc-sections)
 	endif()
 endif()

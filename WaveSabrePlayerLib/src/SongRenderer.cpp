@@ -1,3 +1,4 @@
+#include <WaveSabrePlayerLib/AtomicHelpers.h>
 #include <WaveSabrePlayerLib/SongRenderer.h>
 
 using namespace WaveSabreCore;
@@ -198,7 +199,7 @@ namespace WaveSabrePlayerLib
 
 				// We have a free track that we can work on, yay!
 				//  Let's try to mark it so that no other thread takes it
-				if ((TrackRenderState)InterlockedCompareExchange((unsigned int *)&trackRenderStates[i], (unsigned int)TrackRenderState::Rendering, (unsigned int)TrackRenderState::Idle) == TrackRenderState::Idle)
+				if (AtomicHelpers::CmpXchg(&trackRenderStates[i], TrackRenderState::Rendering, TrackRenderState::Idle))
 				{
 					// We marked it successfully, so now we'll do the work
 					tracks[i]->Run(renderThreadNumFloatSamples);
@@ -209,7 +210,7 @@ namespace WaveSabrePlayerLib
 			}
 		}
 
-		if (!InterlockedDecrement(&renderThreadsRunning))
+		if (AtomicHelpers::XDec(&renderThreadsRunning) == 0)
 			SetEvent(renderDoneEvent);
 
 		return true;
