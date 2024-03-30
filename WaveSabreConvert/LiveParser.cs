@@ -213,7 +213,7 @@ namespace WaveSabreConvert
                         case "Name":
                             if (track.Name == null)
                             {
-                                reader.ReadToFollowing("UserName");
+                                reader.ReadToFollowing("EffectiveName");
                                 track.Name = getValueAttrib();
                             }
                             break;
