@@ -1,8 +1,8 @@
 version: '{build}'
 image:
-  - Visual Studio 2013
   - Visual Studio 2017
   - Visual Studio 2019
+  - Visual Studio 2022
 
 platform:
   - Win32
@@ -14,7 +14,7 @@ cache:
 install:
   - ps: |
       if (-Not (Test-Path "C:\tmp\VST3 SDK")) {
-        Invoke-WebRequest "https://web.archive.org/web/20200502121517/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
+        Invoke-WebRequest "https://web.archive.org/web/20200502121517if_/https://www.steinberg.net/sdk_downloads/vstsdk366_27_06_2016_build_61.zip" -OutFile "vstsdk.zip"
         Expand-Archive "vstsdk.zip" "C:\tmp"
       }
 
@@ -22,7 +22,7 @@ build_script:
   # build native code/tests
   - mkdir build
   - cd build
-  - cmake -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% -DVSTSDK3_DIR="C:/tmp/VST3 SDK" ..
+  - cmake -DCMAKE_GENERATOR_PLATFORM=%PLATFORM% -DVSTSDK3_DIR="C:/tmp/VST3 SDK" -DDOWNLOAD_MONAD_FL_PARSER=ON -DMONAD_FL_PARSER_DIR="C:/tmp/Monad.FLParser" ..
   - msbuild /v:minimal /nologo WaveSabre.sln
   - msbuild /v:minimal /nologo /property:Configuration="MinSizeRel" WaveSabre.sln
   - cd ..
