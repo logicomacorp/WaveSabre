@@ -78,6 +78,12 @@ namespace WaveSabreConvert
 
                 foreach (var projectDevice in projectTrack.Devices)
                 {
+                    if (projectDevice.PluginDll == null)
+                    {
+                        logger.WriteLine("WARNING: Device skipped (unsupported plugin with no DLL, probably VST3)");
+                        continue;
+                    }
+
                     Song.Device device = null;
 
                     Song.DeviceId deviceId;
