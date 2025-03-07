@@ -101,6 +101,7 @@ namespace WaveSabreConvert
                                         }
                                         break;
 
+                                    case "MainTrack": // fallthrough. Ableton 12 changed it from Master -> Main
                                     case "MasterTrack":
                                         parseTrack(true);
                                         break;
@@ -123,6 +124,8 @@ namespace WaveSabreConvert
                     switch (routingString)
                     {
                         case "AudioOut/None": break;
+
+                        case "AudioOut/Main": // fallthrough, Ableton 12 changed Master to Main
                         case "AudioOut/Master": kvp.Key.Sends.Add(new LiveProject.Send(project.MasterTrack, 1, 1.0, kvp.Key.IsSpeakerOn)); break;
 
                         default:
@@ -396,7 +399,8 @@ namespace WaveSabreConvert
                             returnSendInfo.MinVolume = getDoubleValueAttrib();
                             break;
 
-                        case "Active":
+                        case "Active": // fallthrough
+                        case "EnabledByUser": // Ableton 11 -> 12 changed this from Active to EnabledByUser
                             returnSendInfo.IsActive = getBoolValueAttrib();
                             break;
                     }
